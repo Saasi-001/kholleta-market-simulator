@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kholleta — Admin Console</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2048%2048%22%3E%3Cdefs%3E%3ClinearGradient%20id=%22g%22%20x1=%220%22%20y1=%220%22%20x2=%221%22%20y2=%221%22%3E%3Cstop%20offset=%220%22%20stop-color=%22%2338bdf8%22/%3E%3Cstop%20offset=%221%22%20stop-color=%22%2322c55e%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width=%2248%22%20height=%2248%22%20rx=%2212%22%20fill=%22url(%23g)%22/%3E%3Cpath%20d=%22M16%2011v26M17%2025L32%2012M17%2024l16%2013%22%20stroke=%22%230f172a%22%20stroke-width=%225%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%20fill=%22none%22/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --border: #334155;
+      --success: #22c55e;
+      --danger: #fb7185;
+      --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .topbar {
+      width: 100%;
+      max-width: 1140px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo { width: 40px; height: 40px; }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+    .brand-name {
+      font-size: 1.3rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #38bdf8, #22c55e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .brand-sub {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--warning);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .top-actions { display: flex; gap: 10px; align-items: center; }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      padding: 9px 14px;
+      border-radius: 9px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+    .btn:hover { filter: brightness(1.15); }
+    .btn-primary {
+      background: linear-gradient(90deg, #38bdf8, #22c55e);
+      color: #082f49;
+      border: none;
+    }
+    .btn-danger {
+      background: rgba(251, 113, 133, 0.15);
+      border-color: rgba(251, 113, 133, 0.4);
+      color: #fda4af;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1140px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+    .stat-value { font-size: 1.55rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .pos { color: var(--success); }
+    .neg { color: var(--danger); }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    h2 { font-size: 1.05rem; font-weight: 700; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+    }
+    .badge-admin { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-user { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.35); }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    label { display: block; font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-bottom: 5px; }
+
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+    }
+    input:focus { border-color: var(--accent); }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #065f46;
+      border: 1px solid #10b981;
+      color: #ecfdf5;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      display: none;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="kg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#38bdf8"/>
+            <stop offset="1" stop-color="#22c55e"/>
+          </linearGradient>
+        </defs>
+        <rect width="48" height="48" rx="12" fill="url(#kg)"/>
+        <path d="M16 11v26M17 25L32 12M17 24l16 13" stroke="#0f172a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-name">Kholleta</span>
+        <span class="brand-sub">Admin Console</span>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button id="openSimBtn" class="btn btn-primary" type="button">Open Market Simulator &rarr;</button>
+      <button id="logoutBtn" class="btn btn-danger" type="button">Sign Out</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Overview KPIs -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Registered Traders</div>
+        <div id="statUsers" class="stat-value">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Current Demo Balance</div>
+        <div id="statBalance" class="stat-value">$10,000.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Simulator Cumulative P/L</div>
+        <div id="statPL" class="stat-value">$0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Win / Loss Record</div>
+        <div id="statRecord" class="stat-value">0W / 0L</div>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <!-- User Management Table -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Trader Accounts</h2>
+          <button id="clearUsersBtn" class="btn btn-danger" type="button" style="padding: 5px 10px; font-size: 0.76rem;">Clear Non-Admin Users</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Trader Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Admin Controls & Account Creator -->
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Add New Trader</h2>
+          </div>
+          <form id="addUserForm" class="form-row">
+            <div>
+              <label for="newName">Trader Name</label>
+              <input id="newName" type="text" placeholder="e.g. Jane Doe" required />
+            </div>
+            <div>
+              <label for="newEmail">Email Address</label>
+              <input id="newEmail" type="email" placeholder="jane@example.com" required />
+            </div>
+            <div>
+              <label for="newPass">Temporary Password</label>
+              <input id="newPass" type="text" placeholder="Min 4 characters" required />
+            </div>
+            <button class="btn btn-primary" type="submit">Create Trader Account</button>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Simulator Demo Balance Control</h2>
+          </div>
+          <div class="form-row">
+            <div>
+              <label for="setBalanceInput">Set Virtual Balance (USD)</label>
+              <input id="setBalanceInput" type="number" step="0.01" min="0" value="10000" />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <button id="saveBalanceBtn" class="btn" type="button">Update Balance</button>
+              <button id="resetStatsBtn" class="btn btn-danger" type="button">Reset All Stats</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const SIMULATOR_FILE = "Kholleta_Market_simulator-v13.html";
+    const ADMIN_EMAIL = "admin@kholleta.com";
+
+    // Guard: Redirect non-admins back to login
+    const session = JSON.parse(localStorage.getItem("kholleta_active_session") || "null");
+    if (!session || session.role !== "admin") {
+      window.location.href = "index.html";
+    }
+
+    const money = (n) => "$" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function notify(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      setTimeout(() => { t.style.display = "none"; }, 2600);
+    }
+
+    function getUsers() {
+      try { return JSON.parse(localStorage.getItem("kholleta_users") || "{}"); }
+      catch { return {}; }
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem("kholleta_users", JSON.stringify(users));
+    }
+
+    function getSimAccount() {
+      try {
+        return JSON.parse(localStorage.getItem("kholleta_demo_account") || '{"balance":10000,"totalPL":0,"wins":0,"losses":0}');
+      } catch {
+        return { balance: 10000, totalPL: 0, wins: 0, losses: 0 };
+      }
+    }
+
+    function renderDashboard() {
+      const users = getUsers();
+      const userList = Object.values(users);
+      const sim = getSimAccount();
+
+      document.getElementById("statUsers").textContent = userList.length + 1; // +1 for built-in admin
+      document.getElementById("statBalance").textContent = money(sim.balance);
+
+      const plEl = document.getElementById("statPL");
+      plEl.textContent = (sim.totalPL >= 0 ? "+" : "-") + money(Math.abs(sim.totalPL));
+      plEl.className = "stat-value " + (sim.totalPL > 0 ? "pos" : sim.totalPL < 0 ? "neg" : "");
+
+      document.getElementById("statRecord").textContent = `${sim.wins || 0}W / ${sim.losses || 0}L`;
+      document.getElementById("setBalanceInput").value = sim.balance;
+
+      const tbody = document.getElementById("userTableBody");
+      let rows = `
+        <tr>
+          <td><strong>System Administrator</strong></td>
+          <td>${ADMIN_EMAIL}</td>
+          <td><span class="badge badge-admin">ADMIN</span></td>
+          <td style="color: var(--muted); font-size: 0.78rem;">Protected</td>
+        </tr>`;
+
+      userList.forEach(u => {
+        rows += `
+          <tr>
+            <td>${u.name}</td>
+            <td>${u.email}</td>
+            <td><span class="badge badge-user">TRADER</span></td>
+            <td>
+              <button class="btn btn-danger" style="padding: 4px 9px; font-size: 0.75rem;" onclick="deleteUser('${u.email}')">Delete</button>
+            </td>
+          </tr>`;
+      });
+
+      tbody.innerHTML = rows;
+    }
+
+    window.deleteUser = function(email) {
+      const users = getUsers();
+      delete users[email];
+      saveUsers(users);
+      renderDashboard();
+      notify(`Removed user ${email}`);
+    };
+
+    document.getElementById("addUserForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("newName").value.trim();
+      const email = document.getElementById("newEmail").value.trim().toLowerCase();
+      const password = document.getElementById("newPass").value;
+
+      if (email === ADMIN_EMAIL) return notify("Cannot overwrite admin email.");
+      if (password.length < 4) return notify("Password must be at least 4 characters.");
+
+      const users = getUsers();
+      users[email] = { name, email, password, role: "user" };
+      saveUsers(users);
+      e.target.reset();
+      renderDashboard();
+      notify(`Created account for ${name}`);
+    });
+
+    document.getElementById("clearUsersBtn").addEventListener("click", () => {
+      saveUsers({});
+      renderDashboard();
+      notify("All non-admin accounts cleared.");
+    });
+
+    document.getElementById("saveBalanceBtn").addEventListener("click", () => {
+      const val = parseFloat(document.getElementById("setBalanceInput").value);
+      if (isNaN(val) || val < 0) return notify("Enter a valid balance amount.");
+      const sim = getSimAccount();
+      sim.balance = Math.round(val * 100) / 100;
+      localStorage.setItem("kholleta_demo_account", JSON.stringify(sim));
+      renderDashboard();
+      notify(`Simulator balance updated to ${money(sim.balance)}`);
+    });
+
+    document.getElementById("resetStatsBtn").addEventListener("click", () => {
+      localStorage.setItem("kholleta_demo_account", JSON.stringify({
+        balance: 10000,
+        totalPL: 0,
+        wins: 0,
+        losses: 0
+      }));
+      renderDashboard();
+      notify("Simulator balance and stats reset to default.");
+    });
+
+    document.getElementById("openSimBtn").addEventListener("click", () => {
+      window.location.href = SIMULATOR_FILE;
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("kholleta_active_session");
+      window.location.href = "index.html";
+    });
+
+    renderDashboard();
+  </script>
+</body>
+</html>
