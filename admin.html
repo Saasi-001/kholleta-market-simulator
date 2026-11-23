@@ -1,45 +1,60 @@
+
+admin.html
+
+100%
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kholleta — Admin Console</title>
+  <title>Kholleta — Broker Admin &amp; Cashier Backend</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2048%2048%22%3E%3Cdefs%3E%3ClinearGradient%20id=%22g%22%20x1=%220%22%20y1=%220%22%20x2=%221%22%20y2=%221%22%3E%3Cstop%20offset=%220%22%20stop-color=%22%2338bdf8%22/%3E%3Cstop%20offset=%221%22%20stop-color=%22%2322c55e%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width=%2248%22%20height=%2248%22%20rx=%2212%22%20fill=%22url(%23g)%22/%3E%3Cpath%20d=%22M16%2011v26M17%2025L32%2012M17%2024l16%2013%22%20stroke=%22%230f172a%22%20stroke-width=%225%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%20fill=%22none%22/%3E%3C/svg%3E" />
   <style>
     :root {
-      --bg: #0f172a;
+      --bg: #0b1120;
+      --surface: #0f172a;
       --card: #1e293b;
       --text: #f8fafc;
       --muted: #94a3b8;
       --accent: #38bdf8;
+      --gold: #f59e0b;
       --border: #334155;
       --success: #22c55e;
-      --danger: #fb7185;
-      --warning: #f59e0b;
+      --danger: #ef4444;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 45%),
+                  radial-gradient(circle at top right, rgba(245, 158, 11, 0.07), transparent 45%),
+                  var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 24px;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 20px;
     }
 
+    /* Top Header */
     .topbar {
-      width: 100%;
-      max-width: 1140px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 22px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
     }
 
     .brand {
@@ -48,9 +63,12 @@
       gap: 12px;
     }
 
-    .brand-logo { width: 40px; height: 40px; }
-    .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
-    .brand-name {
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+    }
+
+    .brand-title {
       font-size: 1.3rem;
       font-weight: 800;
       background: linear-gradient(90deg, #38bdf8, #22c55e);
@@ -58,110 +76,354 @@
       background-clip: text;
       color: transparent;
     }
+
     .brand-sub {
       font-size: 0.72rem;
       font-weight: 700;
-      color: var(--warning);
       letter-spacing: 0.14em;
       text-transform: uppercase;
+      color: var(--gold);
     }
 
-    .top-actions { display: flex; gap: 10px; align-items: center; }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(34, 197, 94, 0.14);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      color: #86efac;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
 
     .btn {
-      border: 1px solid var(--border);
-      background: var(--card);
+      background: rgba(148, 163, 184, 0.14);
       color: var(--text);
-      padding: 9px 14px;
-      border-radius: 9px;
-      font-size: 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 0.84rem;
       font-weight: 700;
       cursor: pointer;
-      transition: filter 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      transition: background 0.15s ease, transform 0.1s ease;
     }
-    .btn:hover { filter: brightness(1.15); }
+
+    .btn:hover { background: rgba(148, 163, 184, 0.25); }
     .btn-primary {
       background: linear-gradient(90deg, #38bdf8, #22c55e);
       color: #082f49;
       border: none;
     }
+    .btn-primary:hover { filter: brightness(1.08); }
     .btn-danger {
-      background: rgba(251, 113, 133, 0.15);
-      border-color: rgba(251, 113, 133, 0.4);
-      color: #fda4af;
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
     }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.28); }
+    .btn-gold {
+      background: rgba(245, 158, 11, 0.16);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fcd34d;
+    }
+    .btn-gold:hover { background: rgba(245, 158, 11, 0.28); }
 
-    .container {
-      width: 100%;
-      max-width: 1140px;
+    /* Hero Pool & Broker P&L Summary Grid */
+    .summary-grid {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
+      grid-template-columns: 1.35fr 1fr 1fr 1fr;
+      gap: 16px;
     }
 
-    .stats-grid {
+    @media (max-width: 1050px) {
+      .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+
+    .metric-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.28);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card.pool-hero {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.14), rgba(30, 41, 59, 0.95) 55%, rgba(34, 197, 94, 0.12));
+      border-color: rgba(56, 189, 248, 0.45);
+    }
+
+    .metric-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .metric-value {
+      font-size: 1.9rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+    }
+
+    .metric-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .pos { color: #22c55e; }
+    .neg { color: #ef4444; }
+    .gold { color: #fbbf24; }
+
+    /* Secondary Broker P&L Strip */
+    .pnl-strip {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 14px;
-    }
-
-    .stat-card {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 18px;
+      padding: 14px 18px;
     }
 
-    .stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
-    .stat-value { font-size: 1.55rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-    .pos { color: var(--success); }
-    .neg { color: var(--danger); }
+    @media (max-width: 900px) {
+      .pnl-strip { grid-template-columns: repeat(2, 1fr); }
+    }
 
-    .main-grid {
+    .strip-item span {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .strip-item b {
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Main Workspace: Left = Cashier & Pool Controls, Right = Player Accounts & Ledger */
+    .workspace {
       display: grid;
-      grid-template-columns: 1.4fr 1fr;
+      grid-template-columns: 390px 1fr;
       gap: 20px;
       align-items: start;
     }
 
-    @media (max-width: 860px) {
-      .main-grid { grid-template-columns: 1fr; }
+    @media (max-width: 1050px) {
+      .workspace { grid-template-columns: 1fr; }
     }
 
     .panel {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 22px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.28);
     }
 
-    .panel-header {
+    .panel-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 4px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
     }
 
-    h2 { font-size: 1.05rem; font-weight: 700; }
+    .panel-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .form-group { margin-bottom: 13px; }
+    .form-group label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    select, input[type="text"], input[type="email"], input[type="number"], input[type="password"] {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+    }
+
+    select:focus, input:focus { border-color: var(--accent); }
+
+    .quick-amounts {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .amt-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 7px;
+      padding: 5px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .amt-chip:hover { color: var(--text); border-color: var(--accent); }
+
+    .cashier-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .btn-deposit {
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 11px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .btn-deposit:hover { filter: brightness(1.1); }
+
+    .btn-withdraw {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 11px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .btn-withdraw:hover { filter: brightness(1.1); }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .checkbox-row input { width: auto; }
+
+    .toast {
+      padding: 10px 12px;
+      border-radius: 9px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .toast.ok {
+      display: block;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      color: #86efac;
+    }
+    .toast.err {
+      display: block;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
+    }
+
+    /* Tables */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+    }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.88rem;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 11px 10px;
-      border-bottom: 1px solid var(--border);
+      font-size: 0.84rem;
+      font-variant-numeric: tabular-nums;
     }
 
     th {
-      color: var(--muted);
-      font-size: 0.75rem;
+      text-align: left;
+      padding: 11px 12px;
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.95);
+      white-space: nowrap;
     }
+
+    td {
+      padding: 11px 12px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.55);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(148, 163, 184, 0.05); }
 
     .badge {
       display: inline-block;
@@ -169,296 +431,930 @@
       border-radius: 999px;
       font-size: 0.7rem;
       font-weight: 800;
+      letter-spacing: 0.04em;
     }
-    .badge-admin { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
-    .badge-user { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.35); }
 
-    .form-row {
+    .badge-guest {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .badge-user {
+      background: rgba(56, 189, 248, 0.16);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .badge-win {
+      background: rgba(34, 197, 94, 0.16);
+      color: #86efac;
+    }
+
+    .badge-loss {
+      background: rgba(239, 68, 68, 0.16);
+      color: #fca5a5;
+    }
+
+    .badge-cashier {
+      background: rgba(168, 85, 247, 0.18);
+      color: #d8b4fe;
+    }
+
+    .mini-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .mini-btn {
+      background: rgba(148, 163, 184, 0.14);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mini-btn:hover { background: rgba(148, 163, 184, 0.28); }
+    .mini-btn.sel { border-color: var(--accent); color: var(--accent); }
+
+    .right-stack {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 18px;
+      gap: 20px;
     }
 
-    label { display: block; font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-bottom: 5px; }
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
 
-    input {
-      width: 100%;
-      background: var(--bg);
+    .filter-btn {
+      background: var(--surface);
       border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 11px;
       border-radius: 8px;
-      padding: 9px 12px;
-      color: var(--text);
-      font-size: 0.9rem;
-      outline: none;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
     }
-    input:focus { border-color: var(--accent); }
 
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #065f46;
-      border: 1px solid #10b981;
-      color: #ecfdf5;
+    .filter-btn.active {
+      background: var(--accent);
+      color: #082f49;
+      border-color: var(--accent);
+    }
+
+    .pool-bar-wrap {
+      height: 8px;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 4px;
+      border: 1px solid rgba(51, 65, 85, 0.7);
+    }
+
+    .pool-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #22c55e);
+      transition: width 0.3s ease;
+    }
+
+    /* Auth Gate Overlay (Optional quick PIN/Password unlock, default unlocked or PIN 'admin') */
+    .lock-banner {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 12px;
       padding: 10px 16px;
-      border-radius: 10px;
-      font-size: 0.86rem;
-      font-weight: 600;
-      display: none;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      font-size: 0.8rem;
+      color: #fde68a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <svg class="brand-logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="kg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#38bdf8"/>
-            <stop offset="1" stop-color="#22c55e"/>
-          </linearGradient>
-        </defs>
-        <rect width="48" height="48" rx="12" fill="url(#kg)"/>
-        <path d="M16 11v26M17 25L32 12M17 24l16 13" stroke="#0f172a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
-      <div class="brand-text">
-        <span class="brand-name">Kholleta</span>
-        <span class="brand-sub">Admin Console</span>
+  <div class="container">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-logo" viewBox="0 0 48 48" role="img" aria-label="Kholleta logo" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="kg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#38bdf8"/>
+              <stop offset="1" stop-color="#22c55e"/>
+            </linearGradient>
+          </defs>
+          <rect width="48" height="48" rx="12" fill="url(#kg)"/>
+          <path d="M16 11v26M17 25L32 12M17 24l16 13" stroke="#0f172a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <div>
+          <div class="brand-title">Kholleta Broker Backend</div>
+          <div class="brand-sub">$10M Liquidity Pool &bull; Cashier &amp; Risk Desk</div>
+        </div>
       </div>
+
+      <div class="top-actions">
+        <span class="live-pill"><span class="live-dot"></span> Live Counterparty Sync</span>
+        <a href="Kholleta_Market_simulator-v16.html" target="_blank" class="btn btn-primary">Open Simulator &rarr;</a>
+        <a href="index.html" class="btn">Login Portal</a>
+        <button id="resetPoolBtn" class="btn btn-danger" type="button">Reset $10M Pool</button>
+      </div>
+    </header>
+
+    <div class="lock-banner">
+      <span><strong>Counterparty Clearing Rule:</strong> When any Signed-In or Guest player wins a trade, their net profit is automatically deducted from the $10,000,000 Broker Pool. When a player loses a trade, their stake is automatically added to the Pool as Broker Profit.</span>
+      <span id="lastSyncLabel">Synced just now</span>
     </div>
 
-    <div class="top-actions">
-      <button id="openSimBtn" class="btn btn-primary" type="button">Open Market Simulator &rarr;</button>
-      <button id="logoutBtn" class="btn btn-danger" type="button">Sign Out</button>
-    </div>
-  </header>
+    <!-- Primary Broker Summary & Pool Cards -->
+    <section class="summary-grid">
+      <div class="metric-card pool-hero">
+        <div class="metric-label">
+          <span>Broker Liquidity Pool (Demo Vault)</span>
+          <span class="gold">BASE: $10,000,000.00</span>
+        </div>
+        <div id="poolBalanceDisplay" class="metric-value">$10,000,000.00</div>
+        <div class="pool-bar-wrap"><div id="poolHealthBar" class="pool-bar-fill" style="width: 100%;"></div></div>
+        <div id="poolSubDisplay" class="metric-sub">100.00% of initial $10M reserve intact</div>
+      </div>
 
-  <main class="container">
-    <!-- Overview KPIs -->
-    <section class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Registered Traders</div>
-        <div id="statUsers" class="stat-value">0</div>
+      <div class="metric-card">
+        <div class="metric-label"><span>Net Broker P&amp;L (House Profit)</span></div>
+        <div id="brokerPnLDisplay" class="metric-value">$0.00</div>
+        <div id="brokerPnLSub" class="metric-sub">Player losses minus player payouts</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Current Demo Balance</div>
-        <div id="statBalance" class="stat-value">$10,000.00</div>
+
+      <div class="metric-card">
+        <div class="metric-label"><span>Player Losses (Credited to Pool)</span></div>
+        <div id="grossLossesDisplay" class="metric-value pos">+$0.00</div>
+        <div class="metric-sub">Total stakes captured from losing trades</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Simulator Cumulative P/L</div>
-        <div id="statPL" class="stat-value">$0.00</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Win / Loss Record</div>
-        <div id="statRecord" class="stat-value">0W / 0L</div>
+
+      <div class="metric-card">
+        <div class="metric-label"><span>Player Wins (Deducted from Pool)</span></div>
+        <div id="grossWinsDisplay" class="metric-value neg">-$0.00</div>
+        <div class="metric-sub">Total net profits paid out to winners</div>
       </div>
     </section>
 
-    <div class="main-grid">
-      <!-- User Management Table -->
-      <section class="panel">
-        <div class="panel-header">
-          <h2>Trader Accounts</h2>
-          <button id="clearUsersBtn" class="btn btn-danger" type="button" style="padding: 5px 10px; font-size: 0.76rem;">Clear Non-Admin Users</button>
-        </div>
-        <div style="overflow-x: auto;">
-          <table>
-            <thead>
-              <tr>
-                <th>Trader Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="userTableBody"></tbody>
-          </table>
-        </div>
-      </section>
+    <!-- Secondary Broker Metrics Strip -->
+    <section class="pnl-strip">
+      <div class="strip-item">
+        <span>Total Turnover (Staked)</span>
+        <b id="totalVolumeDisplay">$0.00</b>
+      </div>
+      <div class="strip-item">
+        <span>Contracts Settled</span>
+        <b id="totalContractsDisplay">0</b>
+      </div>
+      <div class="strip-item">
+        <span>House Edge / Hold %</span>
+        <b id="houseEdgeDisplay">0.00%</b>
+      </div>
+      <div class="strip-item">
+        <span>Total Player Liabilities</span>
+        <b id="playerLiabilitiesDisplay">$0.00</b>
+      </div>
+      <div class="strip-item">
+        <span>Cashier Net Issued</span>
+        <b id="cashierNetDisplay">$0.00</b>
+      </div>
+    </section>
 
-      <!-- Admin Controls & Account Creator -->
+    <!-- Main Workspace -->
+    <div class="workspace">
+      <!-- Left Column: Cashier System + Create Player Account -->
       <div style="display: flex; flex-direction: column; gap: 20px;">
         <section class="panel">
-          <div class="panel-header">
-            <h2>Add New Trader</h2>
+          <div class="panel-title">
+            <span>Broker Cashier Desk</span>
+            <span class="badge badge-cashier">USD</span>
           </div>
-          <form id="addUserForm" class="form-row">
-            <div>
-              <label for="newName">Trader Name</label>
-              <input id="newName" type="text" placeholder="e.g. Jane Doe" required />
+          <p class="panel-desc">Deposit funds into any player or guest account, process withdrawals, or issue trading bonuses.</p>
+
+          <div id="cashierToast" class="toast"></div>
+
+          <form id="cashierForm">
+            <div class="form-group">
+              <label for="cashierAccountSelect">Select Trader Account</label>
+              <select id="cashierAccountSelect" required></select>
             </div>
-            <div>
-              <label for="newEmail">Email Address</label>
-              <input id="newEmail" type="email" placeholder="jane@example.com" required />
+
+            <div class="form-group">
+              <label for="cashierAmount">Amount (USD)</label>
+              <input id="cashierAmount" type="number" min="0.01" step="0.01" placeholder="e.g. 5000.00" required />
+              <div class="quick-amounts">
+                <button type="button" class="amt-chip" data-amt="100">$100</button>
+                <button type="button" class="amt-chip" data-amt="1000">$1,000</button>
+                <button type="button" class="amt-chip" data-amt="5000">$5,000</button>
+                <button type="button" class="amt-chip" data-amt="10000">$10,000</button>
+              </div>
             </div>
-            <div>
-              <label for="newPass">Temporary Password</label>
-              <input id="newPass" type="text" placeholder="Min 4 characters" required />
+
+            <div class="form-group">
+              <label for="cashierNote">Reference / Cashier Note</label>
+              <input id="cashierNote" type="text" placeholder="e.g. Demo top-up / Profit payout" />
             </div>
-            <button class="btn btn-primary" type="submit">Create Trader Account</button>
+
+            <label class="checkbox-row">
+              <input id="linkPoolCheckbox" type="checkbox" checked />
+              <span>Debit/Credit Broker $10M Pool on Cashier transfer</span>
+            </label>
+
+            <div class="cashier-btns">
+              <button type="button" id="depositBtn" class="btn-deposit">+ Deposit to Player</button>
+              <button type="button" id="withdrawBtn" class="btn-withdraw">&minus; Withdraw Funds</button>
+            </div>
           </form>
         </section>
 
+        <!-- Register New Player Account from Admin -->
         <section class="panel">
-          <div class="panel-header">
-            <h2>Simulator Demo Balance Control</h2>
+          <div class="panel-title"><span>Create Player Account</span></div>
+          <p class="panel-desc">Provision a new signed-in trader account linked to the simulator &amp; cashier.</p>
+
+          <div id="createToast" class="toast"></div>
+
+          <form id="createAccountForm">
+            <div class="form-group">
+              <label for="newTraderName">Trader Name</label>
+              <input id="newTraderName" type="text" placeholder="e.g. Sarah Connor" required />
+            </div>
+            <div class="form-group">
+              <label for="newTraderEmail">Email Address</label>
+              <input id="newTraderEmail" type="email" placeholder="sarah@example.com" required />
+            </div>
+            <div class="form-group">
+              <label for="newTraderPass">Password</label>
+              <input id="newTraderPass" type="text" value="1234" required />
+            </div>
+            <div class="form-group">
+              <label for="newTraderDeposit">Initial Deposit (USD)</label>
+              <input id="newTraderDeposit" type="number" min="0" step="0.01" value="10000" required />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Create &amp; Fund Account</button>
+          </form>
+        </section>
+      </div>
+
+      <!-- Right Column: Player Accounts Directory & Live Broker P&L / Cashier Ledger -->
+      <div class="right-stack">
+        <section class="panel">
+          <div class="panel-title" style="margin-bottom: 12px;">
+            <span>Connected Player &amp; Guest Accounts</span>
+            <span id="accountCountBadge" class="badge badge-user">0 Accounts</span>
           </div>
-          <div class="form-row">
-            <div>
-              <label for="setBalanceInput">Set Virtual Balance (USD)</label>
-              <input id="setBalanceInput" type="number" step="0.01" min="0" value="10000" />
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Trader</th>
+                  <th>Type</th>
+                  <th>Balance</th>
+                  <th>Net Player P&amp;L</th>
+                  <th>Broker P&amp;L From User</th>
+                  <th>W / L</th>
+                  <th>Cashier &amp; Controls</th>
+                </tr>
+              </thead>
+              <tbody id="accountsTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title" style="margin-bottom: 12px;">
+            <span>Broker Clearing &amp; Cashier Ledger</span>
+            <div class="filter-bar" id="ledgerFilters">
+              <button type="button" class="filter-btn active" data-filter="ALL">All</button>
+              <button type="button" class="filter-btn" data-filter="TRADE_SETTLEMENT">Trades</button>
+              <button type="button" class="filter-btn" data-filter="CASHIER">Cashier</button>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <button id="saveBalanceBtn" class="btn" type="button">Update Balance</button>
-              <button id="resetStatsBtn" class="btn btn-danger" type="button">Reset All Stats</button>
-            </div>
+          </div>
+
+          <div class="table-wrap" style="max-height: 440px; overflow-y: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Tx ID</th>
+                  <th>Player</th>
+                  <th>Event / Contract</th>
+                  <th>Stake / Amt</th>
+                  <th>Player Impact</th>
+                  <th>Broker Pool Impact</th>
+                  <th>Pool Balance</th>
+                </tr>
+              </thead>
+              <tbody id="ledgerTableBody"></tbody>
+            </table>
           </div>
         </section>
       </div>
     </div>
-  </main>
-
-  <div id="toast" class="toast"></div>
+  </div>
 
   <script>
-    const SIMULATOR_FILE = "Kholleta_Market_simulator-v13.html";
-    const ADMIN_EMAIL = "admin@kholleta.com";
+// =========================================================================
+    // KHOLLETA BROKER BACKEND & CASHIER ENGINE (Shared across index, sim, admin)
+    // =========================================================================
+    const BROKER_DB_KEY = "kholleta_broker_backend_v1";
+    const SESSION_KEY = "kholleta_active_session";
+    const INITIAL_POOL_BALANCE = 10000000.00; // $10,000,000.00 USD Broker Liquidity Pool
+    const DEFAULT_USER_START = 10000.00;
 
-    // Guard: Redirect non-admins back to login
-    const session = JSON.parse(localStorage.getItem("kholleta_active_session") || "null");
-    if (!session || session.role !== "admin") {
-      window.location.href = "index.html";
+    function round2(n) {
+      return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
     }
 
-    const money = (n) => "$" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-    function notify(msg) {
-      const t = document.getElementById("toast");
-      t.textContent = msg;
-      t.style.display = "block";
-      setTimeout(() => { t.style.display = "none"; }, 2600);
+    function getDefaultBrokerDB() {
+      return {
+        pool: {
+          initialBalance: INITIAL_POOL_BALANCE,
+          balance: INITIAL_POOL_BALANCE,
+          totalBrokerPnL: 0,       // Net profit/loss for broker (+ means players lost overall, - means players won overall)
+          grossPlayerLosses: 0,    // Credited to pool
+          grossPlayerWins: 0,      // Deducted from pool
+          totalVolumeStaked: 0,
+          totalContractsSettled: 0,
+          cashierDeposits: 0,
+          cashierWithdrawals: 0
+        },
+        accounts: {
+          "guest@kholleta.local": {
+            id: "KH-GUEST-0001",
+            email: "guest@kholleta.local",
+            name: "Demo Guest",
+            guest: true,
+            balance: DEFAULT_USER_START,
+            totalPL: 0,
+            wins: 0,
+            losses: 0,
+            totalDeposited: DEFAULT_USER_START,
+            totalWithdrawn: 0,
+            createdAt: Date.now(),
+            lastActive: Date.now(),
+            status: "active"
+          }
+        },
+        ledger: [], // Broker trade settlement & cashier transactions
+        adminPassword: "admin"
+      };
     }
 
-    function getUsers() {
-      try { return JSON.parse(localStorage.getItem("kholleta_users") || "{}"); }
-      catch { return {}; }
-    }
-
-    function saveUsers(users) {
-      localStorage.setItem("kholleta_users", JSON.stringify(users));
-    }
-
-    function getSimAccount() {
+    function loadBrokerDB() {
+      let db = null;
       try {
-        return JSON.parse(localStorage.getItem("kholleta_demo_account") || '{"balance":10000,"totalPL":0,"wins":0,"losses":0}');
-      } catch {
-        return { balance: 10000, totalPL: 0, wins: 0, losses: 0 };
+        db = JSON.parse(localStorage.getItem(BROKER_DB_KEY) || "null");
+      } catch (e) { db = null; }
+      if (!db || !db.pool || !db.accounts) {
+        db = getDefaultBrokerDB();
+        // Migrate any existing users from old kholleta_users key
+        try {
+          const oldUsers = JSON.parse(localStorage.getItem("kholleta_users") || "{}");
+          Object.keys(oldUsers).forEach((em, idx) => {
+            if (!db.accounts[em]) {
+              db.accounts[em] = {
+                id: "KH-USR-" + String(1001 + idx),
+                email: em,
+                name: oldUsers[em].name || em.split("@")[0],
+                password: oldUsers[em].password || "1234",
+                guest: false,
+                balance: DEFAULT_USER_START,
+                totalPL: 0,
+                wins: 0,
+                losses: 0,
+                totalDeposited: DEFAULT_USER_START,
+                totalWithdrawn: 0,
+                createdAt: Date.now(),
+                lastActive: Date.now(),
+                status: "active"
+              };
+            }
+          });
+        } catch (e) {}
+        saveBrokerDB(db);
       }
+      if (!db.accounts["guest@kholleta.local"]) {
+        db.accounts["guest@kholleta.local"] = getDefaultBrokerDB().accounts["guest@kholleta.local"];
+        saveBrokerDB(db);
+      }
+      return db;
     }
 
-    function renderDashboard() {
-      const users = getUsers();
-      const userList = Object.values(users);
-      const sim = getSimAccount();
+    function saveBrokerDB(db) {
+      try {
+        localStorage.setItem(BROKER_DB_KEY, JSON.stringify(db));
+      } catch (e) { console.error("Failed to save Broker DB", e); }
+    }
 
-      document.getElementById("statUsers").textContent = userList.length + 1; // +1 for built-in admin
-      document.getElementById("statBalance").textContent = money(sim.balance);
+    function getActiveSession() {
+      try {
+        return JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+      } catch (e) { return null; }
+    }
 
-      const plEl = document.getElementById("statPL");
-      plEl.textContent = (sim.totalPL >= 0 ? "+" : "-") + money(Math.abs(sim.totalPL));
-      plEl.className = "stat-value " + (sim.totalPL > 0 ? "pos" : sim.totalPL < 0 ? "neg" : "");
+    function ensureSessionAccount() {
+      const db = loadBrokerDB();
+      let sess = getActiveSession();
+      if (!sess || !sess.email) {
+        sess = { name: "Demo Guest", email: "guest@kholleta.local", guest: true, loggedInAt: Date.now() };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(sess));
+      }
+      const em = sess.email.toLowerCase();
+      if (!db.accounts[em]) {
+        db.accounts[em] = {
+          id: (sess.guest ? "KH-GUEST-" : "KH-USR-") + String(1000 + Math.floor(Math.random() * 9000)),
+          email: em,
+          name: sess.name || em.split("@")[0],
+          password: sess.password || "",
+          guest: !!sess.guest,
+          balance: DEFAULT_USER_START,
+          totalPL: 0,
+          wins: 0,
+          losses: 0,
+          totalDeposited: DEFAULT_USER_START,
+          totalWithdrawn: 0,
+          createdAt: Date.now(),
+          lastActive: Date.now(),
+          status: "active"
+        };
+        saveBrokerDB(db);
+      }
+      return { db, account: db.accounts[em] };
+    }
 
-      document.getElementById("statRecord").textContent = `${sim.wins || 0}W / ${sim.losses || 0}L`;
-      document.getElementById("setBalanceInput").value = sim.balance;
+    // Settle a trade against the $10,000,000 Broker Liquidity Pool:
+    // - If player WINS (playerProfit > 0): deduct playerProfit from Broker Pool (Broker P&L decreases)
+    // - If player LOSES (playerProfit < 0, i.e., -stake): add stake to Broker Pool (Broker P&L increases)
+    function brokerSettleContract(email, tradeDetails) {
+      const db = loadBrokerDB();
+      const em = (email || "guest@kholleta.local").toLowerCase();
+      const acc = db.accounts[em] || db.accounts["guest@kholleta.local"];
+      const playerProfit = round2(tradeDetails.profit); // positive on win, negative (-stake) on loss
+      const brokerImpact = round2(-playerProfit);     // negative on player win, positive on player loss
 
-      const tbody = document.getElementById("userTableBody");
-      let rows = `
-        <tr>
-          <td><strong>System Administrator</strong></td>
-          <td>${ADMIN_EMAIL}</td>
-          <td><span class="badge badge-admin">ADMIN</span></td>
-          <td style="color: var(--muted); font-size: 0.78rem;">Protected</td>
-        </tr>`;
+      db.pool.balance = round2(db.pool.balance + brokerImpact);
+      db.pool.totalBrokerPnL = round2(db.pool.totalBrokerPnL + brokerImpact);
+      db.pool.totalVolumeStaked = round2(db.pool.totalVolumeStaked + tradeDetails.stake);
+      db.pool.totalContractsSettled += 1;
 
-      userList.forEach(u => {
-        rows += `
-          <tr>
-            <td>${u.name}</td>
-            <td>${u.email}</td>
-            <td><span class="badge badge-user">TRADER</span></td>
-            <td>
-              <button class="btn btn-danger" style="padding: 4px 9px; font-size: 0.75rem;" onclick="deleteUser('${u.email}')">Delete</button>
-            </td>
-          </tr>`;
+      if (playerProfit > 0) {
+        db.pool.grossPlayerWins = round2(db.pool.grossPlayerWins + playerProfit);
+      } else if (playerProfit < 0) {
+        db.pool.grossPlayerLosses = round2(db.pool.grossPlayerLosses + Math.abs(playerProfit));
+      }
+
+      // Sync player account metrics
+      acc.balance = round2(tradeDetails.newUserBalance);
+      acc.totalPL = round2((acc.totalPL || 0) + playerProfit);
+      if (tradeDetails.win) acc.wins = (acc.wins || 0) + 1;
+      else acc.losses = (acc.losses || 0) + 1;
+      acc.lastActive = Date.now();
+
+      db.ledger.unshift({
+        id: "TX-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(100 + Math.random() * 900),
+        ts: Date.now(),
+        category: "TRADE_SETTLEMENT",
+        email: acc.email,
+        userName: acc.name,
+        isGuest: !!acc.guest,
+        contract: tradeDetails.contractName,
+        market: tradeDetails.market,
+        stake: round2(tradeDetails.stake),
+        outcome: tradeDetails.win ? "PLAYER_WIN" : "PLAYER_LOSS",
+        playerPnL: playerProfit,
+        brokerPnL: brokerImpact,
+        poolBalanceAfter: db.pool.balance,
+        userBalanceAfter: acc.balance
       });
 
-      tbody.innerHTML = rows;
+      if (db.ledger.length > 500) db.ledger.length = 500;
+      saveBrokerDB(db);
+      return db;
     }
 
-    window.deleteUser = function(email) {
-      const users = getUsers();
-      delete users[email];
-      saveUsers(users);
-      renderDashboard();
-      notify(`Removed user ${email}`);
-    };
+    // Cashier operation: Deposit (from Pool -> Player, or external top-up), Withdraw (Player -> Pool), Bonus, Reset
+    function brokerCashierAction({ email, action, amount, note, sourceFromPool }) {
+      const db = loadBrokerDB();
+      const em = (email || "").toLowerCase();
+      const acc = db.accounts[em];
+      if (!acc) return { ok: false, error: "Account not found." };
 
-    document.getElementById("addUserForm").addEventListener("submit", (e) => {
+      const amt = round2(Number(amount));
+      if (!isFinite(amt) || amt <= 0) return { ok: false, error: "Enter a valid positive USD amount." };
+
+      let userDelta = 0;
+      let poolDelta = 0;
+      let category = "";
+
+      if (action === "DEPOSIT") {
+        userDelta = amt;
+        acc.totalDeposited = round2((acc.totalDeposited || 0) + amt);
+        db.pool.cashierDeposits = round2((db.pool.cashierDeposits || 0) + amt);
+        if (sourceFromPool) {
+          poolDelta = -amt;
+        }
+        category = "CASHIER_DEPOSIT";
+      } else if (action === "WITHDRAW") {
+        if (amt > acc.balance) return { ok: false, error: "Insufficient player balance for withdrawal." };
+        userDelta = -amt;
+        acc.totalWithdrawn = round2((acc.totalWithdrawn || 0) + amt);
+        db.pool.cashierWithdrawals = round2((db.pool.cashierWithdrawals || 0) + amt);
+        if (sourceFromPool) {
+          poolDelta = amt;
+        }
+        category = "CASHIER_WITHDRAWAL";
+      } else if (action === "BONUS") {
+        userDelta = amt;
+        poolDelta = -amt;
+        category = "CASHIER_BONUS";
+      } else {
+        return { ok: false, error: "Unknown cashier action." };
+      }
+
+      acc.balance = round2(acc.balance + userDelta);
+      acc.lastActive = Date.now();
+      if (poolDelta !== 0) {
+        db.pool.balance = round2(db.pool.balance + poolDelta);
+      }
+
+      db.ledger.unshift({
+        id: "CSH-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(100 + Math.random() * 900),
+        ts: Date.now(),
+        category,
+        email: acc.email,
+        userName: acc.name,
+        isGuest: !!acc.guest,
+        contract: note || action,
+        market: "CASHIER",
+        stake: amt,
+        outcome: action,
+        playerPnL: userDelta,
+        brokerPnL: poolDelta,
+        poolBalanceAfter: db.pool.balance,
+        userBalanceAfter: acc.balance
+      });
+
+      if (db.ledger.length > 500) db.ledger.length = 500;
+      saveBrokerDB(db);
+      return { ok: true, db, account: acc };
+    }
+
+
+    
+
+    const money = (n) => "$" + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const signedMoney = (n) => (n > 0 ? "+" : n < 0 ? "-" : "") + money(Math.abs(n));
+    const formatDateTime = (ts) => new Date(ts).toLocaleTimeString([], { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+    let ledgerFilter = "ALL";
+    let selectedAccountEmail = "guest@kholleta.local";
+
+    const poolBalanceDisplay = document.getElementById("poolBalanceDisplay");
+    const poolHealthBar = document.getElementById("poolHealthBar");
+    const poolSubDisplay = document.getElementById("poolSubDisplay");
+    const brokerPnLDisplay = document.getElementById("brokerPnLDisplay");
+    const brokerPnLSub = document.getElementById("brokerPnLSub");
+    const grossLossesDisplay = document.getElementById("grossLossesDisplay");
+    const grossWinsDisplay = document.getElementById("grossWinsDisplay");
+    const totalVolumeDisplay = document.getElementById("totalVolumeDisplay");
+    const totalContractsDisplay = document.getElementById("totalContractsDisplay");
+    const houseEdgeDisplay = document.getElementById("houseEdgeDisplay");
+    const playerLiabilitiesDisplay = document.getElementById("playerLiabilitiesDisplay");
+    const cashierNetDisplay = document.getElementById("cashierNetDisplay");
+
+    const cashierAccountSelect = document.getElementById("cashierAccountSelect");
+    const cashierAmount = document.getElementById("cashierAmount");
+    const cashierNote = document.getElementById("cashierNote");
+    const linkPoolCheckbox = document.getElementById("linkPoolCheckbox");
+    const cashierToast = document.getElementById("cashierToast");
+    const createToast = document.getElementById("createToast");
+
+    const accountsTableBody = document.getElementById("accountsTableBody");
+    const ledgerTableBody = document.getElementById("ledgerTableBody");
+    const accountCountBadge = document.getElementById("accountCountBadge");
+    const lastSyncLabel = document.getElementById("lastSyncLabel");
+
+    function showToast(el, msg, isOk) {
+      el.textContent = msg;
+      el.className = "toast " + (isOk ? "ok" : "err");
+      setTimeout(() => { el.className = "toast"; }, 4500);
+    }
+
+    function renderAllAdmin() {
+      const db = loadBrokerDB();
+      const pool = db.pool;
+      const accountsList = Object.values(db.accounts);
+
+      // 1. Pool & Broker P&L Summary
+      poolBalanceDisplay.textContent = money(pool.balance);
+      const pctOfBase = Math.max(0, Math.min(150, (pool.balance / pool.initialBalance) * 100));
+      poolHealthBar.style.width = Math.min(100, pctOfBase).toFixed(1) + "%";
+      const poolDelta = round2(pool.balance - pool.initialBalance);
+      poolSubDisplay.textContent = `${pctOfBase.toFixed(2)}% of $10M base (${signedMoney(poolDelta)} net change)`;
+
+      brokerPnLDisplay.textContent = signedMoney(pool.totalBrokerPnL);
+      brokerPnLDisplay.className = "metric-value " + (pool.totalBrokerPnL > 0 ? "pos" : pool.totalBrokerPnL < 0 ? "neg" : "");
+      brokerPnLSub.textContent = pool.totalBrokerPnL >= 0
+        ? "Broker is net profitable against players"
+        : "Players are net profitable against broker";
+
+      grossLossesDisplay.textContent = "+" + money(pool.grossPlayerLosses);
+      grossWinsDisplay.textContent = "-" + money(pool.grossPlayerWins);
+
+      totalVolumeDisplay.textContent = money(pool.totalVolumeStaked);
+      totalContractsDisplay.textContent = pool.totalContractsSettled.toLocaleString();
+
+      const edge = pool.totalVolumeStaked > 0 ? (pool.totalBrokerPnL / pool.totalVolumeStaked) * 100 : 0;
+      houseEdgeDisplay.textContent = edge.toFixed(2) + "%";
+      houseEdgeDisplay.className = edge > 0 ? "pos" : edge < 0 ? "neg" : "";
+
+      const totalLiabilities = round2(accountsList.reduce((acc, u) => acc + (u.balance || 0), 0));
+      playerLiabilitiesDisplay.textContent = money(totalLiabilities);
+
+      const netCashier = round2((pool.cashierDeposits || 0) - (pool.cashierWithdrawals || 0));
+      cashierNetDisplay.textContent = signedMoney(netCashier);
+
+      // 2. Cashier Account Dropdown (preserve selection)
+      const prevSel = cashierAccountSelect.value || selectedAccountEmail;
+      cashierAccountSelect.innerHTML = accountsList.map(acc =>
+        `<option value="${acc.email}">${acc.name} (${acc.guest ? "Guest" : acc.email}) — ${money(acc.balance)}</option>`
+      ).join("");
+      if (db.accounts[prevSel]) cashierAccountSelect.value = prevSel;
+
+      // 3. Connected Accounts Table
+      accountCountBadge.textContent = `${accountsList.length} Account${accountsList.length === 1 ? "" : "s"}`;
+      accountsTableBody.innerHTML = accountsList.map(acc => {
+        const playerPL = round2(acc.totalPL || 0);
+        const brokerFromUser = round2(-playerPL);
+        const isSuspended = acc.status === "suspended";
+        return `
+          <tr>
+            <td>
+              <strong>${acc.name}</strong><br />
+              <span style="font-size:0.74rem;color:var(--muted);">${acc.email} &bull; ${acc.id}</span>
+            </td>
+            <td>
+              <span class="badge ${acc.guest ? "badge-guest" : "badge-user"}">${acc.guest ? "GUEST" : "SIGNED IN"}</span>
+              ${isSuspended ? '<span class="badge badge-loss" style="margin-left:4px;">SUSPENDED</span>' : ""}
+            </td>
+            <td><strong>${money(acc.balance)}</strong></td>
+            <td class="${playerPL > 0 ? "pos" : playerPL < 0 ? "neg" : ""}">${signedMoney(playerPL)}</td>
+            <td class="${brokerFromUser > 0 ? "pos" : brokerFromUser < 0 ? "neg" : ""}"><strong>${signedMoney(brokerFromUser)}</strong></td>
+            <td>${acc.wins || 0}W / ${acc.losses || 0}L</td>
+            <td>
+              <div class="mini-actions">
+                <button type="button" class="mini-btn sel" data-act="select" data-email="${acc.email}">Cashier</button>
+                <button type="button" class="mini-btn" data-act="topup" data-email="${acc.email}">+$1k</button>
+                <button type="button" class="mini-btn" data-act="reset" data-email="${acc.email}">Reset $10k</button>
+                ${!acc.guest ? `<button type="button" class="mini-btn" data-act="toggle" data-email="${acc.email}">${isSuspended ? "Activate" : "Suspend"}</button>` : ""}
+              </div>
+            </td>
+          </tr>`;
+      }).join("");
+
+      // 4. Broker Clearing & Cashier Ledger
+      const filtered = db.ledger.filter(tx => {
+        if (ledgerFilter === "ALL") return true;
+        if (ledgerFilter === "TRADE_SETTLEMENT") return tx.category === "TRADE_SETTLEMENT";
+        if (ledgerFilter === "CASHIER") return tx.category !== "TRADE_SETTLEMENT";
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        ledgerTableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px;">No transactions recorded yet. Place trades in the simulator or use the Cashier desk.</td></tr>';
+      } else {
+        ledgerTableBody.innerHTML = filtered.slice(0, 100).map(tx => {
+          const isTrade = tx.category === "TRADE_SETTLEMENT";
+          const outcomeBadge = isTrade
+            ? (tx.outcome === "PLAYER_WIN"
+                ? '<span class="badge badge-loss">Player Won</span>'
+                : '<span class="badge badge-win">Broker Won</span>')
+            : `<span class="badge badge-cashier">${tx.outcome}</span>`;
+
+          return `
+            <tr>
+              <td style="color:var(--muted);">${formatDateTime(tx.ts)}</td>
+              <td style="font-size:0.74rem;color:var(--muted);">${tx.id}</td>
+              <td>
+                <strong>${tx.userName}</strong>
+                ${tx.isGuest ? '<span class="badge badge-guest" style="margin-left:4px;">Guest</span>' : ""}
+              </td>
+              <td>
+                ${tx.contract}
+                ${tx.market && tx.market !== "CASHIER" ? `<span style="color:var(--muted);font-size:0.72rem;">(${tx.market})</span>` : ""}
+                <div style="margin-top:2px;">${outcomeBadge}</div>
+              </td>
+              <td>${money(tx.stake)}</td>
+              <td class="${tx.playerPnL > 0 ? "pos" : tx.playerPnL < 0 ? "neg" : ""}">${signedMoney(tx.playerPnL)}</td>
+              <td class="${tx.brokerPnL > 0 ? "pos" : tx.brokerPnL < 0 ? "neg" : ""}"><strong>${signedMoney(tx.brokerPnL)}</strong></td>
+              <td><strong>${money(tx.poolBalanceAfter)}</strong></td>
+            </tr>`;
+        }).join("");
+      }
+
+      lastSyncLabel.textContent = "Last sync: " + formatDateTime(Date.now());
+    }
+
+    // Quick amount chips
+    document.querySelectorAll(".amt-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        cashierAmount.value = btn.dataset.amt;
+      });
+    });
+
+    // Deposit & Withdraw handlers
+    function handleCashier(action) {
+      const email = cashierAccountSelect.value;
+      const amt = parseFloat(cashierAmount.value);
+      const note = cashierNote.value.trim();
+      const sourceFromPool = linkPoolCheckbox.checked;
+
+      const res = brokerCashierAction({ email, action, amount: amt, note, sourceFromPool });
+      if (!res.ok) {
+        showToast(cashierToast, res.error, false);
+        return;
+      }
+      cashierAmount.value = "";
+      cashierNote.value = "";
+      showToast(
+        cashierToast,
+        `${action === "DEPOSIT" ? "Deposited" : "Withdrew"} ${money(amt)} ${action === "DEPOSIT" ? "to" : "from"} ${res.account.name}.`,
+        true
+      );
+      renderAllAdmin();
+    }
+
+    document.getElementById("depositBtn").addEventListener("click", () => handleCashier("DEPOSIT"));
+    document.getElementById("withdrawBtn").addEventListener("click", () => handleCashier("WITHDRAW"));
+
+    // Create new trader account
+    document.getElementById("createAccountForm").addEventListener("submit", (e) => {
       e.preventDefault();
-      const name = document.getElementById("newName").value.trim();
-      const email = document.getElementById("newEmail").value.trim().toLowerCase();
-      const password = document.getElementById("newPass").value;
+      const name = document.getElementById("newTraderName").value.trim();
+      const email = document.getElementById("newTraderEmail").value.trim().toLowerCase();
+      const password = document.getElementById("newTraderPass").value;
+      const initBal = round2(parseFloat(document.getElementById("newTraderDeposit").value) || 0);
 
-      if (email === ADMIN_EMAIL) return notify("Cannot overwrite admin email.");
-      if (password.length < 4) return notify("Password must be at least 4 characters.");
+      const db = loadBrokerDB();
+      if (db.accounts[email]) {
+        showToast(createToast, "An account with this email already exists.", false);
+        return;
+      }
 
-      const users = getUsers();
-      users[email] = { name, email, password, role: "user" };
-      saveUsers(users);
-      e.target.reset();
-      renderDashboard();
-      notify(`Created account for ${name}`);
-    });
-
-    document.getElementById("clearUsersBtn").addEventListener("click", () => {
-      saveUsers({});
-      renderDashboard();
-      notify("All non-admin accounts cleared.");
-    });
-
-    document.getElementById("saveBalanceBtn").addEventListener("click", () => {
-      const val = parseFloat(document.getElementById("setBalanceInput").value);
-      if (isNaN(val) || val < 0) return notify("Enter a valid balance amount.");
-      const sim = getSimAccount();
-      sim.balance = Math.round(val * 100) / 100;
-      localStorage.setItem("kholleta_demo_account", JSON.stringify(sim));
-      renderDashboard();
-      notify(`Simulator balance updated to ${money(sim.balance)}`);
-    });
-
-    document.getElementById("resetStatsBtn").addEventListener("click", () => {
-      localStorage.setItem("kholleta_demo_account", JSON.stringify({
-        balance: 10000,
+      db.accounts[email] = {
+        id: "KH-USR-" + String(1000 + Math.floor(Math.random() * 9000)),
+        name: name || email.split("@")[0],
+        email,
+        password,
+        guest: false,
+        balance: initBal,
         totalPL: 0,
         wins: 0,
-        losses: 0
-      }));
-      renderDashboard();
-      notify("Simulator balance and stats reset to default.");
+        losses: 0,
+        totalDeposited: initBal,
+        totalWithdrawn: 0,
+        createdAt: Date.now(),
+        lastActive: Date.now(),
+        status: "active"
+      };
+      saveBrokerDB(db);
+
+      if (initBal > 0) {
+        brokerCashierAction({
+          email,
+          action: "DEPOSIT",
+          amount: 0, // already credited on creation; log event cleanly
+          note: "Initial Account Opening Deposit",
+          sourceFromPool: false
+        });
+        // Record initial opening ledger entry
+        const db2 = loadBrokerDB();
+        db2.ledger.unshift({
+          id: "NEW-" + Date.now().toString(36).toUpperCase(),
+          ts: Date.now(),
+          category: "CASHIER_DEPOSIT",
+          email,
+          userName: db2.accounts[email].name,
+          isGuest: false,
+          contract: "Initial Account Funding",
+          market: "CASHIER",
+          stake: initBal,
+          outcome: "NEW_ACCOUNT",
+          playerPnL: initBal,
+          brokerPnL: 0,
+          poolBalanceAfter: db2.pool.balance,
+          userBalanceAfter: initBal
+        });
+        saveBrokerDB(db2);
+      }
+
+      document.getElementById("newTraderName").value = "";
+      document.getElementById("newTraderEmail").value = "";
+      selectedAccountEmail = email;
+      showToast(createToast, `Account created for ${name} (${money(initBal)}).`, true);
+      renderAllAdmin();
     });
 
-    document.getElementById("openSimBtn").addEventListener("click", () => {
-      window.location.href = SIMULATOR_FILE;
+    // Table quick actions
+    accountsTableBody.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-act]");
+      if (!btn) return;
+      const act = btn.dataset.act;
+      const email = btn.dataset.email;
+      const db = loadBrokerDB();
+      const acc = db.accounts[email];
+      if (!acc) return;
+
+      if (act === "select") {
+        selectedAccountEmail = email;
+        cashierAccountSelect.value = email;
+        cashierAmount.focus();
+      } else if (act === "topup") {
+        brokerCashierAction({
+          email,
+          action: "DEPOSIT",
+          amount: 1000,
+          note: "Admin Quick +$1,000 Top-up",
+          sourceFromPool: linkPoolCheckbox.checked
+        });
+        showToast(cashierToast, `Added $1,000.00 to ${acc.name}.`, true);
+        renderAllAdmin();
+      } else if (act === "reset") {
+        const diff = round2(DEFAULT_USER_START - acc.balance);
+        if (diff !== 0) {
+          brokerCashierAction({
+            email,
+            action: diff > 0 ? "DEPOSIT" : "WITHDRAW",
+            amount: Math.abs(diff),
+            note: "Admin Balance Reset to $10,000",
+            sourceFromPool: linkPoolCheckbox.checked
+          });
+          showToast(cashierToast, `Reset ${acc.name} balance to $10,000.00.`, true);
+          renderAllAdmin();
+        }
+      } else if (act === "toggle") {
+        acc.status = acc.status === "suspended" ? "active" : "suspended";
+        saveBrokerDB(db);
+        renderAllAdmin();
+      }
     });
 
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      localStorage.removeItem("kholleta_active_session");
-      window.location.href = "index.html";
+    // Ledger filter buttons
+    document.getElementById("ledgerFilters").addEventListener("click", (e) => {
+      const btn = e.target.closest(".filter-btn");
+      if (!btn) return;
+      ledgerFilter = btn.dataset.filter;
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.toggle("active", b === btn));
+      renderAllAdmin();
     });
 
-    renderDashboard();
+    // Reset $10M Broker Pool
+    document.getElementById("resetPoolBtn").addEventListener("click", () => {
+      const db = loadBrokerDB();
+      db.pool = getDefaultBrokerDB().pool;
+      db.ledger.unshift({
+        id: "POOL-" + Date.now().toString(36).toUpperCase(),
+        ts: Date.now(),
+        category: "CASHIER_ADJUSTMENT",
+        email: "admin@kholleta.local",
+        userName: "Broker Admin",
+        isGuest: false,
+        contract: "Liquidity Pool Reset to $10,000,000",
+        market: "VAULT",
+        stake: INITIAL_POOL_BALANCE,
+        outcome: "POOL_RESET",
+        playerPnL: 0,
+        brokerPnL: 0,
+        poolBalanceAfter: INITIAL_POOL_BALANCE,
+        userBalanceAfter: 0
+      });
+      saveBrokerDB(db);
+      showToast(cashierToast, "Broker Liquidity Pool reset to $10,000,000.00.", true);
+      renderAllAdmin();
+    });
+
+    // Real-time cross-tab listener + polling fallback so Admin updates live while simulator is played!
+    window.addEventListener("storage", (e) => {
+      if (e.key === BROKER_DB_KEY) renderAllAdmin();
+    });
+    setInterval(renderAllAdmin, 1500);
+
+    // Initial render
+    loadBrokerDB();
+    renderAllAdmin();
   </script>
 </body>
 </html>
+Displaying admin.html.
