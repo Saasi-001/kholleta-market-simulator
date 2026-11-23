@@ -1,9 +1,64 @@
+
+Conversation with Gemini
+these are files for my market simulator .....create for me an admin page, that works as a blocker with a pool demo account of 10 million usd whereby if a signed in or guest account makes money, it automatically deducts it from the pool account and if they loose money, it automatically adds it to the pool accout as blocker profit,......i want some kind of a cashier system that is linked to the accounts of people playing the trading game on the simulator. also add some kind of a summary with blocker pnl side. in short make like a bloker back end
+
+Your Broker Admin Portal, Cashier System, and updated Simulator files are ready:
+
+HTML icon
+admin
+ HTML 
+HTML icon
+Kholleta_Market_simulator-v16
+ HTML 
+HTML icon
+index
+ HTML 
+ZIP icon
+Kholleta_Broker_System
+ ZIP 
+System Architecture & Key Features
+admin.html — Broker Backend, $10M Liquidity Pool & Cashier Desk
+
+$10,000,000.00 Broker Pool Vault: Automatically acts as the counterparty to all simulator trades.
+
+Player Wins: Net player winnings (payout - stake) are automatically deducted from the $10,000,000 pool.
+
+Player Losses: Lost stakes are automatically credited to the $10,000,000 pool as Broker Profit.
+
+Broker P&L & Risk Summary: Displays live Net Broker P&L (House Profit), Gross Player Losses Captured, Gross Player Wins Paid Out, Total Turnover Staked, House Edge / Hold %, Total Player Liabilities, and Cashier Net Issued.
+
+Linked Cashier System: Select any registered or guest player account to Deposit funds, Withdraw funds, issue quick +$1,000 top-ups, reset balances to $10,000.00, create new pre-funded player accounts, or suspend/activate accounts.
+
+Real-Time Clearing & Cashier Ledger: Logs every settled trade and cashier transaction with exact player impact, broker pool impact, and running pool balance.
+
+Kholleta_Market_simulator-v16.html — Broker-Synced Market Simulator
+
+Connects directly to the active signed-in or guest session (kholleta_broker_backend_v1) and settles every manual and auto-trade contract against the $10M pool in real time.
+
+Listens for live storage updates so any deposit or withdrawal made in admin.html updates the player's balance immediately without refreshing.
+
+Includes header shortcuts to open Broker Pool (admin.html) or Switch User (index.html).
+
+index.html — Updated Login & Account Portal
+
+Registers new accounts directly into the shared Broker Cashier directory (kholleta_broker_backend_v1), routes Demo Guests to the shared guest ledger, and links directly to Kholleta_Market_simulator-v16.html and admin.html.
+
+Setup Instructions
+Place index.html, Kholleta_Market_simulator-v16.html, and admin.html in the same folder (or extract Kholleta_Broker_System.zip). Open index.html to sign in or play as a guest, and open admin.html in a second browser tab to watch the $10M pool, Broker P&L, and Cashier update live as trades settle.
+
+
+
+
+
+Gemini is AI and can make mistakes.
+
+Saved to Google Drive
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kholleta — Login</title>
+  <title>Kholleta — Login &amp; Portal</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2048%2048%22%3E%3Cdefs%3E%3ClinearGradient%20id=%22g%22%20x1=%220%22%20y1=%220%22%20x2=%221%22%20y2=%221%22%3E%3Cstop%20offset=%220%22%20stop-color=%22%2338bdf8%22/%3E%3Cstop%20offset=%221%22%20stop-color=%22%2322c55e%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width=%2248%22%20height=%2248%22%20rx=%2212%22%20fill=%22url(%23g)%22/%3E%3Cpath%20d=%22M16%2011v26M17%2025L32%2012M17%2024l16%2013%22%20stroke=%22%230f172a%22%20stroke-width=%225%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%20fill=%22none%22/%3E%3C/svg%3E" />
   <style>
     :root {
@@ -17,13 +72,7 @@
       --success: #22c55e;
       --danger: #fb7185;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 45%),
@@ -36,7 +85,6 @@
       align-items: center;
       padding: 20px;
     }
-
     .auth-wrapper {
       width: 100%;
       max-width: 420px;
@@ -44,27 +92,18 @@
       flex-direction: column;
       gap: 20px;
     }
-
-    /* Brand Header (Matches Simulator) */
     .brand {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
     }
-
     .brand-logo {
       width: 44px;
       height: 44px;
       filter: drop-shadow(0 4px 12px rgba(56, 189, 248, 0.25));
     }
-
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.15;
-    }
-
+    .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
     .brand-name {
       font-size: 1.5rem;
       font-weight: 800;
@@ -74,7 +113,6 @@
       background-clip: text;
       color: transparent;
     }
-
     .brand-sub {
       font-size: 0.75rem;
       font-weight: 600;
@@ -82,8 +120,6 @@
       letter-spacing: 0.14em;
       text-transform: uppercase;
     }
-
-    /* Card */
     .card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -91,7 +127,6 @@
       padding: 28px;
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
     }
-
     .tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -101,7 +136,6 @@
       padding: 4px;
       margin-bottom: 22px;
     }
-
     .tab-btn {
       background: transparent;
       border: none;
@@ -113,16 +147,8 @@
       cursor: pointer;
       transition: all 0.15s ease;
     }
-
-    .tab-btn.active {
-      background: var(--accent);
-      color: #082f49;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
+    .tab-btn.active { background: var(--accent); color: #082f49; }
+    .form-group { margin-bottom: 16px; }
     label {
       display: block;
       font-size: 0.8rem;
@@ -130,7 +156,6 @@
       color: var(--muted);
       margin-bottom: 6px;
     }
-
     input {
       width: 100%;
       background: var(--bg);
@@ -143,11 +168,7 @@
       outline: none;
       transition: border-color 0.15s ease;
     }
-
-    input:focus {
-      border-color: var(--accent);
-    }
-
+    input:focus { border-color: var(--accent); }
     .btn-primary {
       width: 100%;
       background: linear-gradient(90deg, #38bdf8, #22c55e);
@@ -161,12 +182,7 @@
       margin-top: 4px;
       transition: filter 0.15s ease, transform 0.1s ease;
     }
-
-    .btn-primary:hover {
-      filter: brightness(1.08);
-      transform: translateY(-1px);
-    }
-
+    .btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
     .divider {
       display: flex;
       align-items: center;
@@ -175,18 +191,12 @@
       font-size: 0.78rem;
       margin: 18px 0;
     }
-
-    .divider::before,
-    .divider::after {
+    .divider::before, .divider::after {
       content: "";
       flex: 1;
       border-bottom: 1px solid var(--border);
     }
-
-    .divider span {
-      padding: 0 10px;
-    }
-
+    .divider span { padding: 0 10px; }
     .btn-guest {
       width: 100%;
       background: rgba(148, 163, 184, 0.1);
@@ -199,11 +209,23 @@
       cursor: pointer;
       transition: background 0.15s ease;
     }
-
-    .btn-guest:hover {
-      background: rgba(148, 163, 184, 0.18);
+    .btn-guest:hover { background: rgba(148, 163, 184, 0.18); }
+    .btn-admin-link {
+      display: block;
+      width: 100%;
+      text-align: center;
+      margin-top: 12px;
+      padding: 9px;
+      border-radius: 10px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fcd34d;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s ease;
     }
-
+    .btn-admin-link:hover { background: rgba(245, 158, 11, 0.22); }
     .message {
       font-size: 0.84rem;
       padding: 10px 12px;
@@ -212,21 +234,18 @@
       display: none;
       font-weight: 600;
     }
-
     .message.error {
       display: block;
       background: rgba(251, 113, 133, 0.14);
       border: 1px solid rgba(251, 113, 133, 0.4);
       color: #fda4af;
     }
-
     .message.success {
       display: block;
       background: rgba(34, 197, 94, 0.14);
       border: 1px solid rgba(34, 197, 94, 0.4);
       color: #86efac;
     }
-
     .footer-note {
       text-align: center;
       font-size: 0.76rem;
@@ -284,26 +303,265 @@
       <div class="divider"><span>OR</span></div>
 
       <button id="guestBtn" class="btn-guest" type="button">Continue as Demo Guest ($10,000)</button>
+      <a href="admin.html" class="btn-admin-link">Open Broker Admin &amp; Cashier Portal &rarr;</a>
     </main>
 
     <p class="footer-note">
-      Synthetic Volatility Indices &bull; Manual &amp; Auto Trading<br />
+      Synthetic Volatility Indices &bull; Backed by $10M Broker Liquidity Pool<br />
       Virtual demo environment. No real funds are involved.
     </p>
   </div>
 
   <script>
-    // Make sure this matches your exact simulator filename in the folder/repo
-    const SIMULATOR_FILE = "Kholleta_Market_simulator-v13.html";
-    const ADMIN_PAGE = "admin.html";
 
-    // Change these admin login credentials before hosting publicly
-    const ADMIN_CONFIG = {
-      email: "admin@kholleta.mail",
-      password: "ghjkl",
-      name: "kholletta"
-    };
+    // =========================================================================
+    // KHOLLETA BROKER BACKEND & CASHIER ENGINE (Shared across index, sim, admin)
+    // =========================================================================
+    const BROKER_DB_KEY = "kholleta_broker_backend_v1";
+    const SESSION_KEY = "kholleta_active_session";
+    const INITIAL_POOL_BALANCE = 10000000.00; // $10,000,000.00 USD Broker Liquidity Pool
+    const DEFAULT_USER_START = 10000.00;
 
+    function round2(n) {
+      return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+    }
+
+    function getDefaultBrokerDB() {
+      return {
+        pool: {
+          initialBalance: INITIAL_POOL_BALANCE,
+          balance: INITIAL_POOL_BALANCE,
+          totalBrokerPnL: 0,       // Net profit/loss for broker (+ means players lost overall, - means players won overall)
+          grossPlayerLosses: 0,    // Credited to pool
+          grossPlayerWins: 0,      // Deducted from pool
+          totalVolumeStaked: 0,
+          totalContractsSettled: 0,
+          cashierDeposits: 0,
+          cashierWithdrawals: 0
+        },
+        accounts: {
+          "guest@kholleta.local": {
+            id: "KH-GUEST-0001",
+            email: "guest@kholleta.local",
+            name: "Demo Guest",
+            guest: true,
+            balance: DEFAULT_USER_START,
+            totalPL: 0,
+            wins: 0,
+            losses: 0,
+            totalDeposited: DEFAULT_USER_START,
+            totalWithdrawn: 0,
+            createdAt: Date.now(),
+            lastActive: Date.now(),
+            status: "active"
+          }
+        },
+        ledger: [], // Broker trade settlement & cashier transactions
+        adminPassword: "admin"
+      };
+    }
+
+    function loadBrokerDB() {
+      let db = null;
+      try {
+        db = JSON.parse(localStorage.getItem(BROKER_DB_KEY) || "null");
+      } catch (e) { db = null; }
+      if (!db || !db.pool || !db.accounts) {
+        db = getDefaultBrokerDB();
+        // Migrate any existing users from old kholleta_users key
+        try {
+          const oldUsers = JSON.parse(localStorage.getItem("kholleta_users") || "{}");
+          Object.keys(oldUsers).forEach((em, idx) => {
+            if (!db.accounts[em]) {
+              db.accounts[em] = {
+                id: "KH-USR-" + String(1001 + idx),
+                email: em,
+                name: oldUsers[em].name || em.split("@")[0],
+                password: oldUsers[em].password || "1234",
+                guest: false,
+                balance: DEFAULT_USER_START,
+                totalPL: 0,
+                wins: 0,
+                losses: 0,
+                totalDeposited: DEFAULT_USER_START,
+                totalWithdrawn: 0,
+                createdAt: Date.now(),
+                lastActive: Date.now(),
+                status: "active"
+              };
+            }
+          });
+        } catch (e) {}
+        saveBrokerDB(db);
+      }
+      if (!db.accounts["guest@kholleta.local"]) {
+        db.accounts["guest@kholleta.local"] = getDefaultBrokerDB().accounts["guest@kholleta.local"];
+        saveBrokerDB(db);
+      }
+      return db;
+    }
+
+    function saveBrokerDB(db) {
+      try {
+        localStorage.setItem(BROKER_DB_KEY, JSON.stringify(db));
+      } catch (e) { console.error("Failed to save Broker DB", e); }
+    }
+
+    function getActiveSession() {
+      try {
+        return JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+      } catch (e) { return null; }
+    }
+
+    function ensureSessionAccount() {
+      const db = loadBrokerDB();
+      let sess = getActiveSession();
+      if (!sess || !sess.email) {
+        sess = { name: "Demo Guest", email: "guest@kholleta.local", guest: true, loggedInAt: Date.now() };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(sess));
+      }
+      const em = sess.email.toLowerCase();
+      if (!db.accounts[em]) {
+        db.accounts[em] = {
+          id: (sess.guest ? "KH-GUEST-" : "KH-USR-") + String(1000 + Math.floor(Math.random() * 9000)),
+          email: em,
+          name: sess.name || em.split("@")[0],
+          password: sess.password || "",
+          guest: !!sess.guest,
+          balance: DEFAULT_USER_START,
+          totalPL: 0,
+          wins: 0,
+          losses: 0,
+          totalDeposited: DEFAULT_USER_START,
+          totalWithdrawn: 0,
+          createdAt: Date.now(),
+          lastActive: Date.now(),
+          status: "active"
+        };
+        saveBrokerDB(db);
+      }
+      return { db, account: db.accounts[em] };
+    }
+
+    // Settle a trade against the $10,000,000 Broker Liquidity Pool:
+    // - If player WINS (playerProfit > 0): deduct playerProfit from Broker Pool (Broker P&L decreases)
+    // - If player LOSES (playerProfit < 0, i.e., -stake): add stake to Broker Pool (Broker P&L increases)
+    function brokerSettleContract(email, tradeDetails) {
+      const db = loadBrokerDB();
+      const em = (email || "guest@kholleta.local").toLowerCase();
+      const acc = db.accounts[em] || db.accounts["guest@kholleta.local"];
+      const playerProfit = round2(tradeDetails.profit); // positive on win, negative (-stake) on loss
+      const brokerImpact = round2(-playerProfit);     // negative on player win, positive on player loss
+
+      db.pool.balance = round2(db.pool.balance + brokerImpact);
+      db.pool.totalBrokerPnL = round2(db.pool.totalBrokerPnL + brokerImpact);
+      db.pool.totalVolumeStaked = round2(db.pool.totalVolumeStaked + tradeDetails.stake);
+      db.pool.totalContractsSettled += 1;
+
+      if (playerProfit > 0) {
+        db.pool.grossPlayerWins = round2(db.pool.grossPlayerWins + playerProfit);
+      } else if (playerProfit < 0) {
+        db.pool.grossPlayerLosses = round2(db.pool.grossPlayerLosses + Math.abs(playerProfit));
+      }
+
+      // Sync player account metrics
+      acc.balance = round2(tradeDetails.newUserBalance);
+      acc.totalPL = round2((acc.totalPL || 0) + playerProfit);
+      if (tradeDetails.win) acc.wins = (acc.wins || 0) + 1;
+      else acc.losses = (acc.losses || 0) + 1;
+      acc.lastActive = Date.now();
+
+      db.ledger.unshift({
+        id: "TX-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(100 + Math.random() * 900),
+        ts: Date.now(),
+        category: "TRADE_SETTLEMENT",
+        email: acc.email,
+        userName: acc.name,
+        isGuest: !!acc.guest,
+        contract: tradeDetails.contractName,
+        market: tradeDetails.market,
+        stake: round2(tradeDetails.stake),
+        outcome: tradeDetails.win ? "PLAYER_WIN" : "PLAYER_LOSS",
+        playerPnL: playerProfit,
+        brokerPnL: brokerImpact,
+        poolBalanceAfter: db.pool.balance,
+        userBalanceAfter: acc.balance
+      });
+
+      if (db.ledger.length > 500) db.ledger.length = 500;
+      saveBrokerDB(db);
+      return db;
+    }
+
+    // Cashier operation: Deposit (from Pool -> Player, or external top-up), Withdraw (Player -> Pool), Bonus, Reset
+    function brokerCashierAction({ email, action, amount, note, sourceFromPool }) {
+      const db = loadBrokerDB();
+      const em = (email || "").toLowerCase();
+      const acc = db.accounts[em];
+      if (!acc) return { ok: false, error: "Account not found." };
+
+      const amt = round2(Number(amount));
+      if (!isFinite(amt) || amt <= 0) return { ok: false, error: "Enter a valid positive USD amount." };
+
+      let userDelta = 0;
+      let poolDelta = 0;
+      let category = "";
+
+      if (action === "DEPOSIT") {
+        userDelta = amt;
+        acc.totalDeposited = round2((acc.totalDeposited || 0) + amt);
+        db.pool.cashierDeposits = round2((db.pool.cashierDeposits || 0) + amt);
+        if (sourceFromPool) {
+          poolDelta = -amt;
+        }
+        category = "CASHIER_DEPOSIT";
+      } else if (action === "WITHDRAW") {
+        if (amt > acc.balance) return { ok: false, error: "Insufficient player balance for withdrawal." };
+        userDelta = -amt;
+        acc.totalWithdrawn = round2((acc.totalWithdrawn || 0) + amt);
+        db.pool.cashierWithdrawals = round2((db.pool.cashierWithdrawals || 0) + amt);
+        if (sourceFromPool) {
+          poolDelta = amt;
+        }
+        category = "CASHIER_WITHDRAWAL";
+      } else if (action === "BONUS") {
+        userDelta = amt;
+        poolDelta = -amt;
+        category = "CASHIER_BONUS";
+      } else {
+        return { ok: false, error: "Unknown cashier action." };
+      }
+
+      acc.balance = round2(acc.balance + userDelta);
+      acc.lastActive = Date.now();
+      if (poolDelta !== 0) {
+        db.pool.balance = round2(db.pool.balance + poolDelta);
+      }
+
+      db.ledger.unshift({
+        id: "CSH-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(100 + Math.random() * 900),
+        ts: Date.now(),
+        category,
+        email: acc.email,
+        userName: acc.name,
+        isGuest: !!acc.guest,
+        contract: note || action,
+        market: "CASHIER",
+        stake: amt,
+        outcome: action,
+        playerPnL: userDelta,
+        brokerPnL: poolDelta,
+        poolBalanceAfter: db.pool.balance,
+        userBalanceAfter: acc.balance
+      });
+
+      if (db.ledger.length > 500) db.ledger.length = 500;
+      saveBrokerDB(db);
+      return { ok: true, db, account: acc };
+    }
+
+
+    const SIMULATOR_FILE = "Kholleta_Market_simulator-v16.html";
     let isRegisterMode = false;
 
     const loginTab = document.getElementById("loginTab");
@@ -335,24 +593,13 @@
     loginTab.addEventListener("click", () => setMode(false));
     registerTab.addEventListener("click", () => setMode(true));
 
-    function getUsers() {
-      try {
-        return JSON.parse(localStorage.getItem("kholleta_users") || "{}");
-      } catch {
-        return {};
-      }
-    }
-
-    function saveUsers(users) {
-      localStorage.setItem("kholleta_users", JSON.stringify(users));
-    }
-
-    function launchApp(userObj, targetUrl) {
-      localStorage.setItem("kholleta_active_session", JSON.stringify({
+    function launchApp(userObj) {
+      localStorage.setItem(SESSION_KEY, JSON.stringify({
         ...userObj,
         loggedInAt: Date.now()
       }));
-      window.location.href = targetUrl;
+      ensureSessionAccount();
+      window.location.href = SIMULATOR_FILE;
     }
 
     authForm.addEventListener("submit", (e) => {
@@ -360,19 +607,10 @@
       const email = emailInput.value.trim().toLowerCase();
       const password = passwordInput.value;
       const name = usernameInput.value.trim();
-      const users = getUsers();
-
-      // Check for Admin login first
-      if (!isRegisterMode && email === ADMIN_CONFIG.email && password === ADMIN_CONFIG.password) {
-        showMessage("Admin verified. Opening Admin Console...", "success");
-        setTimeout(() => {
-          launchApp({ name: ADMIN_CONFIG.name, email, role: "admin" }, ADMIN_PAGE);
-        }, 500);
-        return;
-      }
+      const db = loadBrokerDB();
 
       if (isRegisterMode) {
-        if (email === ADMIN_CONFIG.email || users[email]) {
+        if (db.accounts[email]) {
           showMessage("An account with this email already exists. Please sign in.", "error");
           return;
         }
@@ -380,24 +618,50 @@
           showMessage("Password must be at least 4 characters.", "error");
           return;
         }
-        users[email] = { name: name || email.split("@")[0], email, password, role: "user" };
-        saveUsers(users);
-        showMessage("Account created! Redirecting to simulator...", "success");
-        setTimeout(() => launchApp(users[email], SIMULATOR_FILE), 600);
+        const newAcc = {
+          id: "KH-USR-" + String(1000 + Math.floor(Math.random() * 9000)),
+          name: name || email.split("@")[0],
+          email,
+          password,
+          guest: false,
+          balance: DEFAULT_USER_START,
+          totalPL: 0,
+          wins: 0,
+          losses: 0,
+          totalDeposited: DEFAULT_USER_START,
+          totalWithdrawn: 0,
+          createdAt: Date.now(),
+          lastActive: Date.now(),
+          status: "active"
+        };
+        db.accounts[email] = newAcc;
+        saveBrokerDB(db);
+        showMessage("Account registered with Broker Cashier! Redirecting...", "success");
+        setTimeout(() => launchApp(newAcc), 500);
       } else {
-        const user = users[email];
-        if (!user || user.password !== password) {
+        const user = db.accounts[email];
+        if (!user || user.guest || user.password !== password) {
           showMessage("Invalid email or password. Create an account or use Demo Guest.", "error");
           return;
         }
+        if (user.status === "suspended") {
+          showMessage("This account has been suspended by the Broker Admin.", "error");
+          return;
+        }
+        user.lastActive = Date.now();
+        saveBrokerDB(db);
         showMessage("Welcome back, " + user.name + "! Launching...", "success");
-        setTimeout(() => launchApp(user, SIMULATOR_FILE), 500);
+        setTimeout(() => launchApp(user), 450);
       }
     });
 
     guestBtn.addEventListener("click", () => {
-      launchApp({ name: "Demo Guest", email: "guest@kholleta.local", role: "guest" }, SIMULATOR_FILE);
+      const db = loadBrokerDB();
+      const g = db.accounts["guest@kholleta.local"];
+      launchApp({ name: g ? g.name : "Demo Guest", email: "guest@kholleta.local", guest: true });
     });
   </script>
 </body>
 </html>
+index.html
+Displaying index.html.
