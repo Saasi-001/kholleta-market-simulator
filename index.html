@@ -317,7 +317,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'kholleta_broker_backend_v1';
+    const PRIMARY_KEY = 'kholleta_broker_backend_v1';
     const SIMULATOR_PAGE = 'Kholleta_Market_simulator-v16.html';
     const ADMIN_PAGE = 'admin.html';
     const DEFAULT_STARTING_BALANCE = 10000.00;
@@ -329,25 +329,62 @@
       password: 'admin123'
     };
 
-    function getBrokerState() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        try {
-          const parsed = JSON.parse(raw);
-          return {
-            brokerPool: typeof parsed.brokerPool === 'number' ? parsed.brokerPool : 10000000.00,
-            brokerNetPnL: typeof parsed.brokerNetPnL === 'number' ? parsed.brokerNetPnL : 0.00,
-            users: Array.isArray(parsed.users) ? parsed.users : [],
-            ledger: Array.isArray(parsed.ledger) ? parsed.ledger : [],
-            trades: Array.isArray(parsed.trades) ? parsed.trades : [],
-            activeSession: parsed.activeSession || null
-          };
-        } catch (err) {
-          console.error('Failed to parse broker state:', err);
-        }
-      }
+    // Known alternate keys in case admin.html reads a variant key
+    const ALTERNATE_STATE_KEYS = [
+      'kkolleta_broker_backend_v1',
+      'kholleta_broker_state',
+      'broker_backend_v1'
+    ];
+    const ALTERNATE_USER_LIST_KEYS = [
+      'kholleta_users',
+      'kkolleta_users',
+      'traders'
+    ];
 
-      const initialState = {
+    function normalizeUserRecord(rawUser) {
+      const displayName = rawUser.name || rawUser.fullName || rawUser.username || 'Trader';
+      const email = (rawUser.email || '').trim().toLowerCase();
+      const username = rawUser.username || (email ? email.split('@')[0] : 'trader');
+      const numericBalance = typeof rawUser.balance === 'number'
+        ? rawUser.balance
+        : parseFloat(String(rawUser.balance ?? DEFAULT_STARTING_BALANCE).replace(/[^0-9.-]+/g, '')) || DEFAULT_STARTING_BALANCE;
+
+      return {
+        id: rawUser.id || ('TRD-' + Date.now() + '-' + Math.floor(Math.random() * 1000)),
+        name: displayName,
+        fullName: displayName,
+        email: email,
+        username: username,
+        password: rawUser.password || '',
+        balance: numericBalance,
+        status: rawUser.status || 'active',
+        role: rawUser.role || 'trader',
+        createdAt: rawUser.createdAt || new Date().toISOString()
+      };
+    }
+
+    function mergeUsers(existingUsers, incomingUsers) {
+      const map = new Map();
+
+      const addOrMerge = (u) => {
+        if (!u) return;
+        const norm = normalizeUserRecord(u);
+        const key = norm.email || norm.username.toLowerCase() || norm.id;
+        if (map.has(key)) {
+          map.set(key, { ...map.get(key), ...norm });
+        } else {
+          map.set(key, norm);
+        }
+      };
+
+      (existingUsers || []).forEach(addOrMerge);
+      (incomingUsers || []).forEach(addOrMerge);
+
+      return Array.from(map.values());
+    }
+
+    function getBrokerState() {
+      let base = {
         brokerPool: 10000000.00,
         brokerNetPnL: 0.00,
         users: [],
@@ -355,12 +392,96 @@
         trades: [],
         activeSession: null
       };
-      saveBrokerState(initialState);
-      return initialState;
+
+      // Load primary state
+      try {
+        const rawPrimary = localStorage.getItem(PRIMARY_KEY);
+        if (rawPrimary) {
+          const parsed = JSON.parse(rawPrimary);
+          base = {
+            brokerPool: typeof parsed.brokerPool === 'number' ? parsed.brokerPool : 10000000.00,
+            brokerNetPnL: typeof parsed.brokerNetPnL === 'number' ? parsed.brokerNetPnL : 0.00,
+            users: Array.isArray(parsed.users) ? parsed.users.map(normalizeUserRecord) : [],
+            ledger: Array.isArray(parsed.ledger) ? parsed.ledger : [],
+            trades: Array.isArray(parsed.trades) ? parsed.trades : [],
+            activeSession: parsed.activeSession || null
+          };
+        }
+      } catch (err) {
+        console.error('Error reading primary broker state:', err);
+      }
+
+      // Pull in any users saved under alternate state keys
+      ALTERNATE_STATE_KEYS.forEach((altKey) => {
+        try {
+          const rawAlt = localStorage.getItem(altKey);
+          if (rawAlt) {
+            const parsedAlt = JSON.parse(rawAlt);
+            if (Array.isArray(parsedAlt.users)) {
+              base.users = mergeUsers(base.users, parsedAlt.users);
+            }
+          }
+        } catch (err) {
+          // Ignore malformed alternate storage
+        }
+      });
+
+      // Pull in any users saved under standalone user list keys
+      ALTERNATE_USER_LIST_KEYS.forEach((listKey) => {
+        try {
+          const rawList = localStorage.getItem(listKey);
+          if (rawList) {
+            const parsedList = JSON.parse(rawList);
+            if (Array.isArray(parsedList)) {
+              base.users = mergeUsers(base.users, parsedList);
+            }
+          }
+        } catch (err) {
+          // Ignore malformed list storage
+        }
+      });
+
+      return base;
     }
 
     function saveBrokerState(state) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      const normalizedUsers = (state.users || []).map(normalizeUserRecord);
+      const payload = {
+        ...state,
+        users: normalizedUsers
+      };
+
+      localStorage.setItem(PRIMARY_KEY, JSON.stringify(payload));
+
+      // Keep existing alternate state keys synced if admin.html uses one
+      ALTERNATE_STATE_KEYS.forEach((altKey) => {
+        try {
+          const existing = localStorage.getItem(altKey);
+          if (existing !== null) {
+            const parsed = JSON.parse(existing);
+            localStorage.setItem(altKey, JSON.stringify({
+              ...parsed,
+              users: normalizedUsers,
+              ledger: payload.ledger,
+              brokerPool: payload.brokerPool,
+              brokerNetPnL: payload.brokerNetPnL
+            }));
+          }
+        } catch (err) {
+          // Ignore if non-JSON
+        }
+      });
+
+      // Keep existing standalone user list keys synced if admin.html uses one
+      ALTERNATE_USER_LIST_KEYS.forEach((listKey) => {
+        try {
+          if (localStorage.getItem(listKey) !== null) {
+            localStorage.setItem(listKey, JSON.stringify(normalizedUsers));
+          }
+        } catch (err) {
+          // Ignore
+        }
+      });
     }
 
     function showAlert(message, type = 'error') {
@@ -406,7 +527,6 @@
       const password = document.getElementById('loginPassword').value;
       const state = getBrokerState();
 
-      // Admin login check
       const isAdminId =
         identifier === ADMIN_CREDENTIALS.username.toLowerCase() ||
         identifier === ADMIN_CREDENTIALS.email.toLowerCase();
@@ -428,7 +548,6 @@
         return;
       }
 
-      // Trader login check (by email or username)
       const trader = state.users.find((u) => {
         const emailMatch = u.email && u.email.toLowerCase() === identifier;
         const userMatch = u.username && u.username.toLowerCase() === identifier;
@@ -463,7 +582,7 @@
     });
 
     // =========================================================================
-    // CREATE ACCOUNT HANDLER (Full Name, Email Address, Password -> Admin Sync)
+    // CREATE ACCOUNT HANDLER (Full Name, Email Address, Password)
     // =========================================================================
     document.getElementById('registerForm').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -485,7 +604,6 @@
 
       const state = getBrokerState();
 
-      // Prevent duplicate email registrations
       const alreadyExists = state.users.some(
         (u) => u.email && u.email.toLowerCase() === email
       );
@@ -495,25 +613,24 @@
         return;
       }
 
-      // Generate a clean display username from email prefix
       const baseHandle = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '') || 'trader';
       const uniqueUsername = `${baseHandle}_${Math.floor(100 + Math.random() * 900)}`;
 
-      const newUser = {
+      const newUser = normalizeUserRecord({
         id: 'TRD-' + Date.now(),
         name: fullName,
+        fullName: fullName,
         email: email,
         username: uniqueUsername,
         password: password,
         balance: DEFAULT_STARTING_BALANCE,
         status: 'active',
+        role: 'trader',
         createdAt: new Date().toISOString()
-      };
+      });
 
-      // Add trader to shared broker users list (visible on admin.html)
       state.users.unshift(newUser);
 
-      // Record initial deposit in shared ledger (visible on admin.html)
       state.ledger.unshift({
         id: 'TXN-' + Date.now(),
         userId: newUser.id,
@@ -526,7 +643,6 @@
         timestamp: new Date().toISOString()
       });
 
-      // Set active trader session
       state.activeSession = {
         role: 'trader',
         userId: newUser.id,
@@ -555,16 +671,18 @@
 
       let demoUser = state.users.find((u) => u.email === demoEmail);
       if (!demoUser) {
-        demoUser = {
+        demoUser = normalizeUserRecord({
           id: 'TRD-DEMO-001',
           name: 'Demo Trader',
+          fullName: 'Demo Trader',
           email: demoEmail,
           username: 'demo_trader',
           password: '',
           balance: DEFAULT_STARTING_BALANCE,
           status: 'active',
+          role: 'trader',
           createdAt: new Date().toISOString()
-        };
+        });
         state.users.unshift(demoUser);
       }
 
@@ -583,8 +701,8 @@
       window.location.href = SIMULATOR_PAGE;
     }
 
-    // Ensure shared storage structure exists immediately
-    getBrokerState();
+    // Initialize and sync storage on load
+    saveBrokerState(getBrokerState());
   </script>
 </body>
 </html>
