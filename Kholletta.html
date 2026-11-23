@@ -1156,4 +1156,274 @@
         }
 
         let won = false;
-        if (c.direction === 'RISE') won =
+        if (c.direction === 'RISE') won = latestPrice > c.entryPrice;
+        else if (c.direction === 'FALL') won = latestPrice < c.entryPrice;
+        else if (c.direction === 'MATCHES') won = latestDigit === c.targetDigit;
+        else if (c.direction === 'DIFFERS') won = latestDigit !== c.targetDigit;
+
+        const mult = (c.direction === 'RISE' || c.direction === 'FALL') ? 1.85 : 1.90;
+        const payout = won ? Math.round(c.stake * mult * 100) / 100 : 0;
+        const netPnl = won ? Math.round((payout - c.stake) * 100) / 100 : -c.stake;
+
+        if (won && payout > 0) {
+          if (c.walletMode === 'real') {
+            const nextBal = (Number(currentProfile.balance) || 0) + payout;
+            await updateRealBalanceInDb(nextBal, null, 0, null);
+          } else {
+            demoBalance = Math.round((demoBalance + payout) * 100) / 100;
+            localStorage.setItem(`kholleta_demo_bal_${currentUser.id}`, String(demoBalance));
+            renderWalletUI();
+          }
+        }
+
+        const entry = {
+          time: new Date().toLocaleTimeString(),
+          market: c.marketName,
+          contract: c.contractType,
+          stake: c.stake,
+          outcome: won ? 'WIN' : 'LOSS',
+          pnl: netPnl,
+          walletMode: c.walletMode
+        };
+        tradeLog.unshift(entry);
+        if (tradeLog.length > 25) tradeLog.pop();
+        renderTradeHistory();
+
+        if (currentUser) {
+          await supabase.from('simulator_trades').insert({
+            user_id: currentUser.id,
+            wallet_mode: c.walletMode,
+            symbol: c.symbol,
+            contract_type: c.contractType,
+            stake: c.stake,
+            payout,
+            pnl: netPnl,
+            outcome: entry.outcome
+          });
+        }
+      }
+
+      openContracts = stillOpen;
+    }
+
+    function renderTradeHistory() {
+      const filtered = tradeLog.filter((t) => t.walletMode === walletMode);
+      const tbody = document.getElementById('tradeHistoryBody');
+
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="muted">No contracts executed on this wallet yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((t) => {
+        const cls = t.outcome === 'WIN' ? 'win-text' : 'loss-text';
+        const pnlPrefix = t.pnl >= 0 ? '+' : '';
+        return `
+          <tr>
+            <td class="muted">${t.time}</td>
+            <td>${t.market}</td>
+            <td><strong>${t.contract}</strong></td>
+            <td>${formatMoney(t.stake)}</td>
+            <td class="${cls}">${t.outcome}</td>
+            <td class="${cls}">${pnlPrefix}${formatMoney(t.pnl)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    const cashierModal = document.getElementById('cashierModal');
+
+    function openCashierModal(type) {
+      if (walletMode !== 'real') {
+        walletMode = 'real';
+        renderWalletUI();
+        renderTradeHistory();
+      }
+      modalMode = type;
+      document.getElementById('modalTitle').textContent =
+        type === 'DEPOSIT' ? 'Deposit to Real Wallet' : 'Withdraw from Real Wallet';
+      document.getElementById('confirmModalBtn').textContent =
+        type === 'DEPOSIT' ? 'Confirm Deposit' : 'Confirm Withdraw';
+      document.getElementById('modalAmount').value = '';
+      document.getElementById('modalNote').value = '';
+      cashierModal.classList.add('open');
+      document.getElementById('modalAmount').focus();
+    }
+
+    document.getElementById('openDepositBtn').addEventListener('click', () => openCashierModal('DEPOSIT'));
+    document.getElementById('openWithdrawBtn').addEventListener('click', () => openCashierModal('WITHDRAW'));
+    document.getElementById('menuDepositItem').addEventListener('click', () => {
+      document.getElementById('profileDropdown').classList.remove('open');
+      openCashierModal('DEPOSIT');
+    });
+    document.getElementById('menuWithdrawItem').addEventListener('click', () => {
+      document.getElementById('profileDropdown').classList.remove('open');
+      openCashierModal('WITHDRAW');
+    });
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      cashierModal.classList.remove('open');
+    });
+
+    document.getElementById('cashierModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('modalAmount').value);
+      const note = document.getElementById('modalNote').value.trim();
+
+      if (isNaN(amount) || amount <= 0) {
+        showToast('Enter a valid amount.');
+        return;
+      }
+
+      const currentRealBal = Number(currentProfile?.balance) || 0;
+      let nextBal = currentRealBal;
+
+      if (modalMode === 'DEPOSIT') {
+        nextBal = currentRealBal + amount;
+      } else {
+        if (amount > currentRealBal) {
+          showToast('Insufficient real wallet balance for withdrawal.');
+          return;
+        }
+        nextBal = currentRealBal - amount;
+      }
+
+      const ok = await updateRealBalanceInDb(
+        nextBal,
+        modalMode,
+        amount,
+        note || (modalMode === 'DEPOSIT' ? 'Trader Self Deposit' : 'Trader Self Withdrawal')
+      );
+
+      if (ok) {
+        cashierModal.classList.remove('open');
+        showToast(`${modalMode} of ${formatMoney(amount)} completed.`);
+      }
+    });
+
+    document.getElementById('resetDemoBtn').addEventListener('click', () => {
+      demoBalance = DEMO_DEFAULT_BALANCE;
+      if (currentUser) {
+        localStorage.setItem(`kholleta_demo_bal_${currentUser.id}`, String(demoBalance));
+      }
+      renderWalletUI();
+      showToast('Demo account reset to $10,000.00.');
+    });
+
+    document.getElementById('btnModeReal').addEventListener('click', () => {
+      walletMode = 'real';
+      renderWalletUI();
+      renderTradeHistory();
+    });
+
+    document.getElementById('btnModeDemo').addEventListener('click', () => {
+      walletMode = 'demo';
+      renderWalletUI();
+      renderTradeHistory();
+    });
+
+    document.getElementById('menuSwitchWalletItem').addEventListener('click', () => {
+      walletMode = walletMode === 'real' ? 'demo' : 'real';
+      document.getElementById('profileDropdown').classList.remove('open');
+      renderWalletUI();
+      renderTradeHistory();
+      showToast(`Switched to ${walletMode.toUpperCase()} wallet.`);
+    });
+
+    document.getElementById('profileMenuBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('profileDropdown').classList.toggle('open');
+    });
+
+    document.addEventListener('click', () => {
+      document.getElementById('profileDropdown').classList.remove('open');
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = INDEX_PAGE;
+    });
+
+    document.getElementById('tabUpDown').addEventListener('click', () => {
+      contractMode = 'updown';
+      document.getElementById('tabUpDown').classList.add('active');
+      document.getElementById('tabDigits').classList.remove('active');
+      document.getElementById('upDownControls').style.display = 'block';
+      document.getElementById('digitControls').style.display = 'none';
+      document.getElementById('riseFallButtons').style.display = 'grid';
+      document.getElementById('digitButtons').style.display = 'none';
+      updatePayoutPreview();
+    });
+
+    document.getElementById('tabDigits').addEventListener('click', () => {
+      contractMode = 'digits';
+      document.getElementById('tabDigits').classList.add('active');
+      document.getElementById('tabUpDown').classList.remove('active');
+      document.getElementById('upDownControls').style.display = 'none';
+      document.getElementById('digitControls').style.display = 'block';
+      document.getElementById('riseFallButtons').style.display = 'none';
+      document.getElementById('digitButtons').style.display = 'grid';
+      updatePayoutPreview();
+    });
+
+    document.getElementById('viewTickBtn').addEventListener('click', () => {
+      chartView = 'tick';
+      document.getElementById('viewTickBtn').classList.add('active');
+      document.getElementById('viewCandleBtn').classList.remove('active');
+      document.getElementById('chartSubtitle').textContent = '1s Tick Stream';
+      drawChart();
+    });
+
+    document.getElementById('viewCandleBtn').addEventListener('click', () => {
+      chartView = 'candle';
+      document.getElementById('viewCandleBtn').classList.add('active');
+      document.getElementById('viewTickBtn').classList.remove('active');
+      document.getElementById('chartSubtitle').textContent = 'Candle View';
+      drawChart();
+    });
+
+    document.getElementById('symbolSelect').addEventListener('change', (e) => {
+      currentSymbol = e.target.value;
+      document.getElementById('chartTitle').textContent = SYMBOL_CONFIG[currentSymbol]?.name || currentSymbol;
+      seedMarket(currentSymbol);
+      updateTickerUI(extractLastDigit(currentPrice));
+      renderDigitsBar(extractLastDigit(currentPrice));
+      drawChart();
+    });
+
+    document.getElementById('stakeInput').addEventListener('input', updatePayoutPreview);
+    document.getElementById('btnRise').addEventListener('click', () => placeContract('RISE'));
+    document.getElementById('btnFall').addEventListener('click', () => placeContract('FALL'));
+    document.getElementById('btnMatches').addEventListener('click', () => placeContract('MATCHES'));
+    document.getElementById('btnDiffers').addEventListener('click', () => placeContract('DIFFERS'));
+
+    const authed = await initAuthAndProfile();
+    if (authed) {
+      seedMarket(currentSymbol);
+      const initialDigit = extractLastDigit(currentPrice);
+      updateTickerUI(initialDigit);
+      renderDigitsBar(initialDigit);
+      drawChart();
+      renderTradeHistory();
+
+      supabase
+        .channel(`sim-profile-${currentUser.id}`)
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${currentUser.id}` },
+          (payload) => {
+            if (payload.new && typeof payload.new.balance !== 'undefined') {
+              currentProfile.balance = Number(payload.new.balance);
+              renderWalletUI();
+            }
+          }
+        )
+        .subscribe();
+
+      setInterval(() => {
+        const cfg = SYMBOL_CONFIG[currentSymbol] || SYMBOL_CONFIG.R_50;
+        pushTick(cfg.step, false);
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
