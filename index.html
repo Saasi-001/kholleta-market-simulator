@@ -12,7 +12,6 @@
       --border-color: #263042;
       --accent-green: #00d084;
       --accent-green-hover: #00b371;
-      --accent-gold: #f5b041;
       --text-main: #f1f5f9;
       --text-muted: #94a3b8;
       --danger: #ef4444;
@@ -235,7 +234,7 @@
     <div class="brand-header">
       <span class="brand-badge">Synthetic Volatility Engine</span>
       <h1>Kholleta Market</h1>
-      <p>Sign in to access your live trading terminal</p>
+      <p>Sign in or create a trader account to begin</p>
     </div>
 
     <div class="tabs">
@@ -248,33 +247,60 @@
     <!-- LOGIN FORM -->
     <form id="loginForm">
       <div class="form-group">
-        <label for="loginUsername">Username or Email</label>
-        <input type="text" id="loginUsername" placeholder="Enter username or email" required autocomplete="username" />
+        <label for="loginIdentifier">Email or Username</label>
+        <input
+          type="text"
+          id="loginIdentifier"
+          placeholder="Enter your email or username"
+          required
+          autocomplete="username"
+        />
       </div>
       <div class="form-group">
         <label for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" placeholder="Enter password" required autocomplete="current-password" />
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Enter your password"
+          required
+          autocomplete="current-password"
+        />
       </div>
       <button type="submit" class="btn-primary">Sign In to Terminal</button>
     </form>
 
-    <!-- REGISTER FORM -->
+    <!-- CREATE ACCOUNT FORM (Full Name, Email Address, Password) -->
     <form id="registerForm" class="hidden">
       <div class="form-group">
-        <label for="regName">Full Name</label>
-        <input type="text" id="regName" placeholder="e.g. Alex Trader" required />
+        <label for="regFullName">Full Name</label>
+        <input
+          type="text"
+          id="regFullName"
+          placeholder="Enter your full name"
+          required
+          autocomplete="name"
+        />
       </div>
       <div class="form-group">
-        <label for="regUsername">Username</label>
-        <input type="text" id="regUsername" placeholder="Choose a unique username" required />
+        <label for="regEmail">Email Address</label>
+        <input
+          type="email"
+          id="regEmail"
+          placeholder="Enter your email address"
+          required
+          autocomplete="email"
+        />
       </div>
       <div class="form-group">
         <label for="regPassword">Password</label>
-        <input type="password" id="regPassword" placeholder="Create a password" required />
-      </div>
-      <div class="form-group">
-        <label for="regDeposit">Initial Virtual Deposit (USD)</label>
-        <input type="number" id="regDeposit" value="10000" min="100" max="100000" step="100" required />
+        <input
+          type="password"
+          id="regPassword"
+          placeholder="Create a password (min. 4 characters)"
+          minlength="4"
+          required
+          autocomplete="new-password"
+        />
       </div>
       <button type="submit" class="btn-primary">Create Trader Account</button>
     </form>
@@ -291,30 +317,38 @@
   </div>
 
   <script>
-    // =========================================================================
-    // SHARED BROKER BACKEND CONFIGURATION (Synchronized with simulator & admin)
-    // =========================================================================
     const STORAGE_KEY = 'kholleta_broker_backend_v1';
     const SIMULATOR_PAGE = 'Kholleta_Market_simulator-v16.html';
     const ADMIN_PAGE = 'admin.html';
+    const DEFAULT_STARTING_BALANCE = 10000.00;
 
-    // Admin Credentials Configuration
+    // Admin Credentials
     const ADMIN_CREDENTIALS = {
       username: 'admin',
-      password: 'admin123' // Change this password as needed
+      email: 'admin@kholleta.local',
+      password: 'admin123'
     };
 
     function getBrokerState() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         try {
-          return JSON.parse(raw);
-        } catch (e) {
-          console.error('Corrupted broker storage, resetting...', e);
+          const parsed = JSON.parse(raw);
+          return {
+            brokerPool: typeof parsed.brokerPool === 'number' ? parsed.brokerPool : 10000000.00,
+            brokerNetPnL: typeof parsed.brokerNetPnL === 'number' ? parsed.brokerNetPnL : 0.00,
+            users: Array.isArray(parsed.users) ? parsed.users : [],
+            ledger: Array.isArray(parsed.ledger) ? parsed.ledger : [],
+            trades: Array.isArray(parsed.trades) ? parsed.trades : [],
+            activeSession: parsed.activeSession || null
+          };
+        } catch (err) {
+          console.error('Failed to parse broker state:', err);
         }
       }
+
       const initialState = {
-        brokerPool: 10000000.00, // $10,000,000 Liquidity Pool
+        brokerPool: 10000000.00,
         brokerNetPnL: 0.00,
         users: [],
         ledger: [],
@@ -337,8 +371,8 @@
 
     function clearAlert() {
       const box = document.getElementById('alertBox');
-      box.className = 'alert-box';
       box.textContent = '';
+      box.className = 'alert-box';
     }
 
     function switchTab(tab) {
@@ -362,118 +396,142 @@
     }
 
     // =========================================================================
-    // LOGIN HANDLER (Routes Admin Credentials Directly to admin.html)
+    // SIGN IN HANDLER (Admin -> admin.html | Traders -> Simulator)
     // =========================================================================
     document.getElementById('loginForm').addEventListener('submit', function (e) {
       e.preventDefault();
       clearAlert();
 
-      const usernameInput = document.getElementById('loginUsername').value.trim();
-      const passwordInput = document.getElementById('loginPassword').value;
+      const identifier = document.getElementById('loginIdentifier').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
       const state = getBrokerState();
 
-      // 1. Check Admin Credentials First
-      if (
-        usernameInput.toLowerCase() === ADMIN_CREDENTIALS.username.toLowerCase() &&
-        passwordInput === ADMIN_CREDENTIALS.password
-      ) {
+      // Admin login check
+      const isAdminId =
+        identifier === ADMIN_CREDENTIALS.username.toLowerCase() ||
+        identifier === ADMIN_CREDENTIALS.email.toLowerCase();
+
+      if (isAdminId && password === ADMIN_CREDENTIALS.password) {
         state.activeSession = {
           role: 'admin',
           username: ADMIN_CREDENTIALS.username,
+          email: ADMIN_CREDENTIALS.email,
           loginTime: new Date().toISOString()
         };
         saveBrokerState(state);
         sessionStorage.setItem('kholleta_role', 'admin');
 
-        showAlert('Admin authenticated. Redirecting to Broker Admin Panel...', 'success');
+        showAlert('Admin credentials verified. Opening Admin Panel...', 'success');
         setTimeout(() => {
           window.location.href = ADMIN_PAGE;
-        }, 400);
+        }, 350);
         return;
       }
 
-      // 2. Check Registered Trader Accounts
-      const matchedUser = state.users.find(
-        (u) =>
-          (u.username.toLowerCase() === usernameInput.toLowerCase() ||
-            (u.email && u.email.toLowerCase() === usernameInput.toLowerCase())) &&
-          u.password === passwordInput
-      );
+      // Trader login check (by email or username)
+      const trader = state.users.find((u) => {
+        const emailMatch = u.email && u.email.toLowerCase() === identifier;
+        const userMatch = u.username && u.username.toLowerCase() === identifier;
+        return (emailMatch || userMatch) && u.password === password;
+      });
 
-      if (!matchedUser) {
-        showAlert('Invalid username or password. Please check your credentials.');
+      if (!trader) {
+        showAlert('Invalid email/username or password.');
         return;
       }
 
-      if (matchedUser.status === 'suspended') {
-        showAlert('This trading account has been suspended by the broker administrator.');
+      if (trader.status === 'suspended') {
+        showAlert('Account is currently suspended. Contact the broker admin.');
         return;
       }
 
       state.activeSession = {
         role: 'trader',
-        userId: matchedUser.id,
-        username: matchedUser.username,
+        userId: trader.id,
+        name: trader.name,
+        email: trader.email,
+        username: trader.username,
         loginTime: new Date().toISOString()
       };
       saveBrokerState(state);
       sessionStorage.setItem('kholleta_role', 'trader');
 
-      showAlert(`Welcome back, ${matchedUser.name || matchedUser.username}! Launching terminal...`, 'success');
+      showAlert(`Welcome back, ${trader.name}! Launching simulator...`, 'success');
       setTimeout(() => {
         window.location.href = SIMULATOR_PAGE;
-      }, 400);
+      }, 350);
     });
 
     // =========================================================================
-    // REGISTRATION HANDLER
+    // CREATE ACCOUNT HANDLER (Full Name, Email Address, Password -> Admin Sync)
     // =========================================================================
     document.getElementById('registerForm').addEventListener('submit', function (e) {
       e.preventDefault();
       clearAlert();
 
-      const name = document.getElementById('regName').value.trim();
-      const username = document.getElementById('regUsername').value.trim();
+      const fullName = document.getElementById('regFullName').value.trim();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
       const password = document.getElementById('regPassword').value;
-      const initialDeposit = parseFloat(document.getElementById('regDeposit').value) || 10000;
 
-      if (username.toLowerCase() === ADMIN_CREDENTIALS.username.toLowerCase()) {
-        showAlert('That username is reserved. Please choose another username.');
+      if (!fullName || !email || !password) {
+        showAlert('Please fill in your full name, email address, and password.');
+        return;
+      }
+
+      if (email === ADMIN_CREDENTIALS.email.toLowerCase()) {
+        showAlert('This email address is reserved.');
         return;
       }
 
       const state = getBrokerState();
-      const exists = state.users.some((u) => u.username.toLowerCase() === username.toLowerCase());
 
-      if (exists) {
-        showAlert('Username already exists. Please sign in or pick a different username.');
+      // Prevent duplicate email registrations
+      const alreadyExists = state.users.some(
+        (u) => u.email && u.email.toLowerCase() === email
+      );
+
+      if (alreadyExists) {
+        showAlert('An account with this email address already exists. Please sign in instead.');
         return;
       }
 
+      // Generate a clean display username from email prefix
+      const baseHandle = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '') || 'trader';
+      const uniqueUsername = `${baseHandle}_${Math.floor(100 + Math.random() * 900)}`;
+
       const newUser = {
         id: 'TRD-' + Date.now(),
-        name: name,
-        username: username,
+        name: fullName,
+        email: email,
+        username: uniqueUsername,
         password: password,
-        balance: initialDeposit,
+        balance: DEFAULT_STARTING_BALANCE,
         status: 'active',
         createdAt: new Date().toISOString()
       };
 
-      state.users.push(newUser);
+      // Add trader to shared broker users list (visible on admin.html)
+      state.users.unshift(newUser);
+
+      // Record initial deposit in shared ledger (visible on admin.html)
       state.ledger.unshift({
         id: 'TXN-' + Date.now(),
         userId: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
         username: newUser.username,
         type: 'DEPOSIT',
-        amount: initialDeposit,
-        note: 'Initial Account Funding',
+        amount: DEFAULT_STARTING_BALANCE,
+        note: 'New Account Registration Bonus',
         timestamp: new Date().toISOString()
       });
 
+      // Set active trader session
       state.activeSession = {
         role: 'trader',
         userId: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
         username: newUser.username,
         loginTime: new Date().toISOString()
       };
@@ -481,36 +539,41 @@
       saveBrokerState(state);
       sessionStorage.setItem('kholleta_role', 'trader');
 
-      showAlert('Account created! Redirecting to Kholleta Market Simulator...', 'success');
+      showAlert(`Account created for ${fullName}! Redirecting to simulator...`, 'success');
       setTimeout(() => {
         window.location.href = SIMULATOR_PAGE;
-      }, 500);
+      }, 450);
     });
 
     // =========================================================================
-    // INSTANT DEMO / GUEST ACCESS
+    // INSTANT DEMO ACCESS
     // =========================================================================
     function loginAsGuest() {
+      clearAlert();
       const state = getBrokerState();
-      let guestUser = state.users.find((u) => u.username === 'demo_trader');
+      const demoEmail = 'demo@kholleta.local';
 
-      if (!guestUser) {
-        guestUser = {
+      let demoUser = state.users.find((u) => u.email === demoEmail);
+      if (!demoUser) {
+        demoUser = {
           id: 'TRD-DEMO-001',
           name: 'Demo Trader',
+          email: demoEmail,
           username: 'demo_trader',
           password: '',
-          balance: 10000.00,
+          balance: DEFAULT_STARTING_BALANCE,
           status: 'active',
           createdAt: new Date().toISOString()
         };
-        state.users.push(guestUser);
+        state.users.unshift(demoUser);
       }
 
       state.activeSession = {
         role: 'trader',
-        userId: guestUser.id,
-        username: guestUser.username,
+        userId: demoUser.id,
+        name: demoUser.name,
+        email: demoUser.email,
+        username: demoUser.username,
         isGuest: true,
         loginTime: new Date().toISOString()
       };
@@ -520,7 +583,7 @@
       window.location.href = SIMULATOR_PAGE;
     }
 
-    // Initialize storage on page load
+    // Ensure shared storage structure exists immediately
     getBrokerState();
   </script>
 </body>
