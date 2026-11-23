@@ -1,3 +1,7 @@
+
+Kholleta_Market_simulator-v16.html
+
+100%
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -187,36 +191,6 @@
     .mode-btn.active {
       background: var(--accent);
       color: #082f49;
-    }
-
-    .readout-group {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      font-size: 0.88rem;
-      color: var(--muted);
-      font-weight: 600;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .readout-price {
-      color: var(--text);
-      font-weight: 700;
-    }
-
-    .readout-digit {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(56, 189, 248, 0.16);
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      color: var(--accent);
-      font-size: 1.1rem;
-      font-weight: 800;
-      min-width: 28px;
-      height: 28px;
-      padding: 0 8px;
-      border-radius: 7px;
     }
 
     .chart-wrapper {
@@ -460,6 +434,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 8px;
+      gap: 6px;
     }
 
     .demo-badge {
@@ -512,7 +487,7 @@
 
     .virtual-note { font-size: 0.72rem; color: var(--muted); margin-top: 8px; }
 
-    /* Ticks Analysis (Deriv-style digit stats) */
+    /* Ticks Analysis */
     .ta-header {
       display: flex;
       justify-content: space-between;
@@ -521,9 +496,7 @@
       margin-bottom: 12px;
     }
 
-    .ta-header h2 {
-      margin: 0;
-    }
+    .ta-header h2 { margin: 0; }
 
     .ta-select-wrap {
       display: flex;
@@ -581,9 +554,7 @@
       transition: opacity 0.15s ease;
     }
 
-    .ta-cell.current .ta-pointer {
-      opacity: 1;
-    }
+    .ta-cell.current .ta-pointer { opacity: 1; }
 
     .ta-ring {
       --pct: 0;
@@ -613,10 +584,7 @@
       font-size: 1.05rem;
     }
 
-    .ta-cell.current .ta-ring {
-      box-shadow: 0 0 0 2px #f8fafc;
-    }
-
+    .ta-cell.current .ta-ring { box-shadow: 0 0 0 2px #f8fafc; }
     .ta-cell.highest .ta-ring { --ring: #22c55e; }
     .ta-cell.lowest .ta-ring { --ring: #ef4444; }
 
@@ -641,7 +609,6 @@
       margin-bottom: 8px;
     }
 
-    /* Contract lists */
     .section-header-row {
       display: flex;
       justify-content: space-between;
@@ -738,11 +705,9 @@
     }
 
     .auto-box { display: flex; flex-direction: column; gap: 10px; }
-
     .side-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .side-btn { padding: 8px 0; }
     .side-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-
     .auto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
     .auto-grid .param { margin-bottom: 0; }
 
@@ -800,7 +765,7 @@
     .trade-params[inert], .trade-tabs[inert] { opacity: 0.5; }
 
     /* Header actions, profile chip */
-    .brand-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .brand-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .hdr-btn {
       display: inline-flex;
@@ -815,10 +780,17 @@
       font-weight: 700;
       cursor: pointer;
       font-family: inherit;
+      text-decoration: none;
       transition: background 0.15s ease;
     }
 
     .hdr-btn:hover { background: rgba(148, 163, 184, 0.24); }
+    .hdr-btn.broker-link {
+      background: rgba(245, 158, 11, 0.14);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fcd34d;
+    }
+    .hdr-btn.broker-link:hover { background: rgba(245, 158, 11, 0.24); }
     .hdr-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
     .profile-chip { padding: 4px 12px 4px 4px; gap: 8px; }
 
@@ -1019,7 +991,6 @@
       .bar-row { grid-template-columns: 95px 1fr 70px; }
     }
 
-    /* Zoom controls, market tag */
     .zoom-group {
       display: inline-flex;
       align-items: center;
@@ -1049,7 +1020,6 @@
     .mk-tag { color: var(--muted); font-size: 0.62rem; font-weight: 700; margin-left: 6px; }
     canvas { touch-action: pan-y; }
 
-    /* ===== Landscape: three columns, compact, fits the screen without page scroll ===== */
     @media (orientation: landscape) {
       body {
         height: 100vh;
@@ -1088,8 +1058,6 @@
       .live-dot { width: 6px; height: 6px; }
       select.vol-select { font-size: 0.74rem; padding: 3px 7px; }
       .mode-btn { font-size: 0.72rem; padding: 3px 8px; }
-      .readout-group { font-size: 0.76rem; gap: 10px; }
-      .readout-digit { font-size: 0.9rem; min-width: 22px; height: 22px; padding: 0 6px; }
 
       h2 { font-size: 0.95rem; margin-bottom: 6px; }
       .ta-section { flex-shrink: 0; }
@@ -1144,7 +1112,6 @@
       .empty-note { font-size: 0.72rem; padding: 2px; }
     }
 
-    /* Short landscape screens (phones) */
     @media (orientation: landscape) and (max-height: 520px) {
       body { padding: 6px 8px; gap: 4px; }
       .brand-sub { display: none; }
@@ -1206,6 +1173,12 @@
       <span class="brand-sub">Market Simulator</span>
     </div>
     <div class="brand-actions">
+      <a href="admin.html" target="_blank" class="hdr-btn broker-link" title="Open Broker Pool & Cashier Backend">
+        <span class="hdr-label">Broker Pool</span>
+      </a>
+      <a href="index.html" class="hdr-btn" title="Switch Account or Sign Out">
+        <span class="hdr-label">Switch User</span>
+      </a>
       <button id="dashboardBtn" class="hdr-btn" type="button" aria-label="Open dashboard">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
         <span class="hdr-label">Dashboard</span>
@@ -1214,7 +1187,7 @@
         <span id="chipAvatar" class="avatar">T</span>
         <span class="profile-chip-text">
           <span id="chipName" class="profile-chip-name">Trader</span>
-          <span class="profile-chip-sub">Demo account</span>
+          <span id="chipAccountSub" class="profile-chip-sub">Demo account</span>
         </span>
       </button>
     </div>
@@ -1222,7 +1195,6 @@
 
   <main class="app">
     <aside id="leftCol" class="panel col-left">
-      <!-- Trade history -->
       <div class="section-header-row">
         <div class="history-title">Trade History</div>
         <button id="resetHistoryBtn" class="reset-btn" type="button">Reset history</button>
@@ -1264,7 +1236,6 @@
         <canvas id="tickCanvas" width="760" height="460"></canvas>
       </div>
 
-      <!-- Ticks Analysis -->
       <div class="ta-section">
         <div class="ta-header">
           <h2>Ticks Analysis</h2>
@@ -1384,30 +1355,25 @@
     </section>
 
     <aside id="rightCol" class="panel col-right">
-      <!-- Demo account -->
       <div class="account-card">
         <div class="account-top">
-          <span class="demo-badge">DEMO</span>
+          <span id="accountBadge" class="demo-badge">DEMO</span>
           <button id="resetBalanceBtn" class="reset-btn" type="button">Reset balance</button>
         </div>
         <div class="balance-label">Balance</div>
         <div id="balanceDisplay" class="balance">$10,000.00</div>
-        <p class="virtual-note">Virtual funds only. No real money is involved.</p>
+        <p class="virtual-note">Linked to Broker Cashier &bull; Virtual funds only.</p>
       </div>
 
-      <!-- Trading panel slot (landscape) -->
       <div id="tradeSlotSide" class="trade-slot side"></div>
 
-      <!-- Open contracts -->
       <div class="section-header-row">
         <div class="history-title">Open Contracts</div>
       </div>
       <ul id="openList" class="contract-list"></ul>
-
     </aside>
   </main>
 
-  <!-- Dashboard & profile -->
   <div id="accountModal" class="modal-backdrop" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-label="Account">
       <div class="modal-head">
@@ -1434,13 +1400,13 @@
                 <input id="profileName" class="text-input" type="text" maxlength="24" placeholder="Trader" autocomplete="off" />
               </div>
               <div class="field">
-                <label class="field-label" for="profileEmail">Email (optional, stays on this device)</label>
-                <input id="profileEmail" class="text-input" type="email" maxlength="60" placeholder="you@example.com" autocomplete="off" />
+                <label class="field-label" for="profileEmail">Email (linked to Broker Cashier)</label>
+                <input id="profileEmail" class="text-input" type="email" maxlength="60" placeholder="you@example.com" readonly />
               </div>
 
               <div class="info-list">
                 <div class="info-item"><span>Account ID</span><b id="infoId">-</b></div>
-                <div class="info-item"><span>Account type</span><b>Demo (virtual funds)</b></div>
+                <div class="info-item"><span>Account type</span><b id="infoType">Demo (virtual funds)</b></div>
                 <div class="info-item"><span>Currency</span><b>USD</b></div>
                 <div class="info-item"><span>Member since</span><b id="infoJoined">-</b></div>
               </div>
@@ -1455,18 +1421,269 @@
   </div>
 
   <script>
+// =========================================================================
+    // KHOLLETA BROKER BACKEND & CASHIER ENGINE (Shared across index, sim, admin)
+    // =========================================================================
+    const BROKER_DB_KEY = "kholleta_broker_backend_v1";
+    const SESSION_KEY = "kholleta_active_session";
+    const INITIAL_POOL_BALANCE = 10000000.00; // $10,000,000.00 USD Broker Liquidity Pool
+    const DEFAULT_USER_START = 10000.00;
+
+    function round2(n) {
+      return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+    }
+
+    function getDefaultBrokerDB() {
+      return {
+        pool: {
+          initialBalance: INITIAL_POOL_BALANCE,
+          balance: INITIAL_POOL_BALANCE,
+          totalBrokerPnL: 0,       // Net profit/loss for broker (+ means players lost overall, - means players won overall)
+          grossPlayerLosses: 0,    // Credited to pool
+          grossPlayerWins: 0,      // Deducted from pool
+          totalVolumeStaked: 0,
+          totalContractsSettled: 0,
+          cashierDeposits: 0,
+          cashierWithdrawals: 0
+        },
+        accounts: {
+          "guest@kholleta.local": {
+            id: "KH-GUEST-0001",
+            email: "guest@kholleta.local",
+            name: "Demo Guest",
+            guest: true,
+            balance: DEFAULT_USER_START,
+            totalPL: 0,
+            wins: 0,
+            losses: 0,
+            totalDeposited: DEFAULT_USER_START,
+            totalWithdrawn: 0,
+            createdAt: Date.now(),
+            lastActive: Date.now(),
+            status: "active"
+          }
+        },
+        ledger: [], // Broker trade settlement & cashier transactions
+        adminPassword: "admin"
+      };
+    }
+
+    function loadBrokerDB() {
+      let db = null;
+      try {
+        db = JSON.parse(localStorage.getItem(BROKER_DB_KEY) || "null");
+      } catch (e) { db = null; }
+      if (!db || !db.pool || !db.accounts) {
+        db = getDefaultBrokerDB();
+        // Migrate any existing users from old kholleta_users key
+        try {
+          const oldUsers = JSON.parse(localStorage.getItem("kholleta_users") || "{}");
+          Object.keys(oldUsers).forEach((em, idx) => {
+            if (!db.accounts[em]) {
+              db.accounts[em] = {
+                id: "KH-USR-" + String(1001 + idx),
+                email: em,
+                name: oldUsers[em].name || em.split("@")[0],
+                password: oldUsers[em].password || "1234",
+                guest: false,
+                balance: DEFAULT_USER_START,
+                totalPL: 0,
+                wins: 0,
+                losses: 0,
+                totalDeposited: DEFAULT_USER_START,
+                totalWithdrawn: 0,
+                createdAt: Date.now(),
+                lastActive: Date.now(),
+                status: "active"
+              };
+            }
+          });
+        } catch (e) {}
+        saveBrokerDB(db);
+      }
+      if (!db.accounts["guest@kholleta.local"]) {
+        db.accounts["guest@kholleta.local"] = getDefaultBrokerDB().accounts["guest@kholleta.local"];
+        saveBrokerDB(db);
+      }
+      return db;
+    }
+
+    function saveBrokerDB(db) {
+      try {
+        localStorage.setItem(BROKER_DB_KEY, JSON.stringify(db));
+      } catch (e) { console.error("Failed to save Broker DB", e); }
+    }
+
+    function getActiveSession() {
+      try {
+        return JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+      } catch (e) { return null; }
+    }
+
+    function ensureSessionAccount() {
+      const db = loadBrokerDB();
+      let sess = getActiveSession();
+      if (!sess || !sess.email) {
+        sess = { name: "Demo Guest", email: "guest@kholleta.local", guest: true, loggedInAt: Date.now() };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(sess));
+      }
+      const em = sess.email.toLowerCase();
+      if (!db.accounts[em]) {
+        db.accounts[em] = {
+          id: (sess.guest ? "KH-GUEST-" : "KH-USR-") + String(1000 + Math.floor(Math.random() * 9000)),
+          email: em,
+          name: sess.name || em.split("@")[0],
+          password: sess.password || "",
+          guest: !!sess.guest,
+          balance: DEFAULT_USER_START,
+          totalPL: 0,
+          wins: 0,
+          losses: 0,
+          totalDeposited: DEFAULT_USER_START,
+          totalWithdrawn: 0,
+          createdAt: Date.now(),
+          lastActive: Date.now(),
+          status: "active"
+        };
+        saveBrokerDB(db);
+      }
+      return { db, account: db.accounts[em] };
+    }
+
+    // Settle a trade against the $10,000,000 Broker Liquidity Pool:
+    // - If player WINS (playerProfit > 0): deduct playerProfit from Broker Pool (Broker P&L decreases)
+    // - If player LOSES (playerProfit < 0, i.e., -stake): add stake to Broker Pool (Broker P&L increases)
+    function brokerSettleContract(email, tradeDetails) {
+      const db = loadBrokerDB();
+      const em = (email || "guest@kholleta.local").toLowerCase();
+      const acc = db.accounts[em] || db.accounts["guest@kholleta.local"];
+      const playerProfit = round2(tradeDetails.profit); // positive on win, negative (-stake) on loss
+      const brokerImpact = round2(-playerProfit);     // negative on player win, positive on player loss
+
+      db.pool.balance = round2(db.pool.balance + brokerImpact);
+      db.pool.totalBrokerPnL = round2(db.pool.totalBrokerPnL + brokerImpact);
+      db.pool.totalVolumeStaked = round2(db.pool.totalVolumeStaked + tradeDetails.stake);
+      db.pool.totalContractsSettled += 1;
+
+      if (playerProfit > 0) {
+        db.pool.grossPlayerWins = round2(db.pool.grossPlayerWins + playerProfit);
+      } else if (playerProfit < 0) {
+        db.pool.grossPlayerLosses = round2(db.pool.grossPlayerLosses + Math.abs(playerProfit));
+      }
+
+      // Sync player account metrics
+      acc.balance = round2(tradeDetails.newUserBalance);
+      acc.totalPL = round2((acc.totalPL || 0) + playerProfit);
+      if (tradeDetails.win) acc.wins = (acc.wins || 0) + 1;
+      else acc.losses = (acc.losses || 0) + 1;
+      acc.lastActive = Date.now();
+
+      db.ledger.unshift({
+        id: "TX-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(100 + Math.random() * 900),
+        ts: Date.now(),
+        category: "TRADE_SETTLEMENT",
+        email: acc.email,
+        userName: acc.name,
+        isGuest: !!acc.guest,
+        contract: tradeDetails.contractName,
+        market: tradeDetails.market,
+        stake: round2(tradeDetails.stake),
+        outcome: tradeDetails.win ? "PLAYER_WIN" : "PLAYER_LOSS",
+        playerPnL: playerProfit,
+        brokerPnL: brokerImpact,
+        poolBalanceAfter: db.pool.balance,
+        userBalanceAfter: acc.balance
+      });
+
+      if (db.ledger.length > 500) db.ledger.length = 500;
+      saveBrokerDB(db);
+      return db;
+    }
+
+    // Cashier operation: Deposit (from Pool -> Player, or external top-up), Withdraw (Player -> Pool), Bonus, Reset
+    function brokerCashierAction({ email, action, amount, note, sourceFromPool }) {
+      const db = loadBrokerDB();
+      const em = (email || "").toLowerCase();
+      const acc = db.accounts[em];
+      if (!acc) return { ok: false, error: "Account not found." };
+
+      const amt = round2(Number(amount));
+      if (!isFinite(amt) || amt <= 0) return { ok: false, error: "Enter a valid positive USD amount." };
+
+      let userDelta = 0;
+      let poolDelta = 0;
+      let category = "";
+
+      if (action === "DEPOSIT") {
+        userDelta = amt;
+        acc.totalDeposited = round2((acc.totalDeposited || 0) + amt);
+        db.pool.cashierDeposits = round2((db.pool.cashierDeposits || 0) + amt);
+        if (sourceFromPool) {
+          poolDelta = -amt;
+        }
+        category = "CASHIER_DEPOSIT";
+      } else if (action === "WITHDRAW") {
+        if (amt > acc.balance) return { ok: false, error: "Insufficient player balance for withdrawal." };
+        userDelta = -amt;
+        acc.totalWithdrawn = round2((acc.totalWithdrawn || 0) + amt);
+        db.pool.cashierWithdrawals = round2((db.pool.cashierWithdrawals || 0) + amt);
+        if (sourceFromPool) {
+          poolDelta = amt;
+        }
+        category = "CASHIER_WITHDRAWAL";
+      } else if (action === "BONUS") {
+        userDelta = amt;
+        poolDelta = -amt;
+        category = "CASHIER_BONUS";
+      } else {
+        return { ok: false, error: "Unknown cashier action." };
+      }
+
+      acc.balance = round2(acc.balance + userDelta);
+      acc.lastActive = Date.now();
+      if (poolDelta !== 0) {
+        db.pool.balance = round2(db.pool.balance + poolDelta);
+      }
+
+      db.ledger.unshift({
+        id: "CSH-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(100 + Math.random() * 900),
+        ts: Date.now(),
+        category,
+        email: acc.email,
+        userName: acc.name,
+        isGuest: !!acc.guest,
+        contract: note || action,
+        market: "CASHIER",
+        stake: amt,
+        outcome: action,
+        playerPnL: userDelta,
+        brokerPnL: poolDelta,
+        poolBalanceAfter: db.pool.balance,
+        userBalanceAfter: acc.balance
+      });
+
+      if (db.ledger.length > 500) db.ledger.length = 500;
+      saveBrokerDB(db);
+      return { ok: true, db, account: acc };
+    }
+
+
+    
+    // Initialize active session & sync with Broker Cashier DB
+    const sessionInit = ensureSessionAccount();
+    let currentUserEmail = sessionInit.account.email;
+
     const COLORS = [
       "#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4",
       "#3b82f6", "#8b5cf6", "#ec4899", "#14b8a6", "#f43f5e"
     ];
 
     const NUMBERS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-    const TICK_CAP = 520;     // ticks kept per market (enough for the widest zoom)
-    const CANDLE_CAP = 120;   // 1m candles kept per market
-    const SECONDS_PER_YEAR = 365 * 24 * 60 * 60; // 31,536,000s
+    const TICK_CAP = 520;
+    const CANDLE_CAP = 120;
+    const SECONDS_PER_YEAR = 365 * 24 * 60 * 60;
     const DT = 1 / SECONDS_PER_YEAR;
 
-    // Each volatility index is its own market with its own price path, history, candles and digits.
     const MARKET_DEFS = [
       { id: "V10",  short: "V10",  label: "Volatility 10 (1s)",  sigma: 0.10, start: 12000 },
       { id: "V25",  short: "V25",  label: "Volatility 25 (1s)",  sigma: 0.25, start: 6500 },
@@ -1479,7 +1696,7 @@
     let activeMkId = "V75";
     let activeMk = markets[activeMkId];
     let backfilling = false;
-    let chartMode = "tick"; // "tick" | "candle"
+    let chartMode = "tick";
     let tickHistory = activeMk.tickHistory;
     let candleHistory = activeMk.candleHistory;
     let digitWindow = activeMk.digitWindow;
@@ -1488,7 +1705,7 @@
     // ---- Demo trading state ----
     const START_BALANCE = 10000;
     const MIN_STAKE = 0.35;
-    const RTP = 0.975; // payout = stake * RTP / probability (Even/Odd pays 1.95x)
+    const RTP = 0.975;
     const TRADE_TABS = {
       rf: { a: "rise", b: "fall", needsDigit: false,
             hint: "Rise wins if the exit price is higher than the entry price, Fall wins if it is lower. The entry price is the first tick after you buy, and the contract settles after the number of ticks you set. A tie loses." },
@@ -1502,15 +1719,15 @@
     const TYPE_LABEL = { rise: "Rise", fall: "Fall", matches: "Matches", differs: "Differs", even: "Even", odd: "Odd", over: "Over", under: "Under" };
     const DIGIT_TYPES = ["matches", "differs", "over", "under"];
 
-    let balance = START_BALANCE;
-    let totalPL = 0;
-    let wins = 0;
-    let losses = 0;
+    let balance = sessionInit.account.balance;
+    let totalPL = sessionInit.account.totalPL || 0;
+    let wins = sessionInit.account.wins || 0;
+    let losses = sessionInit.account.losses || 0;
     let activeTab = "rf";
-    let autoMode = false;      // UI mode: false = Manual, true = Auto
+    let autoMode = false;
     let autoSide = "a";
     let autoRunning = false;
-    let autoCfg = null;        // settings locked in when auto trade starts
+    let autoCfg = null;
     let autoRunsDone = 0;
     let autoPL = 0;
     let autoStake = 0;
@@ -1519,7 +1736,7 @@
     let openContracts = [];
     let closedTrades = [];
     let nextContractId = 1;
-    let chartMarkers = [];     // contract start / finish lines drawn on the chart
+    let chartMarkers = [];
 
     const canvas = document.getElementById("tickCanvas");
     const ctx = canvas.getContext("2d");
@@ -1544,7 +1761,6 @@
     const winsDisplay = document.getElementById("winsDisplay");
     const lossesDisplay = document.getElementById("lossesDisplay");
     const rateDisplay = document.getElementById("rateDisplay");
-    const tradePanelEl = document.getElementById("tradePanel");
     const tradeTabsEl = document.getElementById("tradeTabs");
     const tradeParamsEl = document.getElementById("tradeParams");
     const manualActions = document.getElementById("manualActions");
@@ -1565,7 +1781,6 @@
     const openList = document.getElementById("openList");
     const tradeHistoryList = document.getElementById("tradeHistoryList");
 
-    // Cryptographically-backed Box-Muller Transform for Standard Normal Z ~ N(0, 1)
     function cryptoRandomUniform() {
       const arr = new Uint32Array(1);
       window.crypto.getRandomValues(arr);
@@ -1578,8 +1793,6 @@
       return Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
     }
 
-    // Geometric Brownian Motion (GBM) with zero drift, one path per market:
-    // S(t + dt) = S(t) * exp(-0.5 * sigma^2 * dt + sigma * sqrt(dt) * Z)
     function stepMarketPrice(m) {
       const z = standardNormalZ();
       const driftTerm = -0.5 * m.sigma * m.sigma * DT;
@@ -1624,7 +1837,6 @@
       }
     }
 
-    // Pre-fill a market with history so every chart has data as soon as it is selected
     function backfillMarket(m, n) {
       backfilling = true;
       const nowMs = Date.now();
@@ -1683,10 +1895,9 @@
       drawChart();
     }
 
-    // ---- Chart: continuously sliding, zoomable, right-hand price scale, live price line ----
     const CHART_PAD = { left: 12, right: 74, top: 14, bottom: 28 };
-    const TICK_ZOOM = [15, 30, 60, 120, 240, 480];   // seconds visible
-    const CANDLE_ZOOM = [8, 12, 24, 48, 96];          // candles visible
+    const TICK_ZOOM = [15, 30, 60, 120, 240, 480];
+    const CANDLE_ZOOM = [8, 12, 24, 48, 96];
     const UP_COLOR = "#16a34a";
     const DOWN_COLOR = "#dc2626";
     const FLAT_COLOR = "#0284c7";
@@ -1774,7 +1985,6 @@
       if (Math.abs(cw - visibleCandles) < 0.02) visibleCandles = cw;
     }
 
-    // Horizontal grid lines with price labels on the right side
     function drawPriceScale(r, tagY, extraBelow) {
       ctx.font = `600 11px ${FONT}`;
       ctx.textAlign = "left";
@@ -1797,7 +2007,6 @@
       }
     }
 
-    // Dashed current-price line across the plot and the price tag on the right
     function drawPriceLine(r, y, text, color) {
       ctx.save();
       ctx.beginPath();
@@ -1833,7 +2042,6 @@
       return { start, end };
     }
 
-    // Contract start (dashed vertical), finish (solid vertical) and entry-price (horizontal) lines
     function drawContractMarkers(r, xAt, yAt, nowMs) {
       const list = chartMarkers.filter(m => m.mk === activeMkId);
       if (!list.length || !tickHistory.length) return;
@@ -1899,7 +2107,6 @@
       const nowMs = Date.now();
       const last = tickHistory[tickHistory.length - 1];
 
-      // Room on the right for the contract finish line(s)
       let need = 0.12 * tickWindowMs;
       chartMarkers.forEach(m => {
         if (m.mk === activeMkId && m.state === "open") {
@@ -1929,7 +2136,6 @@
       const tagY = yAt(showPrice);
       drawPriceScale(r, tagY);
 
-      // Vertical time grid that slides with the line
       const steps = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600].map(x => x * 1000);
       const step = steps.find(x => tickWindowMs / x <= 7) || 600000;
       const withSeconds = step < 60000;
@@ -1949,7 +2155,6 @@
         if (x > r.left + 26 && x < r.right + 20) labels.push({ x, text: timeLabel(t, withSeconds) });
       }
 
-      // Price curve: last point follows the eased live price and ends at "now"
       const xNow = xAt(nowMs);
       const pts = visible.map((t, i) => ({ x: xAt(t.ts), y: yAt(i === visible.length - 1 ? showPrice : t.price) }));
       pts.push({ x: xNow, y: tagY });
@@ -1978,7 +2183,6 @@
       drawContractMarkers(r, xAt, yAt, nowMs);
       drawPriceLine(r, tagY, last.formattedPrice, dirColor);
 
-      // Small dot at the live end of the line
       ctx.beginPath();
       ctx.arc(xNow, tagY, 3.5, 0, Math.PI * 2);
       ctx.fillStyle = "#ffffff";
@@ -2049,14 +2253,12 @@
       }
       ctx.restore();
 
-      // Contract markers on the candle time axis
       const latestMid = latest.minuteBucket + 30000;
       drawContractMarkers(r, (t) => centerOf(len - 1) + ((t - latestMid) / 60000) * slotW, yAt, Date.now());
 
       const col = latest.close >= latest.open ? UP_COLOR : DOWN_COLOR;
       const ty = drawPriceLine(r, tagY, latest.formattedClose, col);
 
-      // Time left in the current candle, under the price tag
       ctx.font = `600 10px ${FONT}`;
       ctx.fillStyle = "#94a3b8";
       ctx.textAlign = "center";
@@ -2079,7 +2281,6 @@
       else drawTickChart(dt);
     }
 
-    // Zoom
     const zoomInBtn = document.getElementById("zoomInBtn");
     const zoomOutBtn = document.getElementById("zoomOutBtn");
     const zoomLabel = document.getElementById("zoomLabel");
@@ -2094,7 +2295,6 @@
       zoomOutBtn.disabled = idx === list.length - 1;
     }
 
-    // dir: +1 zoom out (more history), -1 zoom in (less history)
     function zoomBy(dir) {
       if (chartMode === "tick") tickZoomIdx = Math.max(0, Math.min(TICK_ZOOM.length - 1, tickZoomIdx + dir));
       else candleZoomIdx = Math.max(0, Math.min(CANDLE_ZOOM.length - 1, candleZoomIdx + dir));
@@ -2157,9 +2357,8 @@
       });
     }
 
-    // ---- Demo trading logic ----
-    const round2 = (n) => Math.round(n * 100) / 100;
-    const money = (n) => "$" + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    // ---- Demo trading logic linked to Broker Backend ----
+    const money = (n) => "$" + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const signedMoney = (n) => (n > 0 ? "+" : n < 0 ? "-" : "") + money(Math.abs(n));
 
     function probability(type, d) {
@@ -2222,23 +2421,32 @@
     }
 
     function saveAccount() {
-      try {
-        localStorage.setItem("kholleta_demo_account", JSON.stringify({ balance, totalPL, wins, losses }));
-      } catch (e) { /* storage unavailable: ignore */ }
+      const db = loadBrokerDB();
+      if (db.accounts[currentUserEmail]) {
+        db.accounts[currentUserEmail].balance = round2(balance);
+        db.accounts[currentUserEmail].totalPL = round2(totalPL);
+        db.accounts[currentUserEmail].wins = wins;
+        db.accounts[currentUserEmail].losses = losses;
+        db.accounts[currentUserEmail].lastActive = Date.now();
+        saveBrokerDB(db);
+      }
     }
 
-    function loadAccount() {
-      try {
-        const raw = localStorage.getItem("kholleta_demo_account") || localStorage.getItem("kkolleta_demo_account");
-        if (!raw) return;
-        const a = JSON.parse(raw);
-        if (typeof a.balance === "number" && isFinite(a.balance)) {
-          balance = a.balance;
-          totalPL = Number(a.totalPL) || 0;
-          wins = Number(a.wins) || 0;
-          losses = Number(a.losses) || 0;
-        }
-      } catch (e) { /* ignore */ }
+    function syncFromBrokerDB() {
+      const { account } = ensureSessionAccount();
+      currentUserEmail = account.email;
+      // Only overwrite balance if no open contracts are mid-flight holding reserved stake
+      if (openContracts.length === 0) {
+        balance = round2(account.balance);
+      }
+      totalPL = round2(account.totalPL || 0);
+      wins = Number(account.wins) || 0;
+      losses = Number(account.losses) || 0;
+
+      const badge = document.getElementById("accountBadge");
+      const chipSub = document.getElementById("chipAccountSub");
+      if (badge) badge.textContent = account.guest ? "GUEST DEMO" : "SIGNED IN";
+      if (chipSub) chipSub.textContent = account.guest ? "Guest Account" : account.email;
     }
 
     function buildDigitPicker() {
@@ -2299,7 +2507,6 @@
         btn.disabled = !(valid && stakeOk && durOk);
       });
 
-      // Auto trade panel
       autoSideA.textContent = tab.needsDigit ? contractName(tab.a, selectedDigit) : TYPE_LABEL[tab.a];
       autoSideB.textContent = tab.needsDigit ? contractName(tab.b, selectedDigit) : TYPE_LABEL[tab.b];
       autoSideA.classList.toggle("active", autoSide === "a");
@@ -2318,7 +2525,6 @@
         autoStatus.textContent = "Stake is multiplied after each loss and resets after a win. Use 1 for a fixed stake, and 0 to switch off take profit or stop loss.";
       }
 
-      // Open contracts
       if (openContracts.length === 0) {
         openList.innerHTML = '<li class="empty-note">No open contracts</li>';
       } else {
@@ -2338,7 +2544,6 @@
         }).join("");
       }
 
-      // History
       if (closedTrades.length === 0) {
         tradeHistoryList.innerHTML = '<li class="empty-note">No completed trades yet</li>';
       } else {
@@ -2388,6 +2593,9 @@
     }
 
     function validateTrade(type, digit, stake, duration) {
+      const db = loadBrokerDB();
+      const acc = db.accounts[currentUserEmail];
+      if (acc && acc.status === "suspended") return "Account suspended by Broker Admin";
       if (!isValidContract(type, digit)) return "This contract is not available";
       if (stake < MIN_STAKE) return `Minimum stake is ${money(MIN_STAKE)}`;
       if (stake > balance) return "Stake is higher than your balance";
@@ -2403,7 +2611,7 @@
         digit,
         stake,
         duration,
-        ticksNeeded: isRF(type) ? duration + 1 : duration, // Rise/Fall: entry tick + N ticks
+        ticksNeeded: isRF(type) ? duration + 1 : duration,
         payout: calcPayout(type, digit, stake),
         digits: [],
         prices: [],
@@ -2431,7 +2639,7 @@
 
       const err = validateTrade(type, digit, stake, duration);
       if (err) {
-        showResult(null, err, err.startsWith("Stake is higher") ? "Lower your stake or reset the demo balance." : "");
+        showResult(null, err, err.startsWith("Stake is higher") ? "Lower your stake or visit the Broker Cashier." : "");
         return;
       }
 
@@ -2443,7 +2651,6 @@
       renderAll();
     }
 
-    // ---- Auto trade ----
     function startAuto() {
       const tab = TRADE_TABS[activeTab];
       const type = tab[autoSide];
@@ -2530,6 +2737,17 @@
         totalPL = round2(totalPL + profit);
         net = round2(net + profit);
         last = { ...c, win, profit, exitDigit: digit, exitPrice: latestTick.price };
+
+        // Settle directly against the $10,000,000 Broker Liquidity Pool!
+        brokerSettleContract(currentUserEmail, {
+          contractName: contractName(c.type, c.digit),
+          market: c.mk,
+          stake: c.stake,
+          win,
+          profit,
+          newUserBalance: balance
+        });
+
         recordLife(c, win, profit);
         const mk = chartMarkers.find(x => x.id === c.id);
         if (mk) {
@@ -2564,6 +2782,16 @@
 
     function resetAccount() {
       if (autoRunning) stopAuto("Stopped: balance was reset", true);
+      const diff = round2(START_BALANCE - balance);
+      if (diff !== 0) {
+        brokerCashierAction({
+          email: currentUserEmail,
+          action: diff > 0 ? "DEPOSIT" : "WITHDRAW",
+          amount: Math.abs(diff),
+          note: "Self-Service Demo Reset to $10,000",
+          sourceFromPool: true
+        });
+      }
       balance = START_BALANCE;
       openContracts = [];
       chartMarkers = [];
@@ -2584,11 +2812,9 @@
     }
 
     volSelect.addEventListener("change", () => switchMarket(volSelect.value));
-
     zoomInBtn.addEventListener("click", () => zoomBy(-1));
     zoomOutBtn.addEventListener("click", () => zoomBy(1));
 
-    // Mouse wheel zoom (landscape layout) and two-finger pinch zoom
     let wheelLock = 0;
     canvas.addEventListener("wheel", (e) => {
       if (!window.matchMedia("(orientation: landscape)").matches) return;
@@ -2696,8 +2922,8 @@
     document.getElementById("resetBalanceBtn").addEventListener("click", resetAccount);
     document.getElementById("resetHistoryBtn").addEventListener("click", resetHistory);
 
-    // ---- Profile & dashboard ----
-    const PROFILE_KEY = "kholleta_profile_v1";
+    // ---- Profile & dashboard (Per-User Scoped) ----
+    const PROFILE_KEY = "kholleta_profile_" + currentUserEmail;
     const AVATAR_COLORS = ["#38bdf8", "#22c55e", "#f59e0b", "#ec4899", "#8b5cf6", "#f43f5e"];
     const FAMILIES = { rf: "Rise / Fall", md: "Matches / Differs", eo: "Even / Odd", ou: "Over / Under" };
 
@@ -2715,7 +2941,13 @@
     const resetStatsBtn = document.getElementById("resetStatsBtn");
 
     let modalPane = "dashboard";
-    let profile = { name: "Trader", email: "", id: "", color: 0, joined: Date.now() };
+    let profile = {
+      name: sessionInit.account.name || "Trader",
+      email: currentUserEmail,
+      id: sessionInit.account.id,
+      color: sessionInit.account.guest ? 2 : 0,
+      joined: sessionInit.account.createdAt || Date.now()
+    };
     let life = null;
     let resetStatsTimer = null;
 
@@ -2740,7 +2972,12 @@
     function saveProfile() {
       try {
         localStorage.setItem(PROFILE_KEY, JSON.stringify({ profile, life }));
-      } catch (e) { /* storage unavailable: ignore */ }
+        const db = loadBrokerDB();
+        if (db.accounts[currentUserEmail]) {
+          db.accounts[currentUserEmail].name = profile.name;
+          saveBrokerDB(db);
+        }
+      } catch (e) {}
     }
 
     function loadProfile() {
@@ -2748,7 +2985,6 @@
       try { data = JSON.parse(localStorage.getItem(PROFILE_KEY) || "null"); } catch (e) { data = null; }
       if (data && data.profile) profile = { ...profile, ...data.profile };
       if (data && data.life && Array.isArray(data.life.equity) && data.life.fam && data.life.src) life = data.life;
-      if (!profile.id) profile.id = "KH-DEMO-" + String(100000 + Math.floor(Math.random() * 900000));
       if (!life) life = makeLife(balance);
       saveProfile();
     }
@@ -2798,6 +3034,7 @@
       profileNameInput.value = profile.name;
       profileEmailInput.value = profile.email;
       document.getElementById("infoId").textContent = profile.id;
+      document.getElementById("infoType").textContent = sessionInit.account.guest ? "Guest Demo Account" : "Registered Demo Account";
       document.getElementById("infoJoined").textContent = new Date(profile.joined).toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
       resetStatsBtn.textContent = "Reset dashboard stats";
     }
@@ -2933,10 +3170,6 @@
       saveProfile();
       renderProfileChip();
     });
-    profileEmailInput.addEventListener("input", () => {
-      profile.email = profileEmailInput.value.slice(0, 60);
-      saveProfile();
-    });
 
     resetStatsBtn.addEventListener("click", () => {
       if (resetStatsBtn.dataset.confirm === "1") {
@@ -2963,8 +3196,22 @@
     accountModal.addEventListener("click", (e) => { if (e.target === accountModal) closeModal(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !accountModal.hidden) closeModal(); });
 
-    // Landscape: trading panel sits in the sidebar between balance and trade history.
-    // Portrait: it sits under the chart.
+    // Live sync when Admin Cashier updates balance in another tab!
+    window.addEventListener("storage", (e) => {
+      if (e.key === BROKER_DB_KEY) {
+        const prevBal = balance;
+        syncFromBrokerDB();
+        if (balance !== prevBal) {
+          life.equity.push({ t: Date.now(), b: balance });
+          saveProfile();
+          showResult(balance > prevBal ? "won" : "lost",
+            `Cashier Update: Balance is now ${money(balance)}`,
+            `Adjustment of ${signedMoney(round2(balance - prevBal))} processed by Broker Cashier.`);
+          renderAll();
+        }
+      }
+    });
+
     const landscapeMQ = window.matchMedia("(orientation: landscape)");
     function placeTradePanel() {
       const panel = document.getElementById("tradePanel");
@@ -2984,8 +3231,7 @@
       requestAnimationFrame(animate);
     })();
 
-    // Seed initial tick immediately and start 1-second interval
-    loadAccount();
+    syncFromBrokerDB();
     loadProfile();
     renderProfileChip();
     buildDigitPicker();
@@ -2997,3 +3243,4 @@
   </script>
 </body>
 </html>
+Displaying Kholleta_Market_simulator-v16.html.
