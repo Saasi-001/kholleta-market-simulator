@@ -799,6 +799,256 @@
 
     .trade-params[inert], .trade-tabs[inert] { opacity: 0.5; }
 
+    /* Header actions, profile chip */
+    .brand-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+    .hdr-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s ease;
+    }
+
+    .hdr-btn:hover { background: rgba(148, 163, 184, 0.24); }
+    .hdr-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .profile-chip { padding: 4px 12px 4px 4px; gap: 8px; }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.8rem;
+      color: #0f172a;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .profile-chip-text { display: flex; flex-direction: column; line-height: 1.15; text-align: left; }
+    .profile-chip-name { font-size: 0.8rem; font-weight: 700; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-chip-sub { font-size: 0.62rem; color: var(--muted); font-weight: 600; }
+
+    /* Modal (dashboard & profile) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 100;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-backdrop[hidden] { display: none; }
+
+    .modal {
+      width: min(900px, 100%);
+      max-height: 94vh;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-tabs { display: flex; gap: 6px; }
+
+    .modal-tab {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .modal-tab:hover { color: var(--text); }
+    .modal-tab.active { background: rgba(56, 189, 248, 0.14); border-color: rgba(56, 189, 248, 0.4); color: var(--accent); }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 1.7rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0 8px;
+      border-radius: 8px;
+    }
+
+    .modal-close:hover { color: var(--text); background: rgba(148, 163, 184, 0.15); }
+    .modal-body { padding: 16px; overflow-y: auto; }
+    .pane[hidden] { display: none; }
+
+    .dash-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+
+    .kpi {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .kpi-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+    .kpi-value { font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
+    .kpi-sub { font-size: 0.68rem; color: var(--muted); }
+
+    .dash-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .dash-card-title { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; }
+    .dash-card-title span { color: var(--muted); font-weight: 600; font-size: 0.72rem; }
+    .dash-two { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+    .dash-two .dash-card { margin-bottom: 12px; }
+
+    .equity { width: 100%; height: 150px; display: block; }
+    .equity-range { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+
+    .bar-row { display: grid; grid-template-columns: 115px 1fr 78px; gap: 8px; align-items: center; font-size: 0.78rem; margin-bottom: 9px; }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-name small { display: block; color: var(--muted); font-size: 0.66rem; }
+    .bar-track { height: 8px; background: rgba(148, 163, 184, 0.15); border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+    .bar-val { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+    .split-row { display: flex; justify-content: space-between; gap: 8px; font-size: 0.8rem; padding: 7px 0; border-bottom: 1px solid rgba(51, 65, 85, 0.6); }
+    .split-row:last-child { border-bottom: none; }
+    .split-row span:first-child { color: var(--muted); }
+    .split-row b { font-variant-numeric: tabular-nums; }
+
+    .log-wrap { max-height: 230px; overflow-y: auto; }
+    .log-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+    .log-table th { text-align: left; color: var(--muted); font-weight: 600; padding: 4px 6px; position: sticky; top: 0; background: var(--bg); }
+    .log-table td { padding: 6px; border-top: 1px solid rgba(51, 65, 85, 0.5); }
+    .log-table td:last-child, .log-table th:last-child { text-align: right; }
+
+    .profile-grid { display: grid; grid-template-columns: 190px 1fr; gap: 20px; }
+    .profile-side { text-align: center; }
+
+    .profile-avatar-big {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+
+    .swatches { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .swatch { width: 24px; height: 24px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
+    .swatch.active { border-color: #f8fafc; }
+    .profile-main .field { margin-bottom: 12px; }
+    .field-label { display: block; font-size: 0.74rem; color: var(--muted); font-weight: 600; margin-bottom: 5px; }
+
+    .text-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .text-input:focus { border-color: var(--accent); }
+    .info-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .info-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+    .info-item span { display: block; font-size: 0.68rem; color: var(--muted); font-weight: 600; }
+    .info-item b { font-size: 0.85rem; word-break: break-all; }
+
+    .danger-btn {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .danger-btn:hover { background: rgba(239, 68, 68, 0.22); }
+    .note { font-size: 0.74rem; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+
+    @media (max-width: 680px) {
+      .dash-kpis { grid-template-columns: repeat(2, 1fr); }
+      .dash-two, .profile-grid { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 95px 1fr 70px; }
+    }
+
+    /* Zoom controls, market tag */
+    .zoom-group {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .zoom-btn {
+      background: transparent;
+      color: var(--text);
+      border: none;
+      width: 28px;
+      height: 26px;
+      border-radius: 6px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .zoom-btn:hover:not(:disabled) { background: rgba(148, 163, 184, 0.2); }
+    .zoom-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .zoom-label { min-width: 38px; text-align: center; font-size: 0.78rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .mk-tag { color: var(--muted); font-size: 0.62rem; font-weight: 700; margin-left: 6px; }
+    canvas { touch-action: pan-y; }
+
     /* ===== Landscape: three columns, compact, fits the screen without page scroll ===== */
     @media (orientation: landscape) {
       body {
@@ -925,6 +1175,27 @@
       .trade-mode-row { padding: 4px 7px; }
       .trade-tab { font-size: 0.56rem; padding: 5px 0; letter-spacing: -0.01em; }
     }
+
+    @media (orientation: landscape) {
+      .brand-actions { gap: 6px; }
+      .hdr-btn { padding: 4px 10px; font-size: 0.72rem; border-radius: 8px; }
+      .hdr-btn svg { width: 14px; height: 14px; }
+      .profile-chip { padding: 3px 10px 3px 3px; }
+      .avatar { width: 24px; height: 24px; font-size: 0.68rem; }
+      .profile-chip-name { font-size: 0.72rem; max-width: 90px; }
+      .profile-chip-sub { font-size: 0.56rem; }
+    }
+
+    @media (orientation: landscape) and (max-height: 520px) {
+      .hdr-label, .profile-chip-sub { display: none; }
+      .profile-chip-name { max-width: 70px; }
+      .modal { max-height: 98vh; }
+    }
+
+    @media (orientation: landscape) {
+      .zoom-btn { width: 22px; height: 20px; font-size: 0.9rem; }
+      .zoom-label { min-width: 30px; font-size: 0.68rem; }
+    }
   </style>
 </head>
 <body>
@@ -933,6 +1204,19 @@
     <div class="brand-text">
       <span class="brand-name">Kholleta</span>
       <span class="brand-sub">Market Simulator</span>
+    </div>
+    <div class="brand-actions">
+      <button id="dashboardBtn" class="hdr-btn" type="button" aria-label="Open dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        <span class="hdr-label">Dashboard</span>
+      </button>
+      <button id="profileBtn" class="hdr-btn profile-chip" type="button" aria-label="Open profile">
+        <span id="chipAvatar" class="avatar">T</span>
+        <span class="profile-chip-text">
+          <span id="chipName" class="profile-chip-name">Trader</span>
+          <span class="profile-chip-sub">Demo account</span>
+        </span>
+      </button>
     </div>
   </header>
 
@@ -957,11 +1241,11 @@
         <div class="header-left">
           <span class="live-indicator"><span class="live-dot"></span> 1 Tick / Sec</span>
           <select id="volSelect" class="vol-select" aria-label="Select Volatility Index">
-            <option value="0.10">Volatility 10 (1s)</option>
-            <option value="0.25">Volatility 25 (1s)</option>
-            <option value="0.50">Volatility 50 (1s)</option>
-            <option value="0.75" selected>Volatility 75 (1s)</option>
-            <option value="1.00">Volatility 100 (1s)</option>
+            <option value="V10">Volatility 10 (1s)</option>
+            <option value="V25">Volatility 25 (1s)</option>
+            <option value="V50">Volatility 50 (1s)</option>
+            <option value="V75" selected>Volatility 75 (1s)</option>
+            <option value="V100">Volatility 100 (1s)</option>
           </select>
           <div class="mode-toggle" role="group" aria-label="Chart Type">
             <button id="tickModeBtn" class="mode-btn active" type="button">Tick</button>
@@ -969,9 +1253,10 @@
           </div>
         </div>
 
-        <div class="readout-group">
-          <span>Price: <span id="livePriceDisplay" class="readout-price">-</span></span>
-          <span>Digit: <span id="liveValueDisplay" class="readout-digit">-</span></span>
+        <div class="zoom-group" role="group" aria-label="Chart zoom">
+          <button id="zoomOutBtn" class="zoom-btn" type="button" aria-label="Zoom out">&minus;</button>
+          <span id="zoomLabel" class="zoom-label">30s</span>
+          <button id="zoomInBtn" class="zoom-btn" type="button" aria-label="Zoom in">+</button>
         </div>
       </div>
 
@@ -1122,6 +1407,53 @@
     </aside>
   </main>
 
+  <!-- Dashboard & profile -->
+  <div id="accountModal" class="modal-backdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Account">
+      <div class="modal-head">
+        <div class="modal-tabs" role="tablist">
+          <button id="tabDashboard" class="modal-tab active" type="button" data-pane="dashboard">Dashboard</button>
+          <button id="tabProfile" class="modal-tab" type="button" data-pane="profile">Profile</button>
+        </div>
+        <button id="modalClose" class="modal-close" type="button" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <section id="paneDashboard" class="pane"></section>
+
+        <section id="paneProfile" class="pane" hidden>
+          <div class="profile-grid">
+            <div class="profile-side">
+              <div id="profileAvatar" class="profile-avatar-big">T</div>
+              <div id="avatarColors" class="swatches" aria-label="Avatar colour"></div>
+            </div>
+
+            <div class="profile-main">
+              <div class="field">
+                <label class="field-label" for="profileName">Display name</label>
+                <input id="profileName" class="text-input" type="text" maxlength="24" placeholder="Trader" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label class="field-label" for="profileEmail">Email (optional, stays on this device)</label>
+                <input id="profileEmail" class="text-input" type="email" maxlength="60" placeholder="you@example.com" autocomplete="off" />
+              </div>
+
+              <div class="info-list">
+                <div class="info-item"><span>Account ID</span><b id="infoId">-</b></div>
+                <div class="info-item"><span>Account type</span><b>Demo (virtual funds)</b></div>
+                <div class="info-item"><span>Currency</span><b>USD</b></div>
+                <div class="info-item"><span>Member since</span><b id="infoJoined">-</b></div>
+              </div>
+
+              <button id="resetStatsBtn" class="danger-btn" type="button">Reset dashboard stats</button>
+              <p class="note">This clears the lifetime statistics, balance curve and trade log shown on the dashboard. Your balance and Trade History are not changed.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
   <script>
     const COLORS = [
       "#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4",
@@ -1129,17 +1461,28 @@
     ];
 
     const NUMBERS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-    const MAX_VISIBLE_TICKS = 30;
-    const MAX_VISIBLE_CANDLES = 24;
+    const TICK_CAP = 520;     // ticks kept per market (enough for the widest zoom)
+    const CANDLE_CAP = 120;   // 1m candles kept per market
     const SECONDS_PER_YEAR = 365 * 24 * 60 * 60; // 31,536,000s
     const DT = 1 / SECONDS_PER_YEAR;
 
-    let currentPrice = 10000.00;
-    let sigma = 0.75; // Default V75 (1s)
+    // Each volatility index is its own market with its own price path, history, candles and digits.
+    const MARKET_DEFS = [
+      { id: "V10",  short: "V10",  label: "Volatility 10 (1s)",  sigma: 0.10, start: 12000 },
+      { id: "V25",  short: "V25",  label: "Volatility 25 (1s)",  sigma: 0.25, start: 6500 },
+      { id: "V50",  short: "V50",  label: "Volatility 50 (1s)",  sigma: 0.50, start: 3200 },
+      { id: "V75",  short: "V75",  label: "Volatility 75 (1s)",  sigma: 0.75, start: 10000 },
+      { id: "V100", short: "V100", label: "Volatility 100 (1s)", sigma: 1.00, start: 2400 }
+    ];
+    const markets = {};
+    MARKET_DEFS.forEach(d => { markets[d.id] = { ...d, price: d.start, tickHistory: [], candleHistory: [], digitWindow: [] }; });
+    let activeMkId = "V75";
+    let activeMk = markets[activeMkId];
+    let backfilling = false;
     let chartMode = "tick"; // "tick" | "candle"
-    let tickHistory = [];
-    let candleHistory = [];
-    let digitWindow = [];
+    let tickHistory = activeMk.tickHistory;
+    let candleHistory = activeMk.candleHistory;
+    let digitWindow = activeMk.digitWindow;
     let analysisSize = 120;
 
     // ---- Demo trading state ----
@@ -1176,6 +1519,7 @@
     let openContracts = [];
     let closedTrades = [];
     let nextContractId = 1;
+    let chartMarkers = [];     // contract start / finish lines drawn on the chart
 
     const canvas = document.getElementById("tickCanvas");
     const ctx = canvas.getContext("2d");
@@ -1184,8 +1528,6 @@
     const volSelect = document.getElementById("volSelect");
     const tickModeBtn = document.getElementById("tickModeBtn");
     const candleModeBtn = document.getElementById("candleModeBtn");
-    const livePriceDisplay = document.getElementById("livePriceDisplay");
-    const liveValueDisplay = document.getElementById("liveValueDisplay");
     const resultBox = document.getElementById("resultBox");
     const resultMain = document.getElementById("resultMain");
     const resultSub = document.getElementById("resultSub");
@@ -1236,15 +1578,15 @@
       return Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
     }
 
-    // Geometric Brownian Motion (GBM) with zero drift:
+    // Geometric Brownian Motion (GBM) with zero drift, one path per market:
     // S(t + dt) = S(t) * exp(-0.5 * sigma^2 * dt + sigma * sqrt(dt) * Z)
-    function stepVolatilityPrice() {
+    function stepMarketPrice(m) {
       const z = standardNormalZ();
-      const driftTerm = -0.5 * sigma * sigma * DT;
-      const shockTerm = sigma * Math.sqrt(DT) * z;
-      currentPrice = currentPrice * Math.exp(driftTerm + shockTerm);
+      const driftTerm = -0.5 * m.sigma * m.sigma * DT;
+      const shockTerm = m.sigma * Math.sqrt(DT) * z;
+      m.price = m.price * Math.exp(driftTerm + shockTerm);
 
-      const formattedPrice = currentPrice.toFixed(2);
+      const formattedPrice = m.price.toFixed(2);
       const lastDigit = parseInt(formattedPrice.charAt(formattedPrice.length - 1), 10);
 
       return { price: parseFloat(formattedPrice), formattedPrice, digit: lastDigit };
@@ -1254,12 +1596,14 @@
       return date.toLocaleTimeString([], { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
     }
 
-    function updateCandles(price, formattedPrice, digit, timestampMs) {
+    function updateCandles(m, price, formattedPrice, digit, timestampMs) {
       const minuteBucket = Math.floor(timestampMs / 60000) * 60000;
-      const lastCandle = candleHistory[candleHistory.length - 1];
+      const hist = m.candleHistory;
+      const lastCandle = hist[hist.length - 1];
 
       if (!lastCandle || lastCandle.minuteBucket !== minuteBucket) {
-        candleHistory.push({
+        if (lastCandle && m === activeMk && !backfilling) candleSlideStart = performance.now();
+        hist.push({
           minuteBucket,
           open: price,
           high: price,
@@ -1267,12 +1611,9 @@
           close: price,
           formattedClose: formattedPrice,
           lastDigit: digit,
-          tickCount: 1,
-          picked: false
+          tickCount: 1
         });
-        if (candleHistory.length > MAX_VISIBLE_CANDLES) {
-          candleHistory.shift();
-        }
+        if (hist.length > CANDLE_CAP) hist.shift();
       } else {
         if (price > lastCandle.high) lastCandle.high = price;
         if (price < lastCandle.low) lastCandle.low = price;
@@ -1283,283 +1624,483 @@
       }
     }
 
-    function pushTick() {
-      const { price, formattedPrice, digit } = stepVolatilityPrice();
+    // Pre-fill a market with history so every chart has data as soon as it is selected
+    function backfillMarket(m, n) {
+      backfilling = true;
+      const nowMs = Date.now();
+      for (let i = 0; i < n; i++) {
+        const r = stepMarketPrice(m);
+        const ts = nowMs - (n - i) * 1000;
+        m.digitWindow.push(r.digit);
+        updateCandles(m, r.price, r.formattedPrice, r.digit, ts);
+        if (i >= n - TICK_CAP) {
+          m.tickHistory.push({ price: r.price, formattedPrice: r.formattedPrice, value: r.digit, time: formatTime(new Date(ts)), ts });
+        }
+      }
+      if (m.digitWindow.length > 1000) m.digitWindow.splice(0, m.digitWindow.length - 1000);
+      backfilling = false;
+    }
+
+    function tickMarket(m) {
+      const { price, formattedPrice, digit } = stepMarketPrice(m);
       const now = new Date();
-      const latestTick = {
-        price,
-        formattedPrice,
-        value: digit,
-        time: formatTime(now),
-        picked: false
-      };
-      tickHistory.push(latestTick);
-      if (tickHistory.length > MAX_VISIBLE_TICKS) {
-        tickHistory.shift();
+      const tick = { price, formattedPrice, value: digit, time: formatTime(now), ts: now.getTime() };
+
+      if (m === activeMk) {
+        const prevShown = displayedPrice();
+        priceTween = { from: prevShown === null ? price : prevShown, to: price, t0: performance.now() };
       }
 
-      digitWindow.push(digit);
-      if (digitWindow.length > 1000) digitWindow.shift();
+      m.tickHistory.push(tick);
+      if (m.tickHistory.length > TICK_CAP) m.tickHistory.shift();
+      m.digitWindow.push(digit);
+      if (m.digitWindow.length > 1000) m.digitWindow.shift();
+      updateCandles(m, price, formattedPrice, digit, tick.ts);
 
-      updateCandles(price, formattedPrice, digit, now.getTime());
+      if (m === activeMk) renderTicksAnalysis();
+      settleContracts(m.id, tick, digit);
+    }
+
+    function tickAll() {
+      MARKET_DEFS.forEach(d => tickMarket(markets[d.id]));
+    }
+
+    function switchMarket(id) {
+      if (!markets[id]) return;
+      activeMkId = id;
+      activeMk = markets[id];
+      tickHistory = activeMk.tickHistory;
+      candleHistory = activeMk.candleHistory;
+      digitWindow = activeMk.digitWindow;
+      volSelect.value = id;
+      viewMin = null;
+      viewMax = null;
+      dirColor = FLAT_COLOR;
+      const last = tickHistory[tickHistory.length - 1];
+      priceTween = { from: last ? last.price : null, to: last ? last.price : null, t0: performance.now() };
       renderTicksAnalysis();
-      settleContracts(latestTick, digit);
-
-      livePriceDisplay.textContent = formattedPrice;
-      liveValueDisplay.textContent = digit;
+      renderTrade();
       drawChart();
     }
 
-    function drawPriceAxes(minPrice, maxPrice, padLeft, padRight, padTop, padBottom) {
-      const w = cssW;
-      const h = cssH;
-      const plotH = h - padTop - padBottom;
+    // ---- Chart: continuously sliding, zoomable, right-hand price scale, live price line ----
+    const CHART_PAD = { left: 12, right: 74, top: 14, bottom: 28 };
+    const TICK_ZOOM = [15, 30, 60, 120, 240, 480];   // seconds visible
+    const CANDLE_ZOOM = [8, 12, 24, 48, 96];          // candles visible
+    const UP_COLOR = "#16a34a";
+    const DOWN_COLOR = "#dc2626";
+    const FLAT_COLOR = "#0284c7";
+    const FONT = "system-ui, -apple-system, sans-serif";
+    const MARKER_COLORS = ["#f59e0b", "#a78bfa", "#2dd4bf", "#f472b6"];
+    let tickZoomIdx = 1;
+    let candleZoomIdx = 2;
+    let tickWindowMs = TICK_ZOOM[1] * 1000;
+    let visibleCandles = CANDLE_ZOOM[2];
+    let futureMsCur = 0;
+    let viewMin = null;
+    let viewMax = null;
+    let lastFrameTs = performance.now();
+    let priceTween = { from: null, to: null, t0: 0 };
+    let dirColor = FLAT_COLOR;
+    let candleSlideStart = -1e9;
+    const timeLabelCache = {};
 
-      let span = maxPrice - minPrice;
-      if (span < 0.05) {
-        const mid = (minPrice + maxPrice) / 2;
-        minPrice = mid - 0.05;
-        maxPrice = mid + 0.05;
-        span = 0.10;
-      } else {
-        const pad = span * 0.15;
-        minPrice -= pad;
-        maxPrice += pad;
-        span = maxPrice - minPrice;
+    const easeOut = (p) => 1 - Math.pow(1 - p, 3);
+
+    function displayedPrice() {
+      if (priceTween.to === null) return null;
+      const p = Math.min(1, (performance.now() - priceTween.t0) / 300);
+      return priceTween.from + (priceTween.to - priceTween.from) * easeOut(p);
+    }
+
+    function smoothRange(targetMin, targetMax, dt) {
+      let span = targetMax - targetMin;
+      if (span < 0.1) {
+        const mid = (targetMin + targetMax) / 2;
+        targetMin = mid - 0.05;
+        targetMax = mid + 0.05;
+        span = 0.1;
       }
+      const pad = span * 0.18;
+      targetMin -= pad;
+      targetMax += pad;
+      if (viewMin === null) {
+        viewMin = targetMin;
+        viewMax = targetMax;
+      } else {
+        const k = 1 - Math.exp(-dt / 140);
+        viewMin += (targetMin - viewMin) * k;
+        viewMax += (targetMax - viewMax) * k;
+      }
+    }
 
-      const gridSteps = 5;
-      ctx.font = "600 12px system-ui, -apple-system, sans-serif";
-      ctx.textAlign = "right";
+    function plotRect() {
+      const left = CHART_PAD.left;
+      const right = cssW - CHART_PAD.right;
+      const top = CHART_PAD.top;
+      const bottom = cssH - CHART_PAD.bottom;
+      return { left, right, top, bottom, w: right - left, h: bottom - top };
+    }
+
+    const yFor = (p, r) => r.bottom - ((p - viewMin) / (viewMax - viewMin)) * r.h;
+
+    function timeLabel(t, withSeconds) {
+      const key = t + (withSeconds ? "s" : "m");
+      if (!timeLabelCache[key]) {
+        if (Object.keys(timeLabelCache).length > 80) for (const k in timeLabelCache) delete timeLabelCache[k];
+        const txt = formatTime(new Date(t));
+        timeLabelCache[key] = withSeconds ? txt : txt.slice(0, 5);
+      }
+      return timeLabelCache[key];
+    }
+
+    function roundedRect(x, y, w, h, rad) {
+      ctx.beginPath();
+      ctx.moveTo(x + rad, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rad);
+      ctx.arcTo(x + w, y + h, x, y + h, rad);
+      ctx.arcTo(x, y + h, x, y, rad);
+      ctx.arcTo(x, y, x + w, y, rad);
+      ctx.closePath();
+    }
+
+    function animateView(dt) {
+      const kz = 1 - Math.exp(-dt / 110);
+      const tw = TICK_ZOOM[tickZoomIdx] * 1000;
+      tickWindowMs += (tw - tickWindowMs) * kz;
+      if (Math.abs(tw - tickWindowMs) < 5) tickWindowMs = tw;
+      const cw = CANDLE_ZOOM[candleZoomIdx];
+      visibleCandles += (cw - visibleCandles) * kz;
+      if (Math.abs(cw - visibleCandles) < 0.02) visibleCandles = cw;
+    }
+
+    // Horizontal grid lines with price labels on the right side
+    function drawPriceScale(r, tagY, extraBelow) {
+      ctx.font = `600 11px ${FONT}`;
+      ctx.textAlign = "left";
       ctx.textBaseline = "middle";
-
-      for (let i = 0; i <= gridSteps; i++) {
-        const ratio = i / gridSteps;
-        const y = padTop + plotH - ratio * plotH;
-        const levelPrice = minPrice + ratio * span;
-
+      const steps = Math.max(3, Math.min(6, Math.floor(r.h / 55)));
+      for (let i = 0; i <= steps; i++) {
+        const ratio = i / steps;
+        const y = r.bottom - ratio * r.h;
+        const price = viewMin + ratio * (viewMax - viewMin);
         ctx.strokeStyle = "rgba(51, 65, 85, 0.55)";
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(padLeft, y);
-        ctx.lineTo(w - padRight, y);
+        ctx.moveTo(r.left, y);
+        ctx.lineTo(r.right, y);
         ctx.stroke();
-
-        ctx.fillStyle = "#94a3b8";
-        ctx.fillText(levelPrice.toFixed(2), padLeft - 10, y);
+        if (tagY === null || (y < tagY - 13 || y > tagY + 13 + (extraBelow || 0))) {
+          ctx.fillStyle = "#94a3b8";
+          ctx.fillText(price.toFixed(2), r.right + 8, y);
+        }
       }
-
-      return { minPrice, maxPrice, span };
     }
 
-    function drawTickChart(padLeft, padRight, padTop, padBottom) {
+    // Dashed current-price line across the plot and the price tag on the right
+    function drawPriceLine(r, y, text, color) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(r.left, r.top - 2, r.w + 1, r.h + 4);
+      ctx.clip();
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = color;
+      ctx.globalAlpha = 0.9;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(r.left, y);
+      ctx.lineTo(r.right, y);
+      ctx.stroke();
+      ctx.restore();
+
+      const tagH = 20;
+      const ty = Math.max(r.top + tagH / 2, Math.min(r.bottom - tagH / 2, y));
+      const x = r.right + 2;
+      ctx.fillStyle = color;
+      roundedRect(x, ty - tagH / 2, cssW - x - 2, tagH, 5);
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `700 12px ${FONT}`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, x + (cssW - x - 2) / 2, ty + 0.5);
+      return ty;
+    }
+
+    function markerTimes(m, lastTs) {
+      const start = m.startTs !== null ? m.startTs : lastTs + 1000;
+      const end = m.endTs !== null ? m.endTs : start + (m.ticksNeeded - 1) * 1000;
+      return { start, end };
+    }
+
+    // Contract start (dashed vertical), finish (solid vertical) and entry-price (horizontal) lines
+    function drawContractMarkers(r, xAt, yAt, nowMs) {
+      const list = chartMarkers.filter(m => m.mk === activeMkId);
+      if (!list.length || !tickHistory.length) return;
+      const lastTick = tickHistory[tickHistory.length - 1];
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(r.left, r.top, r.w + 1, r.h);
+      ctx.clip();
+      list.forEach(m => {
+        const t = markerTimes(m, lastTick.ts);
+        const xs = xAt(t.start);
+        const xe = xAt(t.end);
+        const y = yAt(m.entryPrice !== null ? m.entryPrice : lastTick.price);
+
+        let color = m.color;
+        let alpha = 1;
+        if (m.state !== "open") {
+          color = m.state === "won" ? "#22c55e" : "#ef4444";
+          const age = nowMs - m.settledAt;
+          alpha = age > 15000 ? Math.max(0, 1 - (age - 15000) / 5000) : 1;
+        }
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+
+        ctx.setLineDash([2, 3]);
+        ctx.lineWidth = 1.3;
+        ctx.beginPath();
+        ctx.moveTo(xs, y);
+        ctx.lineTo(xe, y);
+        ctx.stroke();
+
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(xs, r.top);
+        ctx.lineTo(xs, r.bottom);
+        ctx.stroke();
+
+        ctx.setLineDash([]);
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(xe, r.top);
+        ctx.lineTo(xe, r.bottom);
+        ctx.stroke();
+
+        ctx.font = `700 9px ${FONT}`;
+        ctx.textBaseline = "top";
+        const endLabel = m.state === "open" ? "EXIT" : m.state === "won" ? "WON" : "LOST";
+        [["ENTRY", xs, r.top + 3], [endLabel, xe, r.top + 14]].forEach(([txt, x, y2]) => {
+          const flip = x > r.right - 44;
+          ctx.textAlign = flip ? "right" : "left";
+          ctx.fillText(txt, flip ? x - 3 : x + 3, y2);
+        });
+      });
+      ctx.restore();
+    }
+
+    function drawTickChart(dt) {
       if (tickHistory.length === 0) return;
 
-      const w = cssW;
-      const h = cssH;
-      const plotW = w - padLeft - padRight;
-      const plotH = h - padTop - padBottom;
+      const r = plotRect();
+      const nowMs = Date.now();
+      const last = tickHistory[tickHistory.length - 1];
 
-      const prices = tickHistory.map(t => t.price);
-      const { minPrice, span } = drawPriceAxes(
-        Math.min(...prices),
-        Math.max(...prices),
-        padLeft, padRight, padTop, padBottom
-      );
-
-      const stepX = plotW / (MAX_VISIBLE_TICKS - 1);
-      const startIndexOffset = MAX_VISIBLE_TICKS - tickHistory.length;
-
-      const coords = tickHistory.map((pt, i) => {
-        const x = padLeft + (startIndexOffset + i) * stepX;
-        const y = padTop + plotH - ((pt.price - minPrice) / span) * plotH;
-        return { x, y, ...pt };
-      });
-
-      // Vertical grid lines & X-axis time labels every 5 ticks
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      coords.forEach((pt, idx) => {
-        const isLast = idx === coords.length - 1;
-        if ((idx % 5 === 0 && (coords.length - 1 - idx) * stepX >= 66) || isLast) {
-          ctx.strokeStyle = "rgba(51, 65, 85, 0.4)";
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(pt.x, padTop);
-          ctx.lineTo(pt.x, padTop + plotH);
-          ctx.stroke();
-
-          ctx.fillStyle = idx === coords.length - 1 ? "#38bdf8" : "#94a3b8";
-          ctx.font = idx === coords.length - 1
-            ? "700 11px system-ui, -apple-system, sans-serif"
-            : "500 11px system-ui, -apple-system, sans-serif";
-          ctx.fillText(pt.time, pt.x, padTop + plotH + 10);
+      // Room on the right for the contract finish line(s)
+      let need = 0.12 * tickWindowMs;
+      chartMarkers.forEach(m => {
+        if (m.mk === activeMkId && m.state === "open") {
+          need = Math.max(need, markerTimes(m, last.ts).end - nowMs + 0.06 * tickWindowMs);
         }
       });
+      const targetFuture = Math.min(need, 0.75 * tickWindowMs);
+      futureMsCur += (targetFuture - futureMsCur) * (1 - Math.exp(-dt / 200));
 
-      // Area gradient under price curve
-      if (coords.length > 1) {
-        const grad = ctx.createLinearGradient(0, padTop, 0, padTop + plotH);
-        grad.addColorStop(0, "rgba(56, 189, 248, 0.25)");
-        grad.addColorStop(1, "rgba(56, 189, 248, 0.0)");
+      const pxPerMs = r.w / tickWindowMs;
+      const xAt = (t) => r.right - (nowMs + futureMsCur - t) * pxPerMs;
+      const leftTime = nowMs + futureMsCur - tickWindowMs;
 
+      const shown = displayedPrice();
+      const showPrice = shown === null ? last.price : shown;
+
+      const visible = tickHistory.filter(t => t.ts >= leftTime - 2000);
+      const ps = visible.map(t => t.price);
+      ps.push(showPrice);
+      smoothRange(Math.min(...ps), Math.max(...ps), dt);
+      const yAt = (p) => yFor(p, r);
+
+      const prev = tickHistory.length > 1 ? tickHistory[tickHistory.length - 2].price : last.price;
+      if (last.price > prev) dirColor = UP_COLOR;
+      else if (last.price < prev) dirColor = DOWN_COLOR;
+
+      const tagY = yAt(showPrice);
+      drawPriceScale(r, tagY);
+
+      // Vertical time grid that slides with the line
+      const steps = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600].map(x => x * 1000);
+      const step = steps.find(x => tickWindowMs / x <= 7) || 600000;
+      const withSeconds = step < 60000;
+      const labels = [];
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(r.left, r.top - 2, r.w + 1, r.h + 4);
+      ctx.clip();
+      for (let t = Math.ceil(leftTime / step) * step; t <= nowMs + futureMsCur; t += step) {
+        const x = xAt(t);
+        ctx.strokeStyle = "rgba(51, 65, 85, 0.4)";
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(coords[0].x, padTop + plotH);
-        coords.forEach(c => ctx.lineTo(c.x, c.y));
-        ctx.lineTo(coords[coords.length - 1].x, padTop + plotH);
-        ctx.closePath();
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        // Main running price line
-        ctx.beginPath();
-        ctx.moveTo(coords[0].x, coords[0].y);
-        for (let i = 1; i < coords.length; i++) {
-          ctx.lineTo(coords[i].x, coords[i].y);
-        }
-        ctx.strokeStyle = "#38bdf8";
-        ctx.lineWidth = 3;
-        ctx.lineJoin = "round";
-        ctx.lineCap = "round";
+        ctx.moveTo(x, r.top);
+        ctx.lineTo(x, r.bottom);
         ctx.stroke();
+        if (x > r.left + 26 && x < r.right + 20) labels.push({ x, text: timeLabel(t, withSeconds) });
       }
 
-      // Draw tick nodes & round-number digit badges
-      coords.forEach((c, idx) => {
-        const isLatest = idx === coords.length - 1;
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, c.picked ? 7 : isLatest ? 6 : 3.5, 0, Math.PI * 2);
+      // Price curve: last point follows the eased live price and ends at "now"
+      const xNow = xAt(nowMs);
+      const pts = visible.map((t, i) => ({ x: xAt(t.ts), y: yAt(i === visible.length - 1 ? showPrice : t.price) }));
+      pts.push({ x: xNow, y: tagY });
 
-        if (c.picked) {
-          ctx.fillStyle = "#22c55e";
-          ctx.fill();
-          ctx.lineWidth = 2.5;
-          ctx.strokeStyle = "#f8fafc";
-          ctx.stroke();
+      const grad = ctx.createLinearGradient(0, r.top, 0, r.bottom);
+      grad.addColorStop(0, "rgba(56, 189, 248, 0.25)");
+      grad.addColorStop(1, "rgba(56, 189, 248, 0)");
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, r.bottom);
+      pts.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(xNow, r.bottom);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
 
-          ctx.fillStyle = "#86efac";
-          ctx.font = "700 12px system-ui, -apple-system, sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "bottom";
-          ctx.fillText(`${c.value} (${c.formattedPrice})`, c.x, c.y - 10);
-        } else if (isLatest) {
-          ctx.fillStyle = "#f43f5e";
-          ctx.fill();
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = "#fff";
-          ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.stroke();
+      ctx.restore();
 
-          ctx.fillStyle = "#f8fafc";
-          ctx.font = "700 12px system-ui, -apple-system, sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "bottom";
-          ctx.fillText(String(c.value), c.x, c.y - 9);
-        } else {
-          ctx.fillStyle = "#38bdf8";
-          ctx.fill();
-        }
-      });
+      drawContractMarkers(r, xAt, yAt, nowMs);
+      drawPriceLine(r, tagY, last.formattedPrice, dirColor);
+
+      // Small dot at the live end of the line
+      ctx.beginPath();
+      ctx.arc(xNow, tagY, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#38bdf8";
+      ctx.stroke();
+
+      ctx.font = `500 11px ${FONT}`;
+      ctx.fillStyle = "#94a3b8";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      labels.forEach(l => ctx.fillText(l.text, l.x, r.bottom + 8));
     }
 
-    function drawCandleChart(padLeft, padRight, padTop, padBottom) {
+    function drawCandleChart(dt) {
       if (candleHistory.length === 0) return;
 
-      const w = cssW;
-      const h = cssH;
-      const plotW = w - padLeft - padRight;
-      const plotH = h - padTop - padBottom;
+      const r = plotRect();
+      const slotW = r.w / visibleCandles;
+      const bodyW = Math.max(3, Math.min(18, slotW * 0.62));
+      const slide = (1 - easeOut(Math.min(1, (performance.now() - candleSlideStart) / 500))) * slotW;
+      const len = candleHistory.length;
+      const latest = candleHistory[len - 1];
+      const centerOf = (i) => r.right - (len - 1 - i + 0.5) * slotW + slide;
 
-      const highs = candleHistory.map(c => c.high);
-      const lows = candleHistory.map(c => c.low);
-      const { minPrice, span } = drawPriceAxes(
-        Math.min(...lows),
-        Math.max(...highs),
-        padLeft, padRight, padTop, padBottom
-      );
+      const first = Math.max(0, len - Math.ceil(visibleCandles) - 2);
+      const vis = candleHistory.slice(first);
+      smoothRange(Math.min(...vis.map(c => c.low)), Math.max(...vis.map(c => c.high)), dt);
+      const yAt = (p) => yFor(p, r);
+      const tagY = yAt(latest.close);
+      drawPriceScale(r, tagY, 14);
 
-      const slotW = plotW / MAX_VISIBLE_CANDLES;
-      const bodyW = Math.max(8, Math.min(20, slotW * 0.62));
-      const startIndexOffset = MAX_VISIBLE_CANDLES - candleHistory.length;
+      const kEvery = [1, 2, 5, 10, 15, 30, 60].find(k => k * slotW >= 64) || 60;
+      const labels = [];
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(r.left, r.top - 2, r.w + 1, r.h + 4);
+      ctx.clip();
 
-      const priceToY = (p) => padTop + plotH - ((p - minPrice) / span) * plotH;
+      for (let i = first; i < len; i++) {
+        const c = candleHistory[i];
+        const cx = centerOf(i);
+        if (cx < r.left - slotW) continue;
 
-      candleHistory.forEach((c, i) => {
-        const isLatest = i === candleHistory.length - 1;
-        const centerX = padLeft + (startIndexOffset + i + 0.5) * slotW;
-        const yOpen = priceToY(c.open);
-        const yClose = priceToY(c.close);
-        const yHigh = priceToY(c.high);
-        const yLow = priceToY(c.low);
-
-        const isBull = c.close >= c.open;
-        const color = isBull ? "#22c55e" : "#fb7185";
-
-        // Vertical grid lines & X-axis time labels (HH:MM) every 4 candles or latest
-        if ((i % 4 === 0 && (candleHistory.length - 1 - i) * slotW >= 44) || isLatest) {
+        if ((c.minuteBucket / 60000) % kEvery === 0) {
           ctx.strokeStyle = "rgba(51, 65, 85, 0.4)";
           ctx.lineWidth = 1;
           ctx.beginPath();
-          ctx.moveTo(centerX, padTop);
-          ctx.lineTo(centerX, padTop + plotH);
+          ctx.moveTo(cx, r.top);
+          ctx.lineTo(cx, r.bottom);
           ctx.stroke();
-
-          ctx.fillStyle = isLatest ? "#38bdf8" : "#94a3b8";
-          ctx.font = isLatest
-            ? "700 11px system-ui, -apple-system, sans-serif"
-            : "500 11px system-ui, -apple-system, sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "top";
-          ctx.fillText(formatTime(new Date(c.minuteBucket)).slice(0, 5), centerX, padTop + plotH + 10);
+          if (cx > r.left + 20 && cx < r.right + 10) labels.push({ x: cx, text: timeLabel(c.minuteBucket, false) });
         }
 
-        // High-Low wick
+        const color = c.close >= c.open ? "#22c55e" : "#fb7185";
         ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = slotW < 8 ? 1 : 2;
         ctx.beginPath();
-        ctx.moveTo(centerX, yHigh);
-        ctx.lineTo(centerX, yLow);
+        ctx.moveTo(cx, yAt(c.high));
+        ctx.lineTo(cx, yAt(c.low));
         ctx.stroke();
 
-        // Open-Close candle body
-        const bodyTop = Math.min(yOpen, yClose);
-        const bodyHeight = Math.max(3, Math.abs(yClose - yOpen));
+        const yOpen = yAt(c.open);
+        const yClose = yAt(c.close);
         ctx.fillStyle = color;
-        ctx.fillRect(centerX - bodyW / 2, bodyTop, bodyW, bodyHeight);
+        ctx.fillRect(cx - bodyW / 2, Math.min(yOpen, yClose), bodyW, Math.max(2, Math.abs(yClose - yOpen)));
+      }
+      ctx.restore();
 
-        if (c.picked) {
-          ctx.strokeStyle = "#f8fafc";
-          ctx.lineWidth = 2;
-          ctx.strokeRect(centerX - bodyW / 2 - 2, bodyTop - 2, bodyW + 4, bodyHeight + 4);
-        }
+      // Contract markers on the candle time axis
+      const latestMid = latest.minuteBucket + 30000;
+      drawContractMarkers(r, (t) => centerOf(len - 1) + ((t - latestMid) / 60000) * slotW, yAt, Date.now());
 
-        // Live candle countdown & digit label above active candle
-        if (isLatest) {
-          const secsElapsed = new Date().getSeconds();
-          const secsLeft = 60 - secsElapsed;
-          ctx.fillStyle = "#f8fafc";
-          ctx.font = "700 11px system-ui, -apple-system, sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "bottom";
-          ctx.fillText(`${c.lastDigit} (${secsLeft}s)`, centerX, Math.max(padTop + 14, yHigh - 6));
-        }
-      });
+      const col = latest.close >= latest.open ? UP_COLOR : DOWN_COLOR;
+      const ty = drawPriceLine(r, tagY, latest.formattedClose, col);
+
+      // Time left in the current candle, under the price tag
+      ctx.font = `600 10px ${FONT}`;
+      ctx.fillStyle = "#94a3b8";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText(`${60 - new Date().getSeconds()}s`, r.right + 2 + (cssW - r.right - 4) / 2, ty + 13);
+
+      ctx.font = `500 11px ${FONT}`;
+      labels.forEach(l => ctx.fillText(l.text, l.x, r.bottom + 8));
     }
 
     function drawChart() {
-      const w = cssW;
-      const h = cssH;
-      const padLeft = 74;
-      const padRight = 28;
-      const padTop = 28;
-      const padBottom = 42;
+      const nowP = performance.now();
+      const dt = Math.min(100, nowP - lastFrameTs);
+      lastFrameTs = nowP;
+      animateView(dt);
+      const nowMs = Date.now();
+      chartMarkers = chartMarkers.filter(m => m.state === "open" || nowMs - m.settledAt < 20000);
+      ctx.clearRect(0, 0, cssW, cssH);
+      if (chartMode === "candle") drawCandleChart(dt);
+      else drawTickChart(dt);
+    }
 
-      ctx.clearRect(0, 0, w, h);
+    // Zoom
+    const zoomInBtn = document.getElementById("zoomInBtn");
+    const zoomOutBtn = document.getElementById("zoomOutBtn");
+    const zoomLabel = document.getElementById("zoomLabel");
 
-      if (chartMode === "candle") {
-        drawCandleChart(padLeft, padRight, padTop, padBottom);
-      } else {
-        drawTickChart(padLeft, padRight, padTop, padBottom);
-      }
+    function updateZoomUI() {
+      const isTick = chartMode === "tick";
+      const list = isTick ? TICK_ZOOM : CANDLE_ZOOM;
+      const idx = isTick ? tickZoomIdx : candleZoomIdx;
+      const v = list[idx];
+      zoomLabel.textContent = isTick ? (v >= 60 ? `${v / 60}m` : `${v}s`) : `${v}m`;
+      zoomInBtn.disabled = idx === 0;
+      zoomOutBtn.disabled = idx === list.length - 1;
+    }
+
+    // dir: +1 zoom out (more history), -1 zoom in (less history)
+    function zoomBy(dir) {
+      if (chartMode === "tick") tickZoomIdx = Math.max(0, Math.min(TICK_ZOOM.length - 1, tickZoomIdx + dir));
+      else candleZoomIdx = Math.max(0, Math.min(CANDLE_ZOOM.length - 1, candleZoomIdx + dir));
+      viewMin = null;
+      viewMax = null;
+      updateZoomUI();
     }
 
     function resizeCanvas() {
@@ -1579,6 +2120,9 @@
       chartMode = mode;
       tickModeBtn.classList.toggle("active", mode === "tick");
       candleModeBtn.classList.toggle("active", mode === "candle");
+      viewMin = null;
+      viewMax = null;
+      updateZoomUI();
       drawChart();
     }
 
@@ -1713,7 +2257,7 @@
       return c.digits.map(d => `<span class="chip ${didWin(c.type, c.digit, d) ? "w" : "l"}">${d}</span>`).join("");
     }
 
-    const autoTag = (c) => (c.auto ? '<span class="auto-badge">AUTO</span>' : "");
+    const autoTag = (c) => (c.auto ? '<span class="auto-badge">AUTO</span>' : "") + (c.mk && markets[c.mk] ? `<span class="mk-tag">${markets[c.mk].short}</span>` : "");
 
     function renderTrade() {
       const tab = TRADE_TABS[activeTab];
@@ -1767,7 +2311,7 @@
 
       if (autoRunning && autoCfg) {
         const plCls = autoPL > 0 ? "pos" : autoPL < 0 ? "neg" : "";
-        autoStatus.innerHTML = `${contractName(autoCfg.type, autoCfg.digit)} &middot; ${autoCfg.duration}t<br>Runs ${autoRunsDone} / ${autoCfg.runs} &middot; P/L <span class="${plCls}">${signedMoney(autoPL)}</span> &middot; Next stake ${money(autoStake)}`;
+        autoStatus.innerHTML = `${contractName(autoCfg.type, autoCfg.digit)} &middot; ${autoCfg.duration}t &middot; ${markets[autoCfg.mk].short}<br>Runs ${autoRunsDone} / ${autoCfg.runs} &middot; P/L <span class="${plCls}">${signedMoney(autoPL)}</span> &middot; Next stake ${money(autoStake)}`;
       } else if (autoMessage) {
         autoStatus.textContent = autoMessage;
       } else {
@@ -1828,6 +2372,7 @@
     function renderAll() {
       renderAccount();
       renderTrade();
+      if (accountModal && !accountModal.hidden && modalPane === "dashboard") renderDashboard();
     }
 
     function showResult(kind, main, sub) {
@@ -1850,7 +2395,7 @@
       return "";
     }
 
-    function openContract(type, digit, stake, duration, auto) {
+    function openContract(type, digit, stake, duration, auto, mkId) {
       balance = round2(balance - stake);
       const c = {
         id: nextContractId++,
@@ -1863,9 +2408,16 @@
         digits: [],
         prices: [],
         entryPrice: null,
-        auto: !!auto
+        auto: !!auto,
+        mk: mkId || activeMkId
       };
       openContracts.push(c);
+      chartMarkers.push({
+        id: c.id, mk: c.mk, ticksNeeded: c.ticksNeeded,
+        startTs: null, entryPrice: null, endTs: null,
+        state: "open", settledAt: 0,
+        color: MARKER_COLORS[c.id % MARKER_COLORS.length]
+      });
       saveAccount();
       return c;
     }
@@ -1883,11 +2435,11 @@
         return;
       }
 
-      const c = openContract(type, digit, stake, duration, false);
+      const c = openContract(type, digit, stake, duration, false, activeMkId);
       const when = isRF(type)
         ? `Entry is the next tick, then it settles ${duration} tick${duration > 1 ? "s" : ""} later.`
         : `Settles after ${duration} tick${duration > 1 ? "s" : ""}.`;
-      showResult(null, `Bought ${contractName(type, digit)} for ${money(stake)}`, `${when} Potential payout ${money(c.payout)}.`);
+      showResult(null, `Bought ${contractName(type, digit)} for ${money(stake)} on ${activeMk.short}`, `${when} Potential payout ${money(c.payout)}.`);
       renderAll();
     }
 
@@ -1914,14 +2466,14 @@
         return;
       }
 
-      autoCfg = { type, digit, duration, baseStake: stake, mult, runs, tp: round2(tp), sl: round2(sl) };
+      autoCfg = { type, digit, duration, baseStake: stake, mult, runs, tp: round2(tp), sl: round2(sl), mk: activeMkId };
       autoRunning = true;
       autoRunsDone = 0;
       autoPL = 0;
       autoStake = stake;
       autoMessage = "";
-      openContract(type, digit, stake, duration, true);
-      showResult(null, `Auto trade started: ${contractName(type, digit)}`,
+      openContract(type, digit, stake, duration, true, activeMkId);
+      showResult(null, `Auto trade started: ${contractName(type, digit)} on ${activeMk.short}`,
         `${runs} runs · stake ${money(stake)} · ×${mult} after a loss`);
       renderAll();
     }
@@ -1947,20 +2499,26 @@
       if (autoRunsDone >= autoCfg.runs) return stopAuto(`Completed ${autoRunsDone} runs (${signedMoney(autoPL)})`);
       if (autoStake > balance) return stopAuto(`Not enough balance for the next stake of ${money(autoStake)} (${signedMoney(autoPL)})`);
 
-      openContract(autoCfg.type, autoCfg.digit, autoStake, autoCfg.duration, true);
+      openContract(autoCfg.type, autoCfg.digit, autoStake, autoCfg.duration, true, autoCfg.mk);
     }
 
-    function settleContracts(latestTick, digit) {
-      if (openContracts.length === 0) return;
+    function settleContracts(mkId, latestTick, digit) {
+      const mine = openContracts.filter(c => c.mk === mkId);
+      if (mine.length === 0) return;
 
-      openContracts.forEach(c => {
+      mine.forEach(c => {
         c.digits.push(digit);
         c.prices.push(latestTick.price);
         if (c.entryPrice === null) c.entryPrice = latestTick.price;
+        const mk = chartMarkers.find(x => x.id === c.id);
+        if (mk && c.digits.length === 1) {
+          mk.startTs = latestTick.ts;
+          mk.entryPrice = latestTick.price;
+        }
       });
-      const done = openContracts.filter(c => c.digits.length >= c.ticksNeeded);
+      const done = mine.filter(c => c.digits.length >= c.ticksNeeded);
       if (done.length === 0) { renderTrade(); return; }
-      openContracts = openContracts.filter(c => c.digits.length < c.ticksNeeded);
+      openContracts = openContracts.filter(c => !done.includes(c));
 
       let net = 0;
       let last = null;
@@ -1972,19 +2530,22 @@
         totalPL = round2(totalPL + profit);
         net = round2(net + profit);
         last = { ...c, win, profit, exitDigit: digit, exitPrice: latestTick.price };
+        recordLife(c, win, profit);
+        const mk = chartMarkers.find(x => x.id === c.id);
+        if (mk) {
+          mk.endTs = latestTick.ts;
+          mk.state = win ? "won" : "lost";
+          mk.settledAt = Date.now();
+        }
         closedTrades.unshift(last);
         if (c.auto) autoResults.push({ win, profit });
       });
       if (closedTrades.length > 30) closedTrades.length = 30;
 
-      // Ring the settling tick/candle on the chart
-      latestTick.picked = true;
-      if (candleHistory.length > 0) candleHistory[candleHistory.length - 1].picked = true;
-
       if (done.length === 1) {
         const detail = isRF(last.type)
-          ? `${contractName(last.type, last.digit)} · entry ${last.entryPrice.toFixed(2)} → exit ${last.exitPrice.toFixed(2)}`
-          : `${contractName(last.type, last.digit)} · exit digit ${digit}`;
+          ? `${contractName(last.type, last.digit)} · ${markets[last.mk].short} · entry ${last.entryPrice.toFixed(2)} → exit ${last.exitPrice.toFixed(2)}`
+          : `${contractName(last.type, last.digit)} · ${markets[last.mk].short} · exit digit ${digit}`;
         showResult(last.win ? "won" : "lost",
           last.win ? `Won ${signedMoney(last.profit)}` : `Lost ${money(last.stake)}`,
           detail);
@@ -1995,6 +2556,7 @@
       }
 
       saveAccount();
+      saveProfile();
       autoResults.forEach(r => onAutoSettled(r.win, r.profit));
       saveAccount();
       renderAll();
@@ -2004,7 +2566,10 @@
       if (autoRunning) stopAuto("Stopped: balance was reset", true);
       balance = START_BALANCE;
       openContracts = [];
+      chartMarkers = [];
+      life.equity.push({ t: Date.now(), b: START_BALANCE });
       saveAccount();
+      saveProfile();
       showResult(null, "Demo balance reset to " + money(START_BALANCE));
       renderAll();
     }
@@ -2018,9 +2583,47 @@
       renderAll();
     }
 
-    volSelect.addEventListener("change", () => {
-      sigma = parseFloat(volSelect.value);
+    volSelect.addEventListener("change", () => switchMarket(volSelect.value));
+
+    zoomInBtn.addEventListener("click", () => zoomBy(-1));
+    zoomOutBtn.addEventListener("click", () => zoomBy(1));
+
+    // Mouse wheel zoom (landscape layout) and two-finger pinch zoom
+    let wheelLock = 0;
+    canvas.addEventListener("wheel", (e) => {
+      if (!window.matchMedia("(orientation: landscape)").matches) return;
+      e.preventDefault();
+      const now = performance.now();
+      if (now - wheelLock < 140) return;
+      wheelLock = now;
+      zoomBy(e.deltaY > 0 ? 1 : -1);
+    }, { passive: false });
+
+    const activePointers = new Map();
+    let pinchDist = null;
+    const pointerDist = () => {
+      const [a, b] = [...activePointers.values()];
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    };
+    canvas.addEventListener("pointerdown", (e) => {
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (activePointers.size === 2) pinchDist = pointerDist();
     });
+    canvas.addEventListener("pointermove", (e) => {
+      if (!activePointers.has(e.pointerId)) return;
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (activePointers.size === 2 && pinchDist) {
+        const d = pointerDist();
+        if (d / pinchDist > 1.35) { zoomBy(-1); pinchDist = d; }
+        else if (d / pinchDist < 0.74) { zoomBy(1); pinchDist = d; }
+      }
+    });
+    const endPointer = (e) => {
+      activePointers.delete(e.pointerId);
+      if (activePointers.size < 2) pinchDist = null;
+    };
+    canvas.addEventListener("pointerup", endPointer);
+    canvas.addEventListener("pointercancel", endPointer);
 
     taWindowSelect.addEventListener("change", () => {
       analysisSize = parseInt(taWindowSelect.value, 10);
@@ -2093,6 +2696,273 @@
     document.getElementById("resetBalanceBtn").addEventListener("click", resetAccount);
     document.getElementById("resetHistoryBtn").addEventListener("click", resetHistory);
 
+    // ---- Profile & dashboard ----
+    const PROFILE_KEY = "kholleta_profile_v1";
+    const AVATAR_COLORS = ["#38bdf8", "#22c55e", "#f59e0b", "#ec4899", "#8b5cf6", "#f43f5e"];
+    const FAMILIES = { rf: "Rise / Fall", md: "Matches / Differs", eo: "Even / Odd", ou: "Over / Under" };
+
+    const accountModal = document.getElementById("accountModal");
+    const paneDashboard = document.getElementById("paneDashboard");
+    const paneProfile = document.getElementById("paneProfile");
+    const tabDashboard = document.getElementById("tabDashboard");
+    const tabProfile = document.getElementById("tabProfile");
+    const chipAvatar = document.getElementById("chipAvatar");
+    const chipName = document.getElementById("chipName");
+    const profileAvatar = document.getElementById("profileAvatar");
+    const profileNameInput = document.getElementById("profileName");
+    const profileEmailInput = document.getElementById("profileEmail");
+    const avatarColors = document.getElementById("avatarColors");
+    const resetStatsBtn = document.getElementById("resetStatsBtn");
+
+    let modalPane = "dashboard";
+    let profile = { name: "Trader", email: "", id: "", color: 0, joined: Date.now() };
+    let life = null;
+    let resetStatsTimer = null;
+
+    const familyOf = (type) =>
+      type === "rise" || type === "fall" ? "rf" :
+      type === "matches" || type === "differs" ? "md" :
+      type === "even" || type === "odd" ? "eo" : "ou";
+
+    function makeLife(bal) {
+      const blank = () => ({ t: 0, w: 0, pl: 0 });
+      return {
+        trades: 0, wins: 0, losses: 0, staked: 0, pl: 0,
+        best: null, worst: null, streak: 0, bestWin: 0, bestLoss: 0,
+        peak: bal, low: bal,
+        fam: { rf: blank(), md: blank(), eo: blank(), ou: blank() },
+        src: { manual: blank(), auto: blank() },
+        equity: [{ t: Date.now(), b: bal }],
+        log: []
+      };
+    }
+
+    function saveProfile() {
+      try {
+        localStorage.setItem(PROFILE_KEY, JSON.stringify({ profile, life }));
+      } catch (e) { /* storage unavailable: ignore */ }
+    }
+
+    function loadProfile() {
+      let data = null;
+      try { data = JSON.parse(localStorage.getItem(PROFILE_KEY) || "null"); } catch (e) { data = null; }
+      if (data && data.profile) profile = { ...profile, ...data.profile };
+      if (data && data.life && Array.isArray(data.life.equity) && data.life.fam && data.life.src) life = data.life;
+      if (!profile.id) profile.id = "KH-DEMO-" + String(100000 + Math.floor(Math.random() * 900000));
+      if (!life) life = makeLife(balance);
+      saveProfile();
+    }
+
+    function recordLife(c, win, profit) {
+      life.trades++;
+      if (win) life.wins++; else life.losses++;
+      life.staked = round2(life.staked + c.stake);
+      life.pl = round2(life.pl + profit);
+      if (life.best === null || profit > life.best) life.best = profit;
+      if (life.worst === null || profit < life.worst) life.worst = profit;
+      life.streak = win ? (life.streak > 0 ? life.streak + 1 : 1) : (life.streak < 0 ? life.streak - 1 : -1);
+      life.bestWin = Math.max(life.bestWin, life.streak);
+      life.bestLoss = Math.max(life.bestLoss, -life.streak);
+      life.peak = Math.max(life.peak, balance);
+      life.low = Math.min(life.low, balance);
+      [life.fam[familyOf(c.type)], life.src[c.auto ? "auto" : "manual"]].forEach(b => {
+        b.t++;
+        if (win) b.w++;
+        b.pl = round2(b.pl + profit);
+      });
+      life.equity.push({ t: Date.now(), b: balance });
+      if (life.equity.length > 300) life.equity.shift();
+      life.log.unshift({ t: Date.now(), name: contractName(c.type, c.digit), stake: c.stake, profit, win, auto: !!c.auto, mk: c.mk });
+      if (life.log.length > 50) life.log.length = 50;
+    }
+
+    function initials(name) {
+      const parts = name.trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return "T";
+      return (parts[0][0] + (parts[1] ? parts[1][0] : "")).toUpperCase();
+    }
+
+    const displayName = () => profile.name.trim() || "Trader";
+
+    function renderProfileChip() {
+      const color = AVATAR_COLORS[profile.color] || AVATAR_COLORS[0];
+      [chipAvatar, profileAvatar].forEach(el => {
+        el.style.background = color;
+        el.textContent = initials(displayName());
+      });
+      chipName.textContent = displayName();
+      avatarColors.querySelectorAll(".swatch").forEach(b => b.classList.toggle("active", parseInt(b.dataset.i, 10) === profile.color));
+    }
+
+    function fillProfilePane() {
+      profileNameInput.value = profile.name;
+      profileEmailInput.value = profile.email;
+      document.getElementById("infoId").textContent = profile.id;
+      document.getElementById("infoJoined").textContent = new Date(profile.joined).toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
+      resetStatsBtn.textContent = "Reset dashboard stats";
+    }
+
+    function equitySvg() {
+      const pts = life.equity.map(p => p.b);
+      if (pts.length < 2) return '<div class="empty-note">Place some trades to see your balance curve.</div>';
+      const W = 600, H = 150, padY = 10;
+      const realMin = Math.min(...pts), realMax = Math.max(...pts);
+      let min = realMin, max = realMax;
+      if (max - min < 1) { max += 0.5; min -= 0.5; }
+      const x = (i) => (i / (pts.length - 1)) * W;
+      const y = (v) => H - padY - ((v - min) / (max - min)) * (H - 2 * padY);
+      const line = pts.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
+      const col = pts[pts.length - 1] >= pts[0] ? "#22c55e" : "#ef4444";
+      const base = START_BALANCE > min && START_BALANCE < max
+        ? `<line x1="0" x2="${W}" y1="${y(START_BALANCE).toFixed(1)}" y2="${y(START_BALANCE).toFixed(1)}" stroke="#64748b" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>`
+        : "";
+      return `<svg class="equity" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Balance over time">
+          <defs><linearGradient id="eqg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity="0.35"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+          ${base}
+          <path d="${line} L${W} ${H} L0 ${H} Z" fill="url(#eqg)"/>
+          <path d="${line}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+        </svg>
+        <div class="equity-range"><span>Low ${money(realMin)}</span><span>Start ${money(START_BALANCE)} (dashed)</span><span>High ${money(realMax)}</span></div>`;
+    }
+
+    function renderDashboard() {
+      const L = life;
+      const rate = L.trades ? (L.wins / L.trades) * 100 : 0;
+      const plCls = (v) => (v > 0 ? "pos" : v < 0 ? "neg" : "");
+      const kpi = (label, value, cls, sub) =>
+        `<div class="kpi"><span class="kpi-label">${label}</span><span class="kpi-value ${cls || ""}">${value}</span>${sub ? `<span class="kpi-sub">${sub}</span>` : ""}</div>`;
+
+      const streakText = L.streak === 0 ? "-" : L.streak > 0 ? `${L.streak} win${L.streak > 1 ? "s" : ""}` : `${-L.streak} loss${L.streak < -1 ? "es" : ""}`;
+
+      const famRows = Object.keys(FAMILIES).map(k => {
+        const b = L.fam[k];
+        const wr = b.t ? (b.w / b.t) * 100 : 0;
+        return `<div class="bar-row">
+            <div class="bar-name">${FAMILIES[k]}<small>${b.t} trade${b.t === 1 ? "" : "s"}${b.t ? ` &middot; ${wr.toFixed(0)}% won` : ""}</small></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${wr.toFixed(1)}%"></div></div>
+            <div class="bar-val ${plCls(b.pl)}">${b.t ? signedMoney(b.pl) : "-"}</div>
+          </div>`;
+      }).join("");
+
+      const srcRow = (label, b) =>
+        `<div class="split-row"><span>${label}</span><b>${b.t} trades &middot; ${b.t ? ((b.w / b.t) * 100).toFixed(0) : 0}% won &middot; <span class="${plCls(b.pl)}" style="color:inherit">${b.t ? signedMoney(b.pl) : "$0.00"}</span></b></div>`;
+
+      const logRows = L.log.length
+        ? L.log.slice(0, 12).map(e => `<tr>
+            <td>${formatTime(new Date(e.t))}</td>
+            <td>${e.name}${e.auto ? '<span class="auto-badge">AUTO</span>' : ""}${e.mk && markets[e.mk] ? `<span class="mk-tag">${markets[e.mk].short}</span>` : ""}</td>
+            <td>${money(e.stake)}</td>
+            <td class="${e.win ? "pos" : "neg"}">${signedMoney(e.profit)}</td>
+          </tr>`).join("")
+        : '<tr><td colspan="4" class="empty-note">No trades recorded yet</td></tr>';
+
+      paneDashboard.innerHTML = `
+        <div class="dash-kpis">
+          ${kpi("Balance", money(balance))}
+          ${kpi("Net profit / loss", signedMoney(L.pl), plCls(L.pl), "all time")}
+          ${kpi("Win rate", L.trades ? rate.toFixed(1) + "%" : "-", "", `${L.wins} won &middot; ${L.losses} lost`)}
+          ${kpi("Total trades", L.trades)}
+          ${kpi("Total staked", money(L.staked))}
+          ${kpi("Best trade", L.best === null ? "-" : signedMoney(L.best), L.best === null ? "" : plCls(L.best))}
+          ${kpi("Worst trade", L.worst === null ? "-" : signedMoney(L.worst), L.worst === null ? "" : plCls(L.worst))}
+          ${kpi("Peak balance", money(L.peak), "", "Low " + money(L.low))}
+        </div>
+
+        <div class="dash-card">
+          <div class="dash-card-title">Balance over time <span>last ${Math.max(0, L.equity.length - 1)} trades</span></div>
+          ${equitySvg()}
+        </div>
+
+        <div class="dash-two">
+          <div class="dash-card">
+            <div class="dash-card-title">Performance by contract <span>win rate &amp; profit</span></div>
+            ${famRows}
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-title">Trading style</div>
+            ${srcRow("Manual", L.src.manual)}
+            ${srcRow("Auto trade", L.src.auto)}
+            <div class="split-row"><span>Current streak</span><b>${streakText}</b></div>
+            <div class="split-row"><span>Best win streak</span><b>${L.bestWin}</b></div>
+            <div class="split-row"><span>Worst losing streak</span><b>${L.bestLoss}</b></div>
+          </div>
+        </div>
+
+        <div class="dash-card">
+          <div class="dash-card-title">Recent trades <span>latest 12</span></div>
+          <div class="log-wrap">
+            <table class="log-table">
+              <thead><tr><th>Time</th><th>Contract</th><th>Stake</th><th>Result</th></tr></thead>
+              <tbody>${logRows}</tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    function setModalPane(pane) {
+      modalPane = pane;
+      tabDashboard.classList.toggle("active", pane === "dashboard");
+      tabProfile.classList.toggle("active", pane === "profile");
+      paneDashboard.hidden = pane !== "dashboard";
+      paneProfile.hidden = pane !== "profile";
+      if (pane === "dashboard") renderDashboard();
+      else fillProfilePane();
+    }
+
+    function openModal(pane) {
+      accountModal.hidden = false;
+      setModalPane(pane);
+      document.getElementById("modalClose").focus();
+    }
+
+    function closeModal() {
+      accountModal.hidden = true;
+    }
+
+    avatarColors.innerHTML = AVATAR_COLORS.map((c, i) => `<button type="button" class="swatch" data-i="${i}" style="background:${c}" aria-label="Avatar colour ${i + 1}"></button>`).join("");
+    avatarColors.addEventListener("click", (e) => {
+      const b = e.target.closest(".swatch");
+      if (!b) return;
+      profile.color = parseInt(b.dataset.i, 10);
+      saveProfile();
+      renderProfileChip();
+    });
+
+    profileNameInput.addEventListener("input", () => {
+      profile.name = profileNameInput.value.slice(0, 24);
+      saveProfile();
+      renderProfileChip();
+    });
+    profileEmailInput.addEventListener("input", () => {
+      profile.email = profileEmailInput.value.slice(0, 60);
+      saveProfile();
+    });
+
+    resetStatsBtn.addEventListener("click", () => {
+      if (resetStatsBtn.dataset.confirm === "1") {
+        clearTimeout(resetStatsTimer);
+        resetStatsBtn.dataset.confirm = "";
+        life = makeLife(balance);
+        saveProfile();
+        resetStatsBtn.textContent = "Dashboard stats cleared";
+      } else {
+        resetStatsBtn.dataset.confirm = "1";
+        resetStatsBtn.textContent = "Click again to confirm";
+        resetStatsTimer = setTimeout(() => {
+          resetStatsBtn.dataset.confirm = "";
+          resetStatsBtn.textContent = "Reset dashboard stats";
+        }, 4000);
+      }
+    });
+
+    document.getElementById("dashboardBtn").addEventListener("click", () => openModal("dashboard"));
+    document.getElementById("profileBtn").addEventListener("click", () => openModal("profile"));
+    tabDashboard.addEventListener("click", () => setModalPane("dashboard"));
+    tabProfile.addEventListener("click", () => setModalPane("profile"));
+    document.getElementById("modalClose").addEventListener("click", closeModal);
+    accountModal.addEventListener("click", (e) => { if (e.target === accountModal) closeModal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !accountModal.hidden) closeModal(); });
+
     // Landscape: trading panel sits in the sidebar between balance and trade history.
     // Portrait: it sits under the chart.
     const landscapeMQ = window.matchMedia("(orientation: landscape)");
@@ -2109,13 +2979,21 @@
     if (window.ResizeObserver) new ResizeObserver(resizeCanvas).observe(canvas.parentElement);
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
+    (function animate() {
+      drawChart();
+      requestAnimationFrame(animate);
+    })();
 
     // Seed initial tick immediately and start 1-second interval
     loadAccount();
+    loadProfile();
+    renderProfileChip();
     buildDigitPicker();
-    pushTick();
+    MARKET_DEFS.forEach(d => backfillMarket(markets[d.id], 6000));
+    switchMarket(activeMkId);
+    updateZoomUI();
     renderAll();
-    setInterval(pushTick, 1000);
+    setInterval(tickAll, 1000);
   </script>
 </body>
 </html>
