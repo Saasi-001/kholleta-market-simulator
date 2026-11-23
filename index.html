@@ -14,7 +14,6 @@
       --accent-green-hover: #00b371;
       --text-main: #f1f5f9;
       --text-muted: #94a3b8;
-      --danger: #ef4444;
     }
 
     * {
@@ -46,7 +45,7 @@
 
     .brand-header {
       text-align: center;
-      margin-bottom: 26px;
+      margin-bottom: 24px;
     }
 
     .brand-badge {
@@ -66,7 +65,6 @@
     .brand-header h1 {
       font-size: 24px;
       font-weight: 700;
-      letter-spacing: -0.3px;
     }
 
     .brand-header p {
@@ -81,7 +79,7 @@
       background: var(--bg-input);
       border-radius: 8px;
       padding: 4px;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
       border: 1px solid var(--border-color);
     }
 
@@ -94,17 +92,15 @@
       font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
-      transition: all 0.2s ease;
     }
 
     .tab-btn.active {
       background: var(--bg-card);
       color: var(--text-main);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 15px;
     }
 
     .form-group label {
@@ -126,7 +122,6 @@
       color: var(--text-main);
       font-size: 14px;
       outline: none;
-      transition: border-color 0.2s;
     }
 
     .form-group input:focus {
@@ -143,54 +138,11 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.2s ease;
       margin-top: 6px;
     }
 
     .btn-primary:hover {
       background: var(--accent-green-hover);
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 12px;
-      margin: 20px 0;
-    }
-
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .divider:not(:empty)::before {
-      margin-right: 12px;
-    }
-
-    .divider:not(:empty)::after {
-      margin-left: 12px;
-    }
-
-    .btn-guest {
-      width: 100%;
-      padding: 12px;
-      background: transparent;
-      color: var(--text-main);
-      font-size: 14px;
-      font-weight: 600;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-guest:hover {
-      background: var(--bg-input);
-      border-color: var(--text-muted);
     }
 
     .alert-box {
@@ -219,27 +171,19 @@
     .hidden {
       display: none;
     }
-
-    .footer-note {
-      text-align: center;
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 22px;
-    }
   </style>
 </head>
 <body>
-
   <div class="auth-container">
     <div class="brand-header">
-      <span class="brand-badge">Synthetic Volatility Engine</span>
+      <span class="brand-badge">Supabase Cloud Database</span>
       <h1>Kholleta Market</h1>
-      <p>Sign in or create a trader account to begin</p>
+      <p>Sign in or create a trader account</p>
     </div>
 
     <div class="tabs">
-      <button type="button" class="tab-btn active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
-      <button type="button" class="tab-btn" id="tabRegister" onclick="switchTab('register')">Create Account</button>
+      <button type="button" class="tab-btn active" id="tabLogin">Sign In</button>
+      <button type="button" class="tab-btn" id="tabRegister">Create Account</button>
     </div>
 
     <div id="alertBox" class="alert-box"></div>
@@ -247,344 +191,78 @@
     <!-- LOGIN FORM -->
     <form id="loginForm">
       <div class="form-group">
-        <label for="loginIdentifier">Email or Username</label>
-        <input
-          type="text"
-          id="loginIdentifier"
-          placeholder="Enter your email or username"
-          required
-          autocomplete="username"
-        />
+        <label for="loginEmail">Email Address</label>
+        <input type="email" id="loginEmail" placeholder="Enter your email address" required autocomplete="email" />
       </div>
       <div class="form-group">
         <label for="loginPassword">Password</label>
-        <input
-          type="password"
-          id="loginPassword"
-          placeholder="Enter your password"
-          required
-          autocomplete="current-password"
-        />
+        <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password" />
       </div>
-      <button type="submit" class="btn-primary">Sign In to Terminal</button>
+      <button type="submit" class="btn-primary">Sign In</button>
     </form>
 
-    <!-- CREATE ACCOUNT FORM (Full Name, Email Address, Password) -->
+    <!-- CREATE ACCOUNT FORM -->
     <form id="registerForm" class="hidden">
       <div class="form-group">
         <label for="regFullName">Full Name</label>
-        <input
-          type="text"
-          id="regFullName"
-          placeholder="Enter your full name"
-          required
-          autocomplete="name"
-        />
+        <input type="text" id="regFullName" placeholder="Enter your full name" required autocomplete="name" />
       </div>
       <div class="form-group">
         <label for="regEmail">Email Address</label>
-        <input
-          type="email"
-          id="regEmail"
-          placeholder="Enter your email address"
-          required
-          autocomplete="email"
-        />
+        <input type="email" id="regEmail" placeholder="Enter your email address" required autocomplete="email" />
       </div>
       <div class="form-group">
         <label for="regPassword">Password</label>
-        <input
-          type="password"
-          id="regPassword"
-          placeholder="Create a password (min. 4 characters)"
-          minlength="4"
-          required
-          autocomplete="new-password"
-        />
+        <input type="password" id="regPassword" placeholder="Create a password (min. 6 chars)" minlength="6" required autocomplete="new-password" />
       </div>
       <button type="submit" class="btn-primary">Create Trader Account</button>
     </form>
-
-    <div class="divider">OR</div>
-
-    <button type="button" class="btn-guest" onclick="loginAsGuest()">
-      Continue with Instant $10,000 Demo Account
-    </button>
-
-    <div class="footer-note">
-      Kholleta Liquidity Pool &amp; Settlement Engine v16
-    </div>
   </div>
 
-  <script>
-    const PRIMARY_KEY = 'kholleta_broker_backend_v1';
-    const SIMULATOR_PAGE = 'Kholleta_Market_simulator-v16.html';
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const SUPABASE_URL = 'https://kjnlicbnpejlliqrhwkh.supabase.co/rest/v1/';
+    const SUPABASE_ANON_KEY = 'sb_publishable_OuWu0qozlwjD1RxTxfiazQ_te7vUolu';
+    const SIMULATOR_PAGE = 'Kholleta_Market_simulator-v13.html';
     const ADMIN_PAGE = 'admin.html';
-    const DEFAULT_STARTING_BALANCE = 10000.00;
 
-    // Admin Credentials
-    const ADMIN_CREDENTIALS = {
-      username: 'admin',
-      email: 'admin@kholleta.local',
-      password: 'admin123'
-    };
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Known alternate keys in case admin.html reads a variant key
-    const ALTERNATE_STATE_KEYS = [
-      'kkolleta_broker_backend_v1',
-      'kholleta_broker_state',
-      'broker_backend_v1'
-    ];
-    const ALTERNATE_USER_LIST_KEYS = [
-      'kholleta_users',
-      'kkolleta_users',
-      'traders'
-    ];
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const tabLogin = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const alertBox = document.getElementById('alertBox');
 
-    function normalizeUserRecord(rawUser) {
-      const displayName = rawUser.name || rawUser.fullName || rawUser.username || 'Trader';
-      const email = (rawUser.email || '').trim().toLowerCase();
-      const username = rawUser.username || (email ? email.split('@')[0] : 'trader');
-      const numericBalance = typeof rawUser.balance === 'number'
-        ? rawUser.balance
-        : parseFloat(String(rawUser.balance ?? DEFAULT_STARTING_BALANCE).replace(/[^0-9.-]+/g, '')) || DEFAULT_STARTING_BALANCE;
-
-      return {
-        id: rawUser.id || ('TRD-' + Date.now() + '-' + Math.floor(Math.random() * 1000)),
-        name: displayName,
-        fullName: displayName,
-        email: email,
-        username: username,
-        password: rawUser.password || '',
-        balance: numericBalance,
-        status: rawUser.status || 'active',
-        role: rawUser.role || 'trader',
-        createdAt: rawUser.createdAt || new Date().toISOString()
-      };
-    }
-
-    function mergeUsers(existingUsers, incomingUsers) {
-      const map = new Map();
-
-      const addOrMerge = (u) => {
-        if (!u) return;
-        const norm = normalizeUserRecord(u);
-        const key = norm.email || norm.username.toLowerCase() || norm.id;
-        if (map.has(key)) {
-          map.set(key, { ...map.get(key), ...norm });
-        } else {
-          map.set(key, norm);
-        }
-      };
-
-      (existingUsers || []).forEach(addOrMerge);
-      (incomingUsers || []).forEach(addOrMerge);
-
-      return Array.from(map.values());
-    }
-
-    function getBrokerState() {
-      let base = {
-        brokerPool: 10000000.00,
-        brokerNetPnL: 0.00,
-        users: [],
-        ledger: [],
-        trades: [],
-        activeSession: null
-      };
-
-      // Load primary state
-      try {
-        const rawPrimary = localStorage.getItem(PRIMARY_KEY);
-        if (rawPrimary) {
-          const parsed = JSON.parse(rawPrimary);
-          base = {
-            brokerPool: typeof parsed.brokerPool === 'number' ? parsed.brokerPool : 10000000.00,
-            brokerNetPnL: typeof parsed.brokerNetPnL === 'number' ? parsed.brokerNetPnL : 0.00,
-            users: Array.isArray(parsed.users) ? parsed.users.map(normalizeUserRecord) : [],
-            ledger: Array.isArray(parsed.ledger) ? parsed.ledger : [],
-            trades: Array.isArray(parsed.trades) ? parsed.trades : [],
-            activeSession: parsed.activeSession || null
-          };
-        }
-      } catch (err) {
-        console.error('Error reading primary broker state:', err);
-      }
-
-      // Pull in any users saved under alternate state keys
-      ALTERNATE_STATE_KEYS.forEach((altKey) => {
-        try {
-          const rawAlt = localStorage.getItem(altKey);
-          if (rawAlt) {
-            const parsedAlt = JSON.parse(rawAlt);
-            if (Array.isArray(parsedAlt.users)) {
-              base.users = mergeUsers(base.users, parsedAlt.users);
-            }
-          }
-        } catch (err) {
-          // Ignore malformed alternate storage
-        }
-      });
-
-      // Pull in any users saved under standalone user list keys
-      ALTERNATE_USER_LIST_KEYS.forEach((listKey) => {
-        try {
-          const rawList = localStorage.getItem(listKey);
-          if (rawList) {
-            const parsedList = JSON.parse(rawList);
-            if (Array.isArray(parsedList)) {
-              base.users = mergeUsers(base.users, parsedList);
-            }
-          }
-        } catch (err) {
-          // Ignore malformed list storage
-        }
-      });
-
-      return base;
-    }
-
-    function saveBrokerState(state) {
-      const normalizedUsers = (state.users || []).map(normalizeUserRecord);
-      const payload = {
-        ...state,
-        users: normalizedUsers
-      };
-
-      localStorage.setItem(PRIMARY_KEY, JSON.stringify(payload));
-
-      // Keep existing alternate state keys synced if admin.html uses one
-      ALTERNATE_STATE_KEYS.forEach((altKey) => {
-        try {
-          const existing = localStorage.getItem(altKey);
-          if (existing !== null) {
-            const parsed = JSON.parse(existing);
-            localStorage.setItem(altKey, JSON.stringify({
-              ...parsed,
-              users: normalizedUsers,
-              ledger: payload.ledger,
-              brokerPool: payload.brokerPool,
-              brokerNetPnL: payload.brokerNetPnL
-            }));
-          }
-        } catch (err) {
-          // Ignore if non-JSON
-        }
-      });
-
-      // Keep existing standalone user list keys synced if admin.html uses one
-      ALTERNATE_USER_LIST_KEYS.forEach((listKey) => {
-        try {
-          if (localStorage.getItem(listKey) !== null) {
-            localStorage.setItem(listKey, JSON.stringify(normalizedUsers));
-          }
-        } catch (err) {
-          // Ignore
-        }
-      });
-    }
-
-    function showAlert(message, type = 'error') {
-      const box = document.getElementById('alertBox');
-      box.textContent = message;
-      box.className = `alert-box ${type}`;
+    function showAlert(msg, type = 'error') {
+      alertBox.textContent = msg;
+      alertBox.className = `alert-box ${type}`;
     }
 
     function clearAlert() {
-      const box = document.getElementById('alertBox');
-      box.textContent = '';
-      box.className = 'alert-box';
+      alertBox.textContent = '';
+      alertBox.className = 'alert-box';
     }
 
-    function switchTab(tab) {
+    tabLogin.addEventListener('click', () => {
       clearAlert();
-      const loginForm = document.getElementById('loginForm');
-      const registerForm = document.getElementById('registerForm');
-      const tabLogin = document.getElementById('tabLogin');
-      const tabRegister = document.getElementById('tabRegister');
-
-      if (tab === 'login') {
-        loginForm.classList.remove('hidden');
-        registerForm.classList.add('hidden');
-        tabLogin.classList.add('active');
-        tabRegister.classList.remove('active');
-      } else {
-        loginForm.classList.add('hidden');
-        registerForm.classList.remove('hidden');
-        tabLogin.classList.remove('active');
-        tabRegister.classList.add('active');
-      }
-    }
-
-    // =========================================================================
-    // SIGN IN HANDLER (Admin -> admin.html | Traders -> Simulator)
-    // =========================================================================
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      clearAlert();
-
-      const identifier = document.getElementById('loginIdentifier').value.trim().toLowerCase();
-      const password = document.getElementById('loginPassword').value;
-      const state = getBrokerState();
-
-      const isAdminId =
-        identifier === ADMIN_CREDENTIALS.username.toLowerCase() ||
-        identifier === ADMIN_CREDENTIALS.email.toLowerCase();
-
-      if (isAdminId && password === ADMIN_CREDENTIALS.password) {
-        state.activeSession = {
-          role: 'admin',
-          username: ADMIN_CREDENTIALS.username,
-          email: ADMIN_CREDENTIALS.email,
-          loginTime: new Date().toISOString()
-        };
-        saveBrokerState(state);
-        sessionStorage.setItem('kholleta_role', 'admin');
-
-        showAlert('Admin credentials verified. Opening Admin Panel...', 'success');
-        setTimeout(() => {
-          window.location.href = ADMIN_PAGE;
-        }, 350);
-        return;
-      }
-
-      const trader = state.users.find((u) => {
-        const emailMatch = u.email && u.email.toLowerCase() === identifier;
-        const userMatch = u.username && u.username.toLowerCase() === identifier;
-        return (emailMatch || userMatch) && u.password === password;
-      });
-
-      if (!trader) {
-        showAlert('Invalid email/username or password.');
-        return;
-      }
-
-      if (trader.status === 'suspended') {
-        showAlert('Account is currently suspended. Contact the broker admin.');
-        return;
-      }
-
-      state.activeSession = {
-        role: 'trader',
-        userId: trader.id,
-        name: trader.name,
-        email: trader.email,
-        username: trader.username,
-        loginTime: new Date().toISOString()
-      };
-      saveBrokerState(state);
-      sessionStorage.setItem('kholleta_role', 'trader');
-
-      showAlert(`Welcome back, ${trader.name}! Launching simulator...`, 'success');
-      setTimeout(() => {
-        window.location.href = SIMULATOR_PAGE;
-      }, 350);
+      loginForm.classList.remove('hidden');
+      registerForm.classList.add('hidden');
+      tabLogin.classList.add('active');
+      tabRegister.classList.remove('active');
     });
 
-    // =========================================================================
-    // CREATE ACCOUNT HANDLER (Full Name, Email Address, Password)
-    // =========================================================================
-    document.getElementById('registerForm').addEventListener('submit', function (e) {
+    tabRegister.addEventListener('click', () => {
+      clearAlert();
+      registerForm.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+      tabRegister.classList.add('active');
+      tabLogin.classList.remove('active');
+    });
+
+    // Sign Up -> Creates Auth User + Profile Row in public.profiles
+    registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearAlert();
 
@@ -592,117 +270,77 @@
       const email = document.getElementById('regEmail').value.trim().toLowerCase();
       const password = document.getElementById('regPassword').value;
 
-      if (!fullName || !email || !password) {
-        showAlert('Please fill in your full name, email address, and password.');
-        return;
-      }
-
-      if (email === ADMIN_CREDENTIALS.email.toLowerCase()) {
-        showAlert('This email address is reserved.');
-        return;
-      }
-
-      const state = getBrokerState();
-
-      const alreadyExists = state.users.some(
-        (u) => u.email && u.email.toLowerCase() === email
-      );
-
-      if (alreadyExists) {
-        showAlert('An account with this email address already exists. Please sign in instead.');
-        return;
-      }
-
-      const baseHandle = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '') || 'trader';
-      const uniqueUsername = `${baseHandle}_${Math.floor(100 + Math.random() * 900)}`;
-
-      const newUser = normalizeUserRecord({
-        id: 'TRD-' + Date.now(),
-        name: fullName,
-        fullName: fullName,
-        email: email,
-        username: uniqueUsername,
-        password: password,
-        balance: DEFAULT_STARTING_BALANCE,
-        status: 'active',
-        role: 'trader',
-        createdAt: new Date().toISOString()
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName }
+        }
       });
 
-      state.users.unshift(newUser);
+      if (error) {
+        showAlert(error.message || 'Could not create account.');
+        return;
+      }
 
-      state.ledger.unshift({
-        id: 'TXN-' + Date.now(),
-        userId: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        username: newUser.username,
-        type: 'DEPOSIT',
-        amount: DEFAULT_STARTING_BALANCE,
-        note: 'New Account Registration Bonus',
-        timestamp: new Date().toISOString()
-      });
+      if (!data.session) {
+        showAlert('Account created! Check your email to confirm before signing in.', 'success');
+        return;
+      }
 
-      state.activeSession = {
-        role: 'trader',
-        userId: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        username: newUser.username,
-        loginTime: new Date().toISOString()
-      };
-
-      saveBrokerState(state);
-      sessionStorage.setItem('kholleta_role', 'trader');
-
-      showAlert(`Account created for ${fullName}! Redirecting to simulator...`, 'success');
+      showAlert(`Account created for ${fullName}! Launching simulator...`, 'success');
       setTimeout(() => {
         window.location.href = SIMULATOR_PAGE;
-      }, 450);
+      }, 400);
     });
 
-    // =========================================================================
-    // INSTANT DEMO ACCESS
-    // =========================================================================
-    function loginAsGuest() {
+    // Sign In -> Checks public.profiles.role and routes Admin vs Trader
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
       clearAlert();
-      const state = getBrokerState();
-      const demoEmail = 'demo@kholleta.local';
 
-      let demoUser = state.users.find((u) => u.email === demoEmail);
-      if (!demoUser) {
-        demoUser = normalizeUserRecord({
-          id: 'TRD-DEMO-001',
-          name: 'Demo Trader',
-          fullName: 'Demo Trader',
-          email: demoEmail,
-          username: 'demo_trader',
-          password: '',
-          balance: DEFAULT_STARTING_BALANCE,
-          status: 'active',
-          role: 'trader',
-          createdAt: new Date().toISOString()
-        });
-        state.users.unshift(demoUser);
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error || !data.user) {
+        showAlert(error?.message || 'Invalid email or password.');
+        return;
       }
 
-      state.activeSession = {
-        role: 'trader',
-        userId: demoUser.id,
-        name: demoUser.name,
-        email: demoUser.email,
-        username: demoUser.username,
-        isGuest: true,
-        loginTime: new Date().toISOString()
-      };
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, status, full_name')
+        .eq('id', data.user.id)
+        .single();
 
-      saveBrokerState(state);
-      sessionStorage.setItem('kholleta_role', 'trader');
-      window.location.href = SIMULATOR_PAGE;
-    }
+      if (profileError) {
+        showAlert('Signed in, but could not load profile: ' + profileError.message);
+        return;
+      }
 
-    // Initialize and sync storage on load
-    saveBrokerState(getBrokerState());
+      if (profile.status === 'suspended') {
+        await supabase.auth.signOut();
+        showAlert('Your account has been suspended.');
+        return;
+      }
+
+      if (profile.role === 'admin') {
+        showAlert('Admin verified. Opening Admin Panel...', 'success');
+        setTimeout(() => {
+          window.location.href = ADMIN_PAGE;
+        }, 350);
+      } else {
+        showAlert(`Welcome back, ${profile.full_name || 'Trader'}! Launching simulator...`, 'success');
+        setTimeout(() => {
+          window.location.href = SIMULATOR_PAGE;
+        }, 350);
+      }
+    });
   </script>
 </body>
 </html>
