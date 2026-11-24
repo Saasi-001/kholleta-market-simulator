@@ -1,19 +1,20 @@
-<!DOCTYPE html>
+html_code = '''<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kholleta.html — Synthetic Market Trading Terminal</title>
+  <title>Kholletta Market — Synthetic Volatility Trading Terminal</title>
   <style>
     :root {
-      --bg-primary: #0b0e14;
-      --bg-panel: #131822;
-      --bg-card: #18202e;
-      --bg-input: #1e2738;
-      --border: #263042;
+      --bg-app: #090d14;
+      --bg-panel: #111622;
+      --bg-card: #161d2c;
+      --bg-input: #1c2538;
+      --border: #263147;
       --green: #00d084;
-      --green-hover: #00b371;
-      --red: #ef4444;
+      --green-dark: #00a86b;
+      --red: #ff4d6d;
+      --red-dark: #d93654;
       --gold: #f5b041;
       --blue: #38bdf8;
       --text: #f1f5f9;
@@ -28,140 +29,183 @@
     }
 
     body {
-      background: var(--bg-primary);
+      background: var(--bg-app);
       color: var(--text);
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* TOP HEADER */
-    .topbar {
+    /* TOP NAVBAR */
+    .navbar {
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       gap: 12px;
       background: var(--bg-panel);
       border-bottom: 1px solid var(--border);
-      padding: 12px 20px;
+      padding: 10px 20px;
       position: sticky;
       top: 0;
-      z-index: 50;
+      z-index: 40;
     }
 
-    .brand-left {
+    .nav-left {
       display: flex;
       align-items: center;
       gap: 14px;
       flex-wrap: wrap;
     }
 
-    .brand-logo {
-      font-size: 18px;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-weight: 800;
-      color: var(--green);
-      letter-spacing: 0.4px;
+      font-size: 18px;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
     }
 
     .market-select {
       background: var(--bg-input);
-      color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      color: var(--text);
       padding: 8px 12px;
+      border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
-      outline: none;
+      cursor: pointer;
     }
 
     .live-quote {
-      font-size: 14px;
-      font-weight: 700;
-      padding: 6px 10px;
-      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       background: var(--bg-card);
       border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
     }
 
-    .live-quote.up { color: var(--green); }
-    .live-quote.down { color: var(--red); }
+    .quote-price {
+      font-weight: 800;
+      font-size: 15px;
+      font-variant-numeric: tabular-nums;
+    }
 
-    .wallet-bar {
+    .last-digit-pill {
+      background: rgba(56, 189, 248, 0.16);
+      color: var(--blue);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    /* ACCOUNT & WALLET CONTROLS */
+    .nav-right {
       display: flex;
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
     }
 
-    .mode-switch {
+    .account-switcher {
       display: flex;
       background: var(--bg-input);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 9px;
       padding: 3px;
     }
 
-    .mode-btn {
+    .acct-tab {
       border: none;
       background: transparent;
       color: var(--muted);
       padding: 6px 12px;
-      border-radius: 6px;
+      border-radius: 7px;
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
+      transition: all 0.15s ease;
     }
 
-    .mode-btn.active {
-      background: var(--bg-card);
-      color: var(--text);
-    }
-
-    .balance-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 7px 12px;
-      font-size: 13px;
-    }
-
-    .balance-box strong {
+    .acct-tab.active.real {
+      background: rgba(0, 208, 132, 0.18);
       color: var(--green);
-      font-size: 14px;
     }
 
-    .btn-action {
+    .acct-tab.active.demo {
+      background: rgba(245, 176, 65, 0.18);
+      color: var(--gold);
+    }
+
+    .wallet-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      background: var(--bg-input);
-      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 9px;
+    }
+
+    .wallet-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wallet-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .wallet-amount {
+      font-size: 15px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .wallet-amount.real { color: var(--green); }
+    .wallet-amount.demo { color: var(--gold); }
+
+    .wallet-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-wallet {
+      border: none;
       padding: 7px 11px;
-      border-radius: 8px;
+      border-radius: 7px;
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
+      transition: opacity 0.15s;
     }
 
-    .btn-action:hover { border-color: var(--text); }
+    .btn-wallet:hover { opacity: 0.9; }
+    .btn-deposit { background: var(--green); color: #05130c; }
+    .btn-withdraw { background: var(--bg-input); color: var(--text); border: 1px solid var(--border); }
+    .btn-reset { background: rgba(245, 176, 65, 0.18); color: var(--gold); border: 1px solid rgba(245, 176, 65, 0.4); }
 
-    .btn-deposit {
-      background: rgba(0, 208, 132, 0.16);
-      border-color: rgba(0, 208, 132, 0.45);
-      color: #6ee7b7;
-    }
-
-    .btn-withdraw {
-      background: rgba(239, 68, 68, 0.14);
-      border-color: rgba(239, 68, 68, 0.4);
-      color: #fca5a5;
-    }
-
-    .btn-reset {
-      background: rgba(245, 176, 65, 0.15);
-      border-color: rgba(245, 176, 65, 0.45);
-      color: #fcd34d;
-    }
-
-    /* PROFILE MENU */
-    .profile-wrap {
+    /* PROFILE DROPDOWN MENU */
+    .profile-menu-wrap {
       position: relative;
     }
 
@@ -169,88 +213,132 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: var(--bg-card);
+      background: var(--bg-input);
       border: 1px solid var(--border);
       color: var(--text);
       padding: 7px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 700;
+      border-radius: 9px;
       cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .profile-trigger:hover {
+      border-color: var(--muted);
+    }
+
+    .avatar-circle {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), var(--blue));
+      color: #061018;
+      font-weight: 800;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .profile-dropdown {
       display: none;
       position: absolute;
       right: 0;
-      top: 44px;
-      width: 250px;
+      top: calc(100% + 8px);
+      width: 260px;
       background: var(--bg-panel);
       border: 1px solid var(--border);
       border-radius: 12px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
       padding: 14px;
-      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6);
-      z-index: 100;
+      z-index: 60;
     }
 
     .profile-dropdown.open {
       display: block;
     }
 
-    .profile-meta {
+    .dropdown-header {
       padding-bottom: 10px;
-      margin-bottom: 10px;
       border-bottom: 1px solid var(--border);
+      margin-bottom: 10px;
     }
 
-    .profile-meta .p-name {
-      font-size: 14px;
+    .dropdown-name {
       font-weight: 700;
+      font-size: 14px;
     }
 
-    .profile-meta .p-email {
+    .dropdown-email {
       font-size: 12px;
       color: var(--muted);
       margin-top: 2px;
       word-break: break-all;
     }
 
-    .profile-meta .p-role {
-      display: inline-block;
-      margin-top: 6px;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(56, 189, 248, 0.16);
-      color: #7dd3fc;
+    .dropdown-balances {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .logout-btn {
-      width: 100%;
-      padding: 9px 12px;
+    .mini-bal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       border-radius: 8px;
-      border: 1px solid rgba(239, 68, 68, 0.45);
-      background: rgba(239, 68, 68, 0.16);
-      color: #fca5a5;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
+      padding: 8px;
     }
 
-    .logout-btn:hover {
-      background: rgba(239, 68, 68, 0.28);
+    .mini-bal span {
+      display: block;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .mini-bal strong {
+      font-size: 13px;
+    }
+
+    .dropdown-item {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      padding: 9px 10px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dropdown-item:hover {
+      background: var(--bg-input);
+    }
+
+    .dropdown-item.logout {
+      color: #fca5a5;
+      margin-top: 4px;
+    }
+
+    .dropdown-item.logout:hover {
+      background: rgba(255, 77, 109, 0.14);
     }
 
     /* MAIN WORKSPACE */
     .workspace {
       display: grid;
       grid-template-columns: 1fr 340px;
-      gap: 16px;
-      padding: 16px 20px;
-      max-width: 1480px;
-      margin: 0 auto;
+      gap: 14px;
+      padding: 14px 20px 24px;
+      flex: 1;
     }
 
     @media (max-width: 1024px) {
@@ -259,7 +347,13 @@
       }
     }
 
-    .panel {
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-card {
       background: var(--bg-panel);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -268,22 +362,22 @@
 
     .chart-toolbar {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 12px;
     }
 
-    .chart-tabs {
+    .chart-modes {
       display: flex;
       gap: 6px;
     }
 
-    .chart-tab {
+    .mode-btn {
       background: var(--bg-input);
-      color: var(--muted);
       border: 1px solid var(--border);
+      color: var(--muted);
       padding: 6px 12px;
       border-radius: 7px;
       font-size: 12px;
@@ -291,55 +385,113 @@
       cursor: pointer;
     }
 
-    .chart-tab.active {
+    .mode-btn.active {
       background: var(--bg-card);
-      color: var(--green);
+      color: var(--text);
       border-color: var(--green);
     }
 
     canvas#marketCanvas {
       width: 100%;
-      height: 390px;
-      display: block;
-      background: #0d121a;
+      height: 360px;
+      background: #0b101b;
       border: 1px solid var(--border);
       border-radius: 10px;
+      display: block;
     }
 
-    .tick-bar {
+    /* DERIV-STYLE DIGIT ANALYSIS BAR */
+    .digit-header {
       display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 12px;
+      justify-content: space-between;
       align-items: center;
+      margin-bottom: 12px;
+      font-size: 13px;
     }
 
-    .tick-pill {
-      padding: 5px 9px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 700;
+    .digit-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .digit-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    .digit-cell {
       background: var(--bg-card);
       border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 8px 6px;
+      text-align: center;
+      position: relative;
+      transition: transform 0.1s;
     }
 
-    /* TRADING PANEL */
-    .trade-form .group {
-      margin-bottom: 14px;
+    .digit-cell.latest {
+      border-color: var(--blue);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
     }
 
-    .trade-form label {
+    .digit-cell.hot {
+      border-color: var(--green);
+    }
+
+    .digit-cell.cold {
+      border-color: var(--red);
+    }
+
+    .digit-num {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .digit-pct {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .digit-bar-bg {
+      height: 4px;
+      background: var(--bg-input);
+      border-radius: 4px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .digit-bar-fill {
+      height: 100%;
+      background: var(--blue);
+      width: 10%;
+    }
+
+    .digit-cell.hot .digit-bar-fill { background: var(--green); }
+    .digit-cell.cold .digit-bar-fill { background: var(--red); }
+
+    /* RIGHT TRADING PANEL */
+    .trade-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .field-group label {
       display: block;
       font-size: 11px;
-      font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.6px;
       color: var(--muted);
       margin-bottom: 6px;
-      letter-spacing: 0.5px;
+      font-weight: 700;
     }
 
-    .trade-form select,
-    .trade-form input {
+    .field-group select,
+    .field-group input {
       width: 100%;
       background: var(--bg-input);
       border: 1px solid var(--border);
@@ -347,92 +499,110 @@
       padding: 10px 12px;
       border-radius: 8px;
       font-size: 14px;
-      outline: none;
+      font-weight: 600;
+    }
+
+    .quick-stakes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .stake-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .stake-chip:hover {
+      color: var(--text);
+      border-color: var(--muted);
+    }
+
+    .payout-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
     }
 
     .trade-buttons {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 8px;
     }
 
-    .btn-buy {
-      padding: 12px;
+    .btn-trade {
       border: none;
-      border-radius: 8px;
-      background: var(--green);
-      color: #05110b;
+      border-radius: 10px;
+      padding: 14px 10px;
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
-    }
-
-    .btn-sell {
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: var(--red);
-      color: #ffffff;
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    .status-toast {
-      margin-top: 10px;
-      font-size: 12px;
-      min-height: 18px;
-      color: var(--gold);
-    }
-
-    /* LOWER CONTRACTS & HISTORY */
-    .lower-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      padding: 0 20px 24px;
-      max-width: 1480px;
-      margin: 0 auto;
-    }
-
-    @media (max-width: 900px) {
-      .lower-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .section-title {
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .list-item {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      padding: 10px 12px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 8px;
+      gap: 4px;
+      transition: transform 0.1s, opacity 0.15s;
+    }
+
+    .btn-trade:active { transform: scale(0.98); }
+    .btn-trade:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-call { background: var(--green); color: #04130b; }
+    .btn-put { background: var(--red); color: #fff; }
+
+    .btn-trade small {
+      font-size: 11px;
+      font-weight: 700;
+      opacity: 0.85;
+    }
+
+    /* LEDGER TABLE */
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
       font-size: 12px;
     }
 
-    .win { color: var(--green); font-weight: 700; }
-    .loss { color: var(--red); font-weight: 700; }
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+    }
 
-    /* MODAL FOR WALLET DEPOSIT / WITHDRAW */
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .win-text { color: var(--green); font-weight: 700; }
+    .loss-text { color: var(--red); font-weight: 700; }
+    .open-text { color: var(--gold); font-weight: 700; }
+
+    /* MODAL FOR DEPOSIT / WITHDRAW */
     .modal-backdrop {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(3, 6, 12, 0.78);
       align-items: center;
       justify-content: center;
-      z-index: 200;
-      padding: 16px;
+      padding: 20px;
+      z-index: 90;
     }
 
     .modal-backdrop.open {
@@ -441,589 +611,380 @@
 
     .modal-card {
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
       background: var(--bg-panel);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 22px;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
     }
 
-    .modal-card h3 {
-      font-size: 17px;
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .modal-alert {
+      display: none;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 12px;
       margin-bottom: 12px;
     }
 
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 14px;
+    .modal-alert.error {
+      display: block;
+      background: rgba(255, 77, 109, 0.15);
+      border: 1px solid rgba(255, 77, 109, 0.4);
+      color: #fda4af;
+    }
+
+    .modal-alert.success {
+      display: block;
+      background: rgba(0, 208, 132, 0.15);
+      border: 1px solid rgba(0, 208, 132, 0.4);
+      color: #6ee7b7;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div id="appShell" style="display: none;">
-    <!-- TOP BAR -->
-    <header class="topbar">
-      <div class="brand-left">
-        <div class="brand-logo">KHOLLETTA</div>
-        <select id="symbolSelect" class="market-select">
-          <option value="Volatility 10 Index">Volatility 10 Index</option>
-          <option value="Volatility 25 Index">Volatility 25 Index</option>
-          <option value="Volatility 50 Index">Volatility 50 Index</option>
-          <option value="Volatility 75 Index">Volatility 75 Index</option>
-          <option value="Volatility 100 Index">Volatility 100 Index</option>
-        </select>
-        <div id="livePriceBadge" class="live-quote up">1000.00</div>
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="navbar">
+    <div class="nav-left">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span>Kholletta Market</span>
       </div>
 
-      <div class="wallet-bar">
-        <div class="mode-switch">
-          <button type="button" class="mode-btn active" id="modeRealBtn" onclick="setAccountMode('real')">Real</button>
-          <button type="button" class="mode-btn" id="modeDemoBtn" onclick="setAccountMode('demo')">Demo</button>
-        </div>
+      <select id="symbolSelect" class="market-select">
+        <option value="R_100" data-vol="1.8" data-base="10420.50">Volatility 100 Index</option>
+        <option value="R_75" data-vol="1.35" data-base="84210.25">Volatility 75 Index</option>
+        <option value="R_50" data-vol="0.9" data-base="4320.80">Volatility 50 Index</option>
+        <option value="R_25" data-vol="0.55" data-base="2195.40">Volatility 25 Index</option>
+        <option value="R_10" data-vol="0.3" data-base="6510.15">Volatility 10 Index</option>
+      </select>
 
-        <div class="balance-box">
-          <span id="activeAccountLabel">Real</span>: <strong id="activeBalanceDisplay">$0.00</strong>
-        </div>
-
-        <!-- Real Account Controls -->
-        <div id="realWalletActions" style="display: flex; gap: 6px;">
-          <button type="button" class="btn-action btn-deposit" onclick="openWalletModal('DEPOSIT')">+ Deposit</button>
-          <button type="button" class="btn-action btn-withdraw" onclick="openWalletModal('WITHDRAW')">- Withdraw</button>
-        </div>
-
-        <!-- Demo Account Controls -->
-        <div id="demoWalletActions" style="display: none; gap: 6px;">
-          <button type="button" class="btn-action btn-reset" onclick="resetDemoAccount()">Reset Demo ($10,000)</button>
-        </div>
-
-        <!-- Profile Menu -->
-        <div class="profile-wrap">
-          <button type="button" class="profile-trigger" id="profileMenuBtn" onclick="toggleProfileMenu(event)">
-            <span id="traderNameDisplay">Trader</span>
-            <span>▾</span>
-          </button>
-          <div class="profile-dropdown" id="profileDropdown">
-            <div class="profile-meta">
-              <div class="p-name" id="menuFullName">Trader</div>
-              <div class="p-email" id="menuEmail">-</div>
-              <span class="p-role" id="menuRole">trader</span>
-            </div>
-            <button type="button" class="logout-btn" id="logoutBtn">Log Out</button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- MAIN CHART + TRADING PANEL -->
-    <main class="workspace">
-      <section class="panel">
-        <div class="chart-toolbar">
-          <div class="chart-tabs">
-            <button type="button" class="chart-tab active" id="tabTick" onclick="setChartMode('tick')">Tick Chart</button>
-            <button type="button" class="chart-tab" id="tabCandle" onclick="setChartMode('candle')">1m Candles</button>
-          </div>
-          <div style="font-size: 12px; color: var(--muted);">
-            Last Digit: <strong id="lastDigitBadge" style="color: var(--gold);">0</strong>
-          </div>
-        </div>
-
-        <canvas id="marketCanvas" width="900" height="390"></canvas>
-
-        <div class="tick-bar" id="recentDigitsBar">
-          <span style="font-size: 11px; color: var(--muted);">Recent Digits:</span>
-        </div>
-      </section>
-
-      <aside class="panel trade-form">
-        <h2 class="section-title">Trade Execution</h2>
-
-        <div class="group">
-          <label for="contractType">Contract Type</label>
-          <select id="contractType" onchange="updatePredictionVisibility()">
-            <option value="RISE_FALL">Rise / Fall</option>
-            <option value="MATCH_DIFF">Matches / Differs</option>
-            <option value="EVEN_ODD">Even / Odd</option>
-            <option value="OVER_UNDER">Over / Under (4.5)</option>
-          </select>
-        </div>
-
-        <div class="group" id="digitGroup" style="display: none;">
-          <label for="targetDigit">Target Digit (0 - 9)</label>
-          <select id="targetDigit">
-            <option value="0">0</option><option value="1">1</option><option value="2">2</option>
-            <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-            <option value="6">6</option><option value="7">7</option><option value="8">8</option>
-            <option value="9">9</option>
-          </select>
-        </div>
-
-        <div class="group">
-          <label for="stakeInput">Stake (USD)</label>
-          <input type="number" id="stakeInput" value="10" min="0.5" step="0.5" />
-        </div>
-
-        <div class="group">
-          <label for="ticksInput">Duration (Ticks)</label>
-          <input type="number" id="ticksInput" value="5" min="1" max="50" step="1" />
-        </div>
-
-        <div class="trade-buttons">
-          <button type="button" class="btn-buy" id="primaryActionBtn" onclick="placeTrade('PRIMARY')">RISE / HIGHER</button>
-          <button type="button" class="btn-sell" id="secondaryActionBtn" onclick="placeTrade('SECONDARY')">FALL / LOWER</button>
-        </div>
-
-        <div class="status-toast" id="tradeStatus"></div>
-      </aside>
-    </main>
-
-    <!-- OPEN CONTRACTS & HISTORY -->
-    <section class="lower-grid">
-      <div class="panel">
-        <h3 class="section-title">Open Contracts</h3>
-        <div id="openContractsList">
-          <div style="font-size: 12px; color: var(--muted);">No active contracts.</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3 class="section-title">Trade History</h3>
-        <div id="tradeHistoryList">
-          <div style="font-size: 12px; color: var(--muted);">No settled trades yet.</div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- WALLET DEPOSIT / WITHDRAW MODAL -->
-  <div class="modal-backdrop" id="walletModal">
-    <div class="modal-card">
-      <h3 id="walletModalTitle">Real Wallet Deposit</h3>
-      <div class="group" style="margin-bottom: 12px;">
-        <label style="display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase;">
-          Amount (USD)
-        </label>
-        <input
-          type="number"
-          id="walletAmountInput"
-          placeholder="Enter amount"
-          min="1"
-          step="0.01"
-          style="width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 8px; font-size: 14px;"
-        />
-      </div>
-      <div id="walletModalError" style="font-size: 12px; color: #fca5a5; min-height: 16px;"></div>
-      <div class="modal-actions">
-        <button type="button" class="btn-action" style="flex: 1; padding: 10px;" onclick="closeWalletModal()">Cancel</button>
-        <button type="button" class="btn-buy" style="flex: 1; padding: 10px;" id="confirmWalletBtn" onclick="submitWalletAction()">Confirm</button>
+      <div class="live-quote">
+        <span class="muted">Spot:</span>
+        <span id="spotPrice" class="quote-price">10420.50</span>
+        <span id="lastDigitBadge" class="last-digit-pill">Digit: 0</span>
       </div>
     </div>
+
+    <div class="nav-right">
+      <!-- Real vs Demo Switcher -->
+      <div class="account-switcher">
+        <button type="button" id="btnRealMode" class="acct-tab active real">Real Wallet</button>
+        <button type="button" id="btnDemoMode" class="acct-tab demo">Demo ($10k)</button>
+      </div>
+
+      <!-- Active Wallet Display + Contextual Buttons -->
+      <div class="wallet-box">
+        <div class="wallet-meta">
+          <span id="walletModeLabel" class="wallet-label">Real Account</span>
+          <span id="walletBalanceDisplay" class="wallet-amount real">$0.00</span>
+        </div>
+
+        <div id="realWalletButtons" class="wallet-actions">
+          <button type="button" id="openDepositBtn" class="btn-wallet btn-deposit">Deposit</button>
+          <button type="button" id="openWithdrawBtn" class="btn-wallet btn-withdraw">Withdraw</button>
+        </div>
+
+        <div id="demoWalletButtons" class="wallet-actions" style="display: none;">
+          <button type="button" id="resetDemoBtn" class="btn-wallet btn-reset">Reset Demo</button>
+        </div>
+      </div>
+
+      <!-- Trader Profile Menu -->
+      <div class="profile-menu-wrap">
+        <button type="button" id="profileMenuBtn" class="profile-trigger">
+          <span id="traderAvatar" class="avatar-circle">T</span>
+          <span id="traderNameNav">Loading...</span>
+          <span style="font-size: 10px; color: var(--muted);">▼</span>
+        </button>
+
+        <div id="profileDropdown" class="profile-dropdown">
+          <div class="dropdown-header">
+            <div id="dropdownTraderName" class="dropdown-name">Trader</div>
+            <div id="dropdownTraderEmail" class="dropdown-email">trader@kholletta.com</div>
+          </div>
+
+          <div class="dropdown-balances">
+            <div class="mini-bal">
+              <span>Real Wallet</span>
+              <strong id="dropdownRealBal" style="color: var(--green);">$0.00</strong>
+            </div>
+            <div class="mini-bal">
+              <span>Demo Wallet</span>
+              <strong id="dropdownDemoBal" style="color: var(--gold);">$10,000.00</strong>
+            </div>
+          </div>
+
+          <button type="button" class="dropdown-item" id="menuDepositBtn">
+            <span>Deposit to Real Wallet</span>
+            <span style="color: var(--green);">+</span>
+          </button>
+          <button type="button" class="dropdown-item" id="menuWithdrawBtn">
+            <span>Withdraw from Real Wallet</span>
+            <span>-</span>
+          </button>
+          <button type="button" class="dropdown-item" id="menuResetDemoBtn">
+            <span>Reset Demo to $10,000</span>
+            <span style="color: var(--gold);">↺</span>
+          </button>
+          <button type="button" class="dropdown-item" id="menuAdminLink" style="display: none;">
+            <span>Open Admin Panel</span>
+            <span style="color: var(--gold);">★</span>
+          </button>
+          <button type="button" class="dropdown-item logout" id="logoutBtn">
+            <span>Log Out</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN TRADING TERMINAL -->
+  <main class="workspace">
+    <div class="left-column">
+      <!-- CHART CARD -->
+      <section class="panel-card">
+        <div class="chart-toolbar">
+          <div class="chart-modes">
+            <button type="button" id="btnTickChart" class="mode-btn active">Tick Line Chart</button>
+            <button type="button" id="btnCandleChart" class="mode-btn">1m Candlesticks</button>
+          </div>
+          <div class="muted" style="font-size: 12px;">
+            Tick Feed: <strong style="color: var(--green);">1.0s Live</strong>
+          </div>
+        </div>
+        <canvas id="marketCanvas"></canvas>
+      </section>
+
+      <!-- DERIV-STYLE TICK DIGIT ANALYSIS BAR -->
+      <section class="panel-card">
+        <div class="digit-header">
+          <strong>Last 100 Ticks — Digit Distribution (0–9)</strong>
+          <span class="muted">Green = Highest % | Red = Lowest %</span>
+        </div>
+        <div id="digitGrid" class="digit-grid"></div>
+      </section>
+
+      <!-- TRADE HISTORY -->
+      <section class="panel-card">
+        <div class="digit-header">
+          <strong>Recent Contract Settlements</strong>
+          <span id="sessionStats" class="muted">0 Trades</span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Account</th>
+                <th>Index</th>
+                <th>Contract</th>
+                <th>Stake</th>
+                <th>Entry → Exit</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody id="tradeHistoryBody">
+              <tr>
+                <td colspan="7" class="muted">No contracts executed yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- RIGHT ORDER PANEL -->
+    <aside class="panel-card trade-panel">
+      <h2 style="font-size: 16px;">Trade Execution</h2>
+
+      <div class="field-group">
+        <label for="contractType">Contract Type</label>
+        <select id="contractType">
+          <option value="RISE_FALL">Rise / Fall (5 Ticks)</option>
+          <option value="EVEN_ODD">Even / Odd (1 Tick)</option>
+          <option value="MATCH_DIFFER">Matches / Differs (1 Tick)</option>
+          <option value="OVER_UNDER">Over / Under (1 Tick)</option>
+        </select>
+      </div>
+
+      <div class="field-group" id="digitPredictionGroup" style="display: none;">
+        <label for="predictedDigit">Target Digit Prediction (0–9)</label>
+        <input type="number" id="predictedDigit" min="0" max="9" value="5" />
+      </div>
+
+      <div class="field-group">
+        <label for="tickDuration">Duration (Ticks)</label>
+        <input type="number" id="tickDuration" min="1" max="10" value="5" />
+      </div>
+
+      <div class="field-group">
+        <label for="stakeInput">Stake (USD)</label>
+        <input type="number" id="stakeInput" min="1" step="1" value="10" />
+        <div class="quick-stakes">
+          <button type="button" class="stake-chip" onclick="setStake(5)">$5</button>
+          <button type="button" class="stake-chip" onclick="setStake(10)">$10</button>
+          <button type="button" class="stake-chip" onclick="setStake(50)">$50</button>
+          <button type="button" class="stake-chip" onclick="setStake(100)">$100</button>
+        </div>
+      </div>
+
+      <div class="payout-box">
+        <span class="muted">Estimated Payout:</span>
+        <strong id="payoutPreview" style="color: var(--green);">$19.50 (95%)</strong>
+      </div>
+
+      <div class="trade-buttons">
+        <button type="button" id="btnContractA" class="btn-trade btn-call">
+          <span id="labelContractA">RISE</span>
+          <small id="subContractA">Higher after 5 ticks</small>
+        </button>
+        <button type="button" id="btnContractB" class="btn-trade btn-put">
+          <span id="labelContractB">FALL</span>
+          <small id="subContractB">Lower after 5 ticks</small>
+        </button>
+      </div>
+
+      <div id="activeContractBanner" style="display: none; background: var(--bg-card); border: 1px solid var(--gold); border-radius: 9px; padding: 10px; font-size: 12px; color: var(--gold);">
+        Contract active... waiting for exit tick.
+      </div>
+    </aside>
+  </main>
+
+  <!-- REAL WALLET DEPOSIT / WITHDRAW MODAL -->
+  <div id="walletModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="walletModalTitle">Deposit to Real Wallet</h3>
+        <button type="button" class="modal-close" id="closeWalletModal">&times;</button>
+      </div>
+
+      <div id="walletModalAlert" class="modal-alert"></div>
+
+      <form id="walletModalForm">
+        <div class="field-group" style="margin-bottom: 12px;">
+          <label for="walletTxAmount">Amount (USD)</label>
+          <input type="number" id="walletTxAmount" min="1" step="0.01" placeholder="Enter amount" required />
+        </div>
+        <div class="field-group" style="margin-bottom: 16px;">
+          <label for="walletTxNote">Payment Method / Note</label>
+          <input type="text" id="walletTxNote" placeholder="e.g. Mobile Money / Bank Transfer" />
+        </div>
+        <button type="submit" id="walletModalSubmitBtn" class="btn-wallet btn-deposit" style="width: 100%; padding: 12px; font-size: 14px;">
+          Confirm Deposit
+        </button>
+      </form>
+    </div>
   </div>
+
+  <div id="toast" class="toast"></div>
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-    const SUPABASE_URL = 'https://kjnlicbnpejlliqrhwkh.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_OuWu0qozlwjD1RxTxfiazQ_te7vUolu';
+    // Replace with your Supabase Project URL and Anon/Publishable Key (same as index.html & admin.html)
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
     const INDEX_PAGE = 'index.html';
-    const DEMO_DEFAULT_BALANCE = 10000.00;
+    const ADMIN_PAGE = 'admin.html';
+    const DEMO_INITIAL_BALANCE = 10000.00;
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // State
     let currentUser = null;
     let currentProfile = null;
-    let realBalance = 0.00;
-    let demoBalance = DEMO_DEFAULT_BALANCE;
     let accountMode = 'real'; // 'real' | 'demo'
-    let walletModalType = 'DEPOSIT';
+    let realBalance = 0.00;
+    let demoBalance = DEMO_INITIAL_BALANCE;
+    let walletModalMode = 'DEPOSIT'; // 'DEPOSIT' | 'WITHDRAW'
 
-    // Market simulation state
-    let chartMode = 'tick';
-    let price = 1000.00;
-    let prevPrice = 1000.00;
-    const ticks = [1000.00];
-    const digits = [0];
-    const candles = [{ open: 1000, high: 1000, low: 1000, close: 1000 }];
-    let openContracts = [];
-    let tradeHistory = [];
+    // Market & Chart State
+    let chartMode = 'tick'; // 'tick' | 'candle'
+    let currentPrice = 10420.50;
+    let tickHistory = [];
+    let digitHistory = [];
+    let candles = [];
+    let currentCandle = null;
+    let activeContract = null;
+    let tradeCount = 0;
 
-    function formatMoney(n) {
-      return '$' + (Number(n) || 0).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
+    // Elements
+    const spotPriceEl = document.getElementById('spotPrice');
+    const lastDigitBadgeEl = document.getElementById('lastDigitBadge');
+    const btnRealMode = document.getElementById('btnRealMode');
+    const btnDemoMode = document.getElementById('btnDemoMode');
+    const walletModeLabel = document.getElementById('walletModeLabel');
+    const walletBalanceDisplay = document.getElementById('walletBalanceDisplay');
+    const realWalletButtons = document.getElementById('realWalletButtons');
+    const demoWalletButtons = document.getElementById('demoWalletButtons');
+    const profileMenuBtn = document.getElementById('profileMenuBtn');
+    const profileDropdown = document.getElementById('profileDropdown');
+
+    function formatMoney(val) {
+      const num = Number(val) || 0;
+      return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function updateWalletUI() {
-      const isReal = accountMode === 'real';
-      document.getElementById('modeRealBtn').classList.toggle('active', isReal);
-      document.getElementById('modeDemoBtn').classList.toggle('active', !isReal);
-      document.getElementById('activeAccountLabel').textContent = isReal ? 'Real' : 'Demo';
-      document.getElementById('activeBalanceDisplay').textContent = formatMoney(isReal ? realBalance : demoBalance);
-      document.getElementById('realWalletActions').style.display = isReal ? 'flex' : 'none';
-      document.getElementById('demoWalletActions').style.display = isReal ? 'none' : 'flex';
+    function showToast(msg, color = 'var(--text)') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.color = color;
+      t.style.display = 'block';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => { t.style.display = 'none'; }, 3200);
     }
 
-    window.setAccountMode = function (mode) {
-      accountMode = mode;
-      updateWalletUI();
-    };
-
-    window.toggleProfileMenu = function (e) {
-      e.stopPropagation();
-      document.getElementById('profileDropdown').classList.toggle('open');
-    };
-
-    document.addEventListener('click', () => {
-      document.getElementById('profileDropdown').classList.remove('open');
-    });
-
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = INDEX_PAGE;
-    });
-
-    // Real Wallet Deposit / Withdraw
-    window.openWalletModal = function (type) {
-      walletModalType = type;
-      document.getElementById('walletModalTitle').textContent =
-        type === 'DEPOSIT' ? 'Deposit to Real Wallet' : 'Withdraw from Real Wallet';
-      document.getElementById('walletAmountInput').value = '';
-      document.getElementById('walletModalError').textContent = '';
-      document.getElementById('walletModal').classList.add('open');
-      document.getElementById('walletAmountInput').focus();
-    };
-
-    window.closeWalletModal = function () {
-      document.getElementById('walletModal').classList.remove('open');
-    };
-
-    window.submitWalletAction = async function () {
-      const amount = parseFloat(document.getElementById('walletAmountInput').value);
-      const errEl = document.getElementById('walletModalError');
-
-      if (isNaN(amount) || amount <= 0) {
-        errEl.textContent = 'Enter a valid amount greater than 0.';
-        return;
-      }
-
-      if (walletModalType === 'WITHDRAW' && amount > realBalance) {
-        errEl.textContent = `Insufficient real balance (${formatMoney(realBalance)}).`;
-        return;
-      }
-
-      const nextBalance = walletModalType === 'DEPOSIT'
-        ? Math.round((realBalance + amount) * 100) / 100
-        : Math.round((realBalance - amount) * 100) / 100;
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({ balance: nextBalance })
-        .eq('id', currentUser.id);
-
-      if (error) {
-        errEl.textContent = 'Database update failed: ' + error.message;
-        return;
-      }
-
-      await supabase.from('cashier_transactions').insert({
-        user_id: currentUser.id,
-        user_email: currentProfile.email || currentUser.email,
-        user_name: currentProfile.full_name || 'Trader',
-        tx_type: walletModalType,
-        amount,
-        balance_after: nextBalance,
-        note: 'Trader self-service wallet action'
-      });
-
-      realBalance = nextBalance;
-      updateWalletUI();
-      closeWalletModal();
-      document.getElementById('tradeStatus').textContent =
-        `${walletModalType === 'DEPOSIT' ? 'Deposited' : 'Withdrew'} ${formatMoney(amount)} to Real Wallet.`;
-    };
-
-    // Demo Account Reset
-    window.resetDemoAccount = function () {
-      demoBalance = DEMO_DEFAULT_BALANCE;
-      updateWalletUI();
-      document.getElementById('tradeStatus').textContent = 'Demo account reset to $10,000.00.';
-    };
-
-    // Chart Tabs & Contract Controls
-    window.setChartMode = function (mode) {
-      chartMode = mode;
-      document.getElementById('tabTick').classList.toggle('active', mode === 'tick');
-      document.getElementById('tabCandle').classList.toggle('active', mode === 'candle');
-      drawChart();
-    };
-
-    window.updatePredictionVisibility = function () {
-      const cType = document.getElementById('contractType').value;
-      const showDigit = cType === 'MATCH_DIFF';
-      document.getElementById('digitGroup').style.display = showDigit ? 'block' : 'none';
-
-      const buyBtn = document.getElementById('primaryActionBtn');
-      const sellBtn = document.getElementById('secondaryActionBtn');
-
-      if (cType === 'RISE_FALL') {
-        buyBtn.textContent = 'RISE / HIGHER';
-        sellBtn.textContent = 'FALL / LOWER';
-      } else if (cType === 'MATCH_DIFF') {
-        buyBtn.textContent = 'MATCHES';
-        sellBtn.textContent = 'DIFFERS';
-      } else if (cType === 'EVEN_ODD') {
-        buyBtn.textContent = 'EVEN';
-        sellBtn.textContent = 'ODD';
-      } else {
-        buyBtn.textContent = 'OVER 4.5';
-        sellBtn.textContent = 'UNDER 4.5';
-      }
-    };
-
-    async function persistRealBalance(newBal) {
-      const rounded = Math.max(0, Math.round(newBal * 100) / 100);
-      realBalance = rounded;
-      updateWalletUI();
-      await supabase
-        .from('profiles')
-        .update({ balance: rounded })
-        .eq('id', currentUser.id);
-    }
-
-    window.placeTrade = async function (direction) {
-      const stake = parseFloat(document.getElementById('stakeInput').value);
-      const duration = parseInt(document.getElementById('ticksInput').value, 10);
-      const cType = document.getElementById('contractType').value;
-      const digit = parseInt(document.getElementById('targetDigit').value, 10);
-      const statusEl = document.getElementById('tradeStatus');
-
-      if (isNaN(stake) || stake <= 0) {
-        statusEl.textContent = 'Enter a valid stake.';
-        return;
-      }
-
-      const activeBal = accountMode === 'real' ? realBalance : demoBalance;
-      if (stake > activeBal) {
-        statusEl.textContent = `Insufficient ${accountMode} balance (${formatMoney(activeBal)}).`;
-        return;
-      }
-
-      if (accountMode === 'real') {
-        await persistRealBalance(realBalance - stake);
-      } else {
-        demoBalance = Math.round((demoBalance - stake) * 100) / 100;
-        updateWalletUI();
-      }
-
-      openContracts.push({
-        id: 'CTR-' + Date.now() + '-' + Math.floor(Math.random() * 100),
-        mode: accountMode,
-        contractType: cType,
-        direction,
-        targetDigit: digit,
-        stake,
-        entrySpot: price,
-        remainingTicks: Math.max(1, duration || 5)
-      });
-
-      statusEl.textContent = `Opened ${stake.toFixed(2)} USD ${accountMode.toUpperCase()} contract.`;
-      renderContracts();
-    };
-
-    function evaluateContract(ctr, exitPrice, exitDigit) {
-      if (ctr.contractType === 'RISE_FALL') {
-        return ctr.direction === 'PRIMARY' ? exitPrice > ctr.entrySpot : exitPrice < ctr.entrySpot;
-      }
-      if (ctr.contractType === 'MATCH_DIFF') {
-        return ctr.direction === 'PRIMARY' ? exitDigit === ctr.targetDigit : exitDigit !== ctr.targetDigit;
-      }
-      if (ctr.contractType === 'EVEN_ODD') {
-        const isEven = exitDigit % 2 === 0;
-        return ctr.direction === 'PRIMARY' ? isEven : !isEven;
-      }
-      // OVER_UNDER (4.5)
-      return ctr.direction === 'PRIMARY' ? exitDigit > 4 : exitDigit < 5;
-    }
-
-    async function stepMarket() {
-      prevPrice = price;
-      const volatilityMap = {
-        'Volatility 10 Index': 0.35,
-        'Volatility 25 Index': 0.75,
-        'Volatility 50 Index': 1.4,
-        'Volatility 75 Index': 2.3,
-        'Volatility 100 Index': 3.5
-      };
-      const sym = document.getElementById('symbolSelect').value;
-      const vol = volatilityMap[sym] || 1.2;
-      const delta = (Math.random() - 0.495) * vol;
-      price = Math.max(100, Math.round((price + delta) * 100) / 100);
-
-      const formattedStr = price.toFixed(2);
-      const lastDigit = parseInt(formattedStr[formattedStr.length - 1], 10);
-
-      ticks.push(price);
-      if (ticks.length > 90) ticks.shift();
-
-      digits.push(lastDigit);
-      if (digits.length > 12) digits.shift();
-
-      const lastCandle = candles[candles.length - 1];
-      lastCandle.close = price;
-      lastCandle.high = Math.max(lastCandle.high, price);
-      lastCandle.low = Math.min(lastCandle.low, price);
-      if (ticks.length % 10 === 0) {
-        candles.push({ open: price, high: price, low: price, close: price });
-        if (candles.length > 45) candles.shift();
-      }
-
-      const quoteEl = document.getElementById('livePriceBadge');
-      quoteEl.textContent = formattedStr;
-      quoteEl.className = `live-quote ${price >= prevPrice ? 'up' : 'down'}`;
-      document.getElementById('lastDigitBadge').textContent = lastDigit;
-
-      document.getElementById('recentDigitsBar').innerHTML =
-        '<span style="font-size: 11px; color: var(--muted);">Recent Digits:</span>' +
-        digits.map((d) => `<span class="tick-pill" style="color:${d % 2 === 0 ? 'var(--green)' : 'var(--blue)'}">${d}</span>`).join('');
-
-      // Process open contracts
-      const stillOpen = [];
-      for (const ctr of openContracts) {
-        ctr.remainingTicks -= 1;
-        if (ctr.remainingTicks <= 0) {
-          const won = evaluateContract(ctr, price, lastDigit);
-          const payout = won ? Math.round(ctr.stake * 1.92 * 100) / 100 : 0;
-          const net = Math.round((payout - ctr.stake) * 100) / 100;
-
-          if (ctr.mode === 'real') {
-            await persistRealBalance(realBalance + payout);
-          } else {
-            demoBalance = Math.round((demoBalance + payout) * 100) / 100;
-            updateWalletUI();
-          }
-
-          tradeHistory.unshift({
-            ...ctr,
-            won,
-            payout,
-            net,
-            time: new Date().toLocaleTimeString()
-          });
-          if (tradeHistory.length > 25) tradeHistory.pop();
-        } else {
-          stillOpen.push(ctr);
-        }
-      }
-      openContracts = stillOpen;
-
-      renderContracts();
-      drawChart();
-    }
-
-    function renderContracts() {
-      const openEl = document.getElementById('openContractsList');
-      const histEl = document.getElementById('tradeHistoryList');
-
-      if (!openContracts.length) {
-        openEl.innerHTML = '<div style="font-size: 12px; color: var(--muted);">No active contracts.</div>';
-      } else {
-        openEl.innerHTML = openContracts.map((c) => `
-          <div class="list-item">
-            <div>
-              <strong>${c.contractType}</strong> (${c.mode.toUpperCase()})<br/>
-              <span style="color: var(--muted);">Stake: ${formatMoney(c.stake)}</span>
-            </div>
-            <div>Ticks left: <strong>${c.remainingTicks}</strong></div>
-          </div>
-        `).join('');
-      }
-
-      if (!tradeHistory.length) {
-        histEl.innerHTML = '<div style="font-size: 12px; color: var(--muted);">No settled trades yet.</div>';
-      } else {
-        histEl.innerHTML = tradeHistory.map((h) => `
-          <div class="list-item">
-            <div>
-              <strong>${h.contractType}</strong> (${h.mode.toUpperCase()})<br/>
-              <span style="color: var(--muted);">${h.time}</span>
-            </div>
-            <div class="${h.won ? 'win' : 'loss'}">
-              ${h.won ? '+' + formatMoney(h.net) : formatMoney(h.net)}
-            </div>
-          </div>
-        `).join('');
-      }
-    }
-
-    function drawChart() {
-      const canvas = document.getElementById('marketCanvas');
-      const ctx = canvas.getContext('2d');
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-
-      if (chartMode === 'tick') {
-        const minVal = Math.min(...ticks);
-        const maxVal = Math.max(...ticks);
-        const range = Math.max(0.2, maxVal - minVal);
-
-        ctx.strokeStyle = '#00d084';
-        ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        ticks.forEach((val, idx) => {
-          const x = (idx / Math.max(1, ticks.length - 1)) * (w - 40) + 20;
-          const y = h - 25 - ((val - minVal) / range) * (h - 55);
-          if (idx === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        });
-        ctx.stroke();
-      } else {
-        const lows = candles.map((c) => c.low);
-        const highs = candles.map((c) => c.high);
-        const minVal = Math.min(...lows);
-        const maxVal = Math.max(...highs);
-        const range = Math.max(0.3, maxVal - minVal);
-        const stepW = (w - 40) / Math.max(1, candles.length);
-
-        candles.forEach((c, idx) => {
-          const x = 20 + idx * stepW + stepW * 0.5;
-          const openY = h - 25 - ((c.open - minVal) / range) * (h - 55);
-          const closeY = h - 25 - ((c.close - minVal) / range) * (h - 55);
-          const highY = h - 25 - ((c.high - minVal) / range) * (h - 55);
-          const lowY = h - 25 - ((c.low - minVal) / range) * (h - 55);
-          const bull = c.close >= c.open;
-
-          ctx.strokeStyle = bull ? '#00d084' : '#ef4444';
-          ctx.fillStyle = bull ? '#00d084' : '#ef4444';
-
-          ctx.beginPath();
-          ctx.moveTo(x, highY);
-          ctx.lineTo(x, lowY);
-          ctx.stroke();
-
-          const bodyH = Math.max(2, Math.abs(closeY - openY));
-          ctx.fillRect(x - stepW * 0.28, Math.min(openY, closeY), stepW * 0.56, bodyH);
-        });
-      }
-    }
-
-    async function initSimulator() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session || !session.user) {
+    // =========================================================================
+    // 1. SUPABASE AUTH & PROFILE SYNC
+    // =========================================================================
+    async function initSession() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session || !session.user) {
         window.location.href = INDEX_PAGE;
         return;
       }
 
       currentUser = session.user;
-
-      const { data: profile, error } = await supabase
+      const { data: profile, error: profErr } = await supabase
         .from('profiles')
         .select('id, full_name, email, balance, role, status')
         .eq('id', currentUser.id)
         .single();
 
-      if (error || !profile) {
+      if (profErr || !profile) {
         window.location.href = INDEX_PAGE;
         return;
       }
@@ -1035,39 +996,628 @@
       }
 
       currentProfile = profile;
-      realBalance = Number(profile.balance) || 0.00;
-      demoBalance = DEMO_DEFAULT_BALANCE;
+      realBalance = Number(profile.balance) || 0;
 
-      const displayName = profile.full_name || profile.email || 'Trader';
-      document.getElementById('traderNameDisplay').textContent = displayName;
-      document.getElementById('menuFullName').textContent = displayName;
-      document.getElementById('menuEmail').textContent = profile.email || currentUser.email;
-      document.getElementById('menuRole').textContent = profile.role || 'trader';
+      // Load user's saved demo balance from localStorage (defaults to $10,000)
+      const savedDemo = localStorage.getItem(`kholletta_demo_bal_${currentUser.id}`);
+      demoBalance = savedDemo !== null ? Number(savedDemo) : DEMO_INITIAL_BALANCE;
 
-      document.getElementById('appShell').style.display = 'block';
+      // Populate Trader Name in Nav & Profile Menu
+      const displayName = profile.full_name || profile.email.split('@')[0] || 'Trader';
+      document.getElementById('traderNameNav').textContent = displayName;
+      document.getElementById('traderAvatar').textContent = displayName.charAt(0).toUpperCase();
+      document.getElementById('dropdownTraderName').textContent = displayName;
+      document.getElementById('dropdownTraderEmail').textContent = profile.email;
+
+      if (profile.role === 'admin') {
+        const adminLink = document.getElementById('menuAdminLink');
+        adminLink.style.display = 'flex';
+        adminLink.addEventListener('click', () => {
+          window.location.href = ADMIN_PAGE;
+        });
+      }
+
       updateWalletUI();
-      updatePredictionVisibility();
-      drawChart();
 
-      // Keep real balance synced if adjusted by Admin Cashier
+      // Listen for live balance updates from Admin Cashier in Supabase
       supabase
-        .channel('trader-balance-sync')
+        .channel('trader-profile-live')
         .on(
           'postgres_changes',
           { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${currentUser.id}` },
           (payload) => {
-            if (payload.new && typeof payload.new.balance !== 'undefined') {
-              realBalance = Number(payload.new.balance) || 0.00;
+            if (payload.new) {
+              realBalance = Number(payload.new.balance) || 0;
               updateWalletUI();
+              showToast('Real wallet balance updated: ' + formatMoney(realBalance), 'var(--green)');
             }
           }
         )
         .subscribe();
-
-      setInterval(stepMarket, 1000);
     }
 
-    initSimulator();
+    async function syncRealBalanceToSupabase(newBalance) {
+      const rounded = Math.max(0, Math.round(newBalance * 100) / 100);
+      realBalance = rounded;
+      updateWalletUI();
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ balance: rounded })
+        .eq('id', currentUser.id);
+
+      if (error) {
+        showToast('Warning: Could not sync balance to database.', 'var(--red)');
+      }
+    }
+
+    function saveDemoBalance(newBalance) {
+      demoBalance = Math.max(0, Math.round(newBalance * 100) / 100);
+      if (currentUser) {
+        localStorage.setItem(`kholletta_demo_bal_${currentUser.id}`, String(demoBalance));
+      }
+      updateWalletUI();
+    }
+
+    function updateWalletUI() {
+      document.getElementById('dropdownRealBal').textContent = formatMoney(realBalance);
+      document.getElementById('dropdownDemoBal').textContent = formatMoney(demoBalance);
+
+      if (accountMode === 'real') {
+        btnRealMode.classList.add('active');
+        btnDemoMode.classList.remove('active');
+        walletModeLabel.textContent = 'Real Wallet';
+        walletBalanceDisplay.textContent = formatMoney(realBalance);
+        walletBalanceDisplay.className = 'wallet-amount real';
+        realWalletButtons.style.display = 'flex';
+        demoWalletButtons.style.display = 'none';
+      } else {
+        btnDemoMode.classList.add('active');
+        btnRealMode.classList.remove('active');
+        walletModeLabel.textContent = 'Demo Account';
+        walletBalanceDisplay.textContent = formatMoney(demoBalance);
+        walletBalanceDisplay.className = 'wallet-amount demo';
+        realWalletButtons.style.display = 'none';
+        demoWalletButtons.style.display = 'flex';
+      }
+    }
+
+    // Account Switcher & Reset Demo
+    btnRealMode.addEventListener('click', () => {
+      accountMode = 'real';
+      updateWalletUI();
+    });
+
+    btnDemoMode.addEventListener('click', () => {
+      accountMode = 'demo';
+      updateWalletUI();
+    });
+
+    function handleResetDemo() {
+      saveDemoBalance(DEMO_INITIAL_BALANCE);
+      profileDropdown.classList.remove('open');
+      showToast('Demo balance reset to $10,000.00', 'var(--gold)');
+    }
+
+    document.getElementById('resetDemoBtn').addEventListener('click', handleResetDemo);
+    document.getElementById('menuResetDemoBtn').addEventListener('click', handleResetDemo);
+
+    // =========================================================================
+    // 2. REAL WALLET DEPOSIT & WITHDRAW MODAL (Synced with Admin Ledger)
+    // =========================================================================
+    const walletModal = document.getElementById('walletModal');
+    const walletModalTitle = document.getElementById('walletModalTitle');
+    const walletModalAlert = document.getElementById('walletModalAlert');
+    const walletModalSubmitBtn = document.getElementById('walletModalSubmitBtn');
+
+    function openWalletModal(mode) {
+      walletModalMode = mode;
+      walletModalAlert.className = 'modal-alert';
+      document.getElementById('walletTxAmount').value = '';
+      document.getElementById('walletTxNote').value = '';
+
+      if (mode === 'DEPOSIT') {
+        walletModalTitle.textContent = 'Deposit to Real Wallet';
+        walletModalSubmitBtn.textContent = 'Confirm Deposit';
+        walletModalSubmitBtn.className = 'btn-wallet btn-deposit';
+      } else {
+        walletModalTitle.textContent = 'Withdraw from Real Wallet';
+        walletModalSubmitBtn.textContent = 'Confirm Withdrawal';
+        walletModalSubmitBtn.className = 'btn-wallet btn-withdraw';
+      }
+
+      profileDropdown.classList.remove('open');
+      walletModal.classList.add('open');
+      document.getElementById('walletTxAmount').focus();
+    }
+
+    document.getElementById('openDepositBtn').addEventListener('click', () => openWalletModal('DEPOSIT'));
+    document.getElementById('menuDepositBtn').addEventListener('click', () => openWalletModal('DEPOSIT'));
+    document.getElementById('openWithdrawBtn').addEventListener('click', () => openWalletModal('WITHDRAW'));
+    document.getElementById('menuWithdrawBtn').addEventListener('click', () => openWalletModal('WITHDRAW'));
+    document.getElementById('closeWalletModal').addEventListener('click', () => walletModal.classList.remove('open'));
+
+    document.getElementById('walletModalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      walletModalAlert.className = 'modal-alert';
+
+      const amount = parseFloat(document.getElementById('walletTxAmount').value);
+      const note = document.getElementById('walletTxNote').value.trim();
+
+      if (isNaN(amount) || amount <= 0) {
+        walletModalAlert.textContent = 'Please enter a valid positive amount.';
+        walletModalAlert.className = 'modal-alert error';
+        return;
+      }
+
+      if (walletModalMode === 'WITHDRAW' && amount > realBalance) {
+        walletModalAlert.textContent = `Insufficient Real Wallet balance (${formatMoney(realBalance)}).`;
+        walletModalAlert.className = 'modal-alert error';
+        return;
+      }
+
+      const nextBalance = walletModalMode === 'DEPOSIT'
+        ? realBalance + amount
+        : realBalance - amount;
+
+      const roundedBalance = Math.round(nextBalance * 100) / 100;
+
+      const { error: updErr } = await supabase
+        .from('profiles')
+        .update({ balance: roundedBalance })
+        .eq('id', currentUser.id);
+
+      if (updErr) {
+        walletModalAlert.textContent = 'Transaction failed: ' + updErr.message;
+        walletModalAlert.className = 'modal-alert error';
+        return;
+      }
+
+      // Log into cashier_transactions so Admin sees trader deposits/withdrawals too
+      await supabase.from('cashier_transactions').insert({
+        user_id: currentUser.id,
+        user_email: currentProfile.email,
+        user_name: currentProfile.full_name || currentProfile.email,
+        tx_type: walletModalMode,
+        amount: amount,
+        balance_after: roundedBalance,
+        note: note || `Trader ${walletModalMode.toLowerCase()} via terminal`
+      });
+
+      realBalance = roundedBalance;
+      accountMode = 'real';
+      updateWalletUI();
+
+      walletModalAlert.textContent = `${walletModalMode === 'DEPOSIT' ? 'Deposited' : 'Withdrew'} ${formatMoney(amount)} successfully!`;
+      walletModalAlert.className = 'modal-alert success';
+
+      setTimeout(() => {
+        walletModal.classList.remove('open');
+      }, 650);
+    });
+
+    // =========================================================================
+    // 3. PROFILE DROPDOWN & LOGOUT
+    // =========================================================================
+    profileMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      profileDropdown.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!profileDropdown.contains(e.target) && !profileMenuBtn.contains(e.target)) {
+        profileDropdown.classList.remove('open');
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = INDEX_PAGE;
+    });
+
+    // =========================================================================
+    // 4. SYNTHETIC VOLATILITY ENGINE, CHARTS & TICK DIGIT ANALYSIS
+    // =========================================================================
+    const canvas = document.getElementById('marketCanvas');
+    const ctx = canvas.getContext('2d');
+    const symbolSelect = document.getElementById('symbolSelect');
+
+    function seedMarketData() {
+      const opt = symbolSelect.selectedOptions[0];
+      currentPrice = parseFloat(opt.dataset.base) || 10420.50;
+      const vol = parseFloat(opt.dataset.vol) || 1.5;
+
+      tickHistory = [];
+      digitHistory = [];
+      candles = [];
+
+      let p = currentPrice;
+      for (let i = 0; i < 100; i++) {
+        p = Math.max(10, p + (Math.random() - 0.5) * vol * 2);
+        const fixed = Number(p.toFixed(2));
+        tickHistory.push(fixed);
+        digitHistory.push(getLastDigit(fixed));
+      }
+
+      for (let c = 0; c < 30; c++) {
+        const open = tickHistory[c * 3] || currentPrice;
+        const close = tickHistory[c * 3 + 2] || currentPrice;
+        const high = Math.max(open, close) + Math.random() * vol;
+        const low = Math.min(open, close) - Math.random() * vol;
+        candles.push({ open, high, low, close });
+      }
+
+      currentPrice = tickHistory[tickHistory.length - 1];
+      currentCandle = { open: currentPrice, high: currentPrice, low: currentPrice, close: currentPrice, ticks: 0 };
+      renderDigitBar();
+      drawChart();
+    }
+
+    function getLastDigit(price) {
+      const str = Number(price).toFixed(2);
+      return parseInt(str.charAt(str.length - 1), 10);
+    }
+
+    function stepTick() {
+      const opt = symbolSelect.selectedOptions[0];
+      const vol = parseFloat(opt.dataset.vol) || 1.5;
+      const delta = (Math.random() - 0.5) * vol * 2.2;
+      currentPrice = Number(Math.max(10, currentPrice + delta).toFixed(2));
+
+      const lastDigit = getLastDigit(currentPrice);
+      spotPriceEl.textContent = currentPrice.toFixed(2);
+      lastDigitBadgeEl.textContent = `Digit: ${lastDigit}`;
+
+      tickHistory.push(currentPrice);
+      if (tickHistory.length > 100) tickHistory.shift();
+
+      digitHistory.push(lastDigit);
+      if (digitHistory.length > 100) digitHistory.shift();
+
+      // Update 1m candle aggregation (15 ticks per simulated candle)
+      if (!currentCandle) {
+        currentCandle = { open: currentPrice, high: currentPrice, low: currentPrice, close: currentPrice, ticks: 1 };
+      } else {
+        currentCandle.high = Math.max(currentCandle.high, currentPrice);
+        currentCandle.low = Math.min(currentCandle.low, currentPrice);
+        currentCandle.close = currentPrice;
+        currentCandle.ticks += 1;
+        if (currentCandle.ticks >= 15) {
+          candles.push({ ...currentCandle });
+          if (candles.length > 45) candles.shift();
+          currentCandle = { open: currentPrice, high: currentPrice, low: currentPrice, close: currentPrice, ticks: 0 };
+        }
+      }
+
+      renderDigitBar();
+      drawChart();
+      evaluateActiveContract(currentPrice, lastDigit);
+    }
+
+    function renderDigitBar() {
+      const counts = Array(10).fill(0);
+      digitHistory.forEach((d) => { counts[d]++; });
+      const total = digitHistory.length || 1;
+      const pcts = counts.map((c) => (c / total) * 100);
+      const maxPct = Math.max(...pcts);
+      const minPct = Math.min(...pcts);
+      const latestDigit = digitHistory[digitHistory.length - 1];
+
+      const grid = document.getElementById('digitGrid');
+      grid.innerHTML = pcts.map((pct, digit) => {
+        const cls = [
+          'digit-cell',
+          digit === latestDigit ? 'latest' : '',
+          pct === maxPct && maxPct > 0 ? 'hot' : '',
+          pct === minPct ? 'cold' : ''
+        ].join(' ').trim();
+
+        return `
+          <div class="${cls}">
+            <div class="digit-num">${digit}</div>
+            <div class="digit-pct">${pct.toFixed(1)}%</div>
+            <div class="digit-bar-bg">
+              <div class="digit-bar-fill" style="width: ${Math.min(100, pct * 4)}%;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function drawChart() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+      ctx.clearRect(0, 0, w, h);
+
+      // Grid lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.lineWidth = 1;
+      for (let g = 1; g < 5; g++) {
+        const y = (h / 5) * g;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      if (chartMode === 'tick') {
+        if (tickHistory.length < 2) return;
+        const minP = Math.min(...tickHistory);
+        const maxP = Math.max(...tickHistory);
+        const range = maxP - minP || 1;
+        const pad = 28;
+
+        ctx.beginPath();
+        ctx.strokeStyle = '#00d084';
+        ctx.lineWidth = 2;
+
+        tickHistory.forEach((price, idx) => {
+          const x = (idx / (tickHistory.length - 1)) * (w - 60) + 12;
+          const y = h - pad - ((price - minP) / range) * (h - pad * 2);
+          if (idx === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Current spot dot
+        const lastX = w - 48;
+        const lastY = h - pad - ((currentPrice - minP) / range) * (h - pad * 2);
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const allCandles = currentCandle ? [...candles, currentCandle] : candles;
+        if (!allCandles.length) return;
+
+        const minP = Math.min(...allCandles.map((c) => c.low));
+        const maxP = Math.max(...allCandles.map((c) => c.high));
+        const range = maxP - minP || 1;
+        const pad = 26;
+        const slotW = (w - 30) / allCandles.length;
+
+        allCandles.forEach((c, idx) => {
+          const x = 14 + idx * slotW + slotW / 2;
+          const yHigh = h - pad - ((c.high - minP) / range) * (h - pad * 2);
+          const yLow = h - pad - ((c.low - minP) / range) * (h - pad * 2);
+          const yOpen = h - pad - ((c.open - minP) / range) * (h - pad * 2);
+          const yClose = h - pad - ((c.close - minP) / range) * (h - pad * 2);
+          const bullish = c.close >= c.open;
+
+          ctx.strokeStyle = bullish ? '#00d084' : '#ff4d6d';
+          ctx.fillStyle = bullish ? '#00d084' : '#ff4d6d';
+
+          ctx.beginPath();
+          ctx.moveTo(x, yHigh);
+          ctx.lineTo(x, yLow);
+          ctx.stroke();
+
+          const bodyTop = Math.min(yOpen, yClose);
+          const bodyH = Math.max(2, Math.abs(yClose - yOpen));
+          ctx.fillRect(x - slotW * 0.3, bodyTop, slotW * 0.6, bodyH);
+        });
+      }
+    }
+
+    document.getElementById('btnTickChart').addEventListener('click', () => {
+      chartMode = 'tick';
+      document.getElementById('btnTickChart').classList.add('active');
+      document.getElementById('btnCandleChart').classList.remove('active');
+      drawChart();
+    });
+
+    document.getElementById('btnCandleChart').addEventListener('click', () => {
+      chartMode = 'candle';
+      document.getElementById('btnCandleChart').classList.add('active');
+      document.getElementById('btnTickChart').classList.remove('active');
+      drawChart();
+    });
+
+    symbolSelect.addEventListener('change', seedMarketData);
+
+    // =========================================================================
+    // 5. CONTRACT EXECUTION & SETTLEMENT
+    // =========================================================================
+    const contractTypeEl = document.getElementById('contractType');
+    const stakeInputEl = document.getElementById('stakeInput');
+    const tickDurationEl = document.getElementById('tickDuration');
+    const digitPredGroup = document.getElementById('digitPredictionGroup');
+
+    window.setStake = function (amt) {
+      stakeInputEl.value = amt;
+      updateContractLabels();
+    };
+
+    function getPayoutMultiplier() {
+      const type = contractTypeEl.value;
+      if (type === 'MATCH_DIFFER') return 8.5;
+      return 1.95;
+    }
+
+    function updateContractLabels() {
+      const type = contractTypeEl.value;
+      const stake = parseFloat(stakeInputEl.value) || 0;
+      const mult = getPayoutMultiplier();
+      const payout = stake * mult;
+
+      document.getElementById('payoutPreview').textContent = `${formatMoney(payout)} (${Math.round((mult - 1) * 100)}%)`;
+
+      const labelA = document.getElementById('labelContractA');
+      const subA = document.getElementById('subContractA');
+      const labelB = document.getElementById('labelContractB');
+      const subB = document.getElementById('subContractB');
+
+      if (type === 'RISE_FALL') {
+        digitPredGroup.style.display = 'none';
+        labelA.textContent = 'RISE';
+        subA.textContent = `Higher after ${tickDurationEl.value} ticks`;
+        labelB.textContent = 'FALL';
+        subB.textContent = `Lower after ${tickDurationEl.value} ticks`;
+      } else if (type === 'EVEN_ODD') {
+        digitPredGroup.style.display = 'none';
+        tickDurationEl.value = 1;
+        labelA.textContent = 'EVEN';
+        subA.textContent = 'Last digit is even';
+        labelB.textContent = 'ODD';
+        subB.textContent = 'Last digit is odd';
+      } else if (type === 'MATCH_DIFFER') {
+        digitPredGroup.style.display = 'block';
+        tickDurationEl.value = 1;
+        const d = document.getElementById('predictedDigit').value;
+        labelA.textContent = `MATCHES ${d}`;
+        subA.textContent = '850% Payout';
+        labelB.textContent = `DIFFERS ${d}`;
+        subB.textContent = '109% Payout';
+      } else if (type === 'OVER_UNDER') {
+        digitPredGroup.style.display = 'block';
+        tickDurationEl.value = 1;
+        const d = document.getElementById('predictedDigit').value;
+        labelA.textContent = `OVER ${d}`;
+        subA.textContent = `Digit > ${d}`;
+        labelB.textContent = `UNDER ${d}`;
+        subB.textContent = `Digit < ${d}`;
+      }
+    }
+
+    contractTypeEl.addEventListener('change', updateContractLabels);
+    stakeInputEl.addEventListener('input', updateContractLabels);
+    tickDurationEl.addEventListener('input', updateContractLabels);
+    document.getElementById('predictedDigit').addEventListener('input', updateContractLabels);
+
+    async function placeContract(side) {
+      if (activeContract) {
+        showToast('Wait for current contract to settle.', 'var(--gold)');
+        return;
+      }
+
+      const stake = parseFloat(stakeInputEl.value);
+      if (isNaN(stake) || stake <= 0) {
+        showToast('Enter a valid stake amount.', 'var(--red)');
+        return;
+      }
+
+      const activeBal = accountMode === 'real' ? realBalance : demoBalance;
+      if (stake > activeBal) {
+        showToast(
+          accountMode === 'real'
+            ? 'Insufficient Real Wallet balance. Please deposit first.'
+            : 'Insufficient Demo balance. Click Reset Demo.',
+          'var(--red)'
+        );
+        return;
+      }
+
+      // Deduct stake upfront
+      if (accountMode === 'real') {
+        await syncRealBalanceToSupabase(realBalance - stake);
+      } else {
+        saveDemoBalance(demoBalance - stake);
+      }
+
+      const type = contractTypeEl.value;
+      const duration = Math.max(1, parseInt(tickDurationEl.value, 10) || 1);
+      const targetDigit = parseInt(document.getElementById('predictedDigit').value, 10) || 0;
+
+      activeContract = {
+        mode: accountMode,
+        symbol: symbolSelect.options[symbolSelect.selectedIndex].text,
+        type,
+        side,
+        stake,
+        targetDigit,
+        entryPrice: currentPrice,
+        ticksRemaining: duration,
+        time: new Date().toLocaleTimeString()
+      };
+
+      document.getElementById('activeContractBanner').style.display = 'block';
+      document.getElementById('btnContractA').disabled = true;
+      document.getElementById('btnContractB').disabled = true;
+    }
+
+    async function evaluateActiveContract(price, lastDigit) {
+      if (!activeContract) return;
+
+      activeContract.ticksRemaining -= 1;
+      if (activeContract.ticksRemaining > 0) return;
+
+      const c = activeContract;
+      activeContract = null;
+
+      document.getElementById('activeContractBanner').style.display = 'none';
+      document.getElementById('btnContractA').disabled = false;
+      document.getElementById('btnContractB').disabled = false;
+
+      let won = false;
+      let payout = c.stake * 1.95;
+
+      if (c.type === 'RISE_FALL') {
+        won = c.side === 'A' ? price > c.entryPrice : price < c.entryPrice;
+      } else if (c.type === 'EVEN_ODD') {
+        const isEven = lastDigit % 2 === 0;
+        won = c.side === 'A' ? isEven : !isEven;
+      } else if (c.type === 'MATCH_DIFFER') {
+        if (c.side === 'A') {
+          won = lastDigit === c.targetDigit;
+          payout = c.stake * 8.5;
+        } else {
+          won = lastDigit !== c.targetDigit;
+          payout = c.stake * 1.09;
+        }
+      } else if (c.type === 'OVER_UNDER') {
+        won = c.side === 'A' ? lastDigit > c.targetDigit : lastDigit < c.targetDigit;
+      }
+
+      if (won) {
+        if (c.mode === 'real') {
+          await syncRealBalanceToSupabase(realBalance + payout);
+        } else {
+          saveDemoBalance(demoBalance + payout);
+        }
+        showToast(`Contract WON! +${formatMoney(payout - c.stake)}`, 'var(--green)');
+      } else {
+        showToast(`Contract LOST (-${formatMoney(c.stake)})`, 'var(--red)');
+      }
+
+      tradeCount += 1;
+      document.getElementById('sessionStats').textContent = `${tradeCount} Trade${tradeCount === 1 ? '' : 's'}`;
+
+      const tbody = document.getElementById('tradeHistoryBody');
+      if (tradeCount === 1) tbody.innerHTML = '';
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="muted">${c.time}</td>
+        <td><strong>${c.mode.toUpperCase()}</strong></td>
+        <td>${c.symbol}</td>
+        <td>${c.type.replace('_', '/')}</td>
+        <td>${formatMoney(c.stake)}</td>
+        <td>${c.entryPrice.toFixed(2)} → ${price.toFixed(2)}</td>
+        <td class="${won ? 'win-text' : 'loss-text'}">${won ? '+' + formatMoney(payout - c.stake) : '-' + formatMoney(c.stake)}</td>
+      `;
+      tbody.prepend(row);
+    }
+
+    document.getElementById('btnContractA').addEventListener('click', () => placeContract('A'));
+    document.getElementById('btnContractB').addEventListener('click', () => placeContract('B'));
+
+    // Boot
+    await initSession();
+    updateContractLabels();
+    seedMarketData();
+    setInterval(stepTick, 1000);
   </script>
 </body>
 </html>
+'''
+
+with open('Kholletta.html', 'w', encoding='utf-8') as f:
+    f.write(html_code)
+
+print('Saved Kholletta.html successfully.')
