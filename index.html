@@ -231,20 +231,28 @@
       auth: { detectSessionInUrl: true, flowType: 'pkce' }
     });
 
-    // Supabase consumes the confirmation code during client initialization.
-    // The configured emailRedirectTo points back to this login page.
+    // Supabase returns here after the email confirmation link is used.
+    // Consume the confirmation callback, then leave the user on the login tab.
     (async () => {
       const params = new URLSearchParams(window.location.search);
       const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
       const authError = params.get('error_description') || hash.get('error_description');
-      const isConfirmationReturn = params.has('code') || hash.get('type') === 'signup';
       if (authError) {
-        showAlert(authError);
+        showAlert(decodeURIComponent(authError));
         return;
       }
-      if (isConfirmationReturn) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) await supabase.auth.signOut();
+      if (params.has('code')) {
+        const { error } = await supabase.auth.exchangeCodeForSession(params.get('code'));
+        if (error) showAlert('Email confirmation could not be completed: ' + error.message);
+        else {
+          await supabase.auth.signOut();
+          showAlert('Email confirmed successfully. Please sign in.', 'success');
+          history.replaceState({}, document.title, window.location.pathname);
+        }
+      } else if (hash.get('access_token') || hash.get('type') === 'signup') {
+        // Older Supabase email templates may return tokens in the URL hash.
+        await supabase.auth.getSession();
+        await supabase.auth.signOut();
         showAlert('Email confirmed successfully. Please sign in.', 'success');
         history.replaceState({}, document.title, window.location.pathname);
       }

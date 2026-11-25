@@ -1379,7 +1379,7 @@
       </div>
 
       <div id="resultBox" class="result-box" aria-live="polite">
-        <span id="resultMain">Pick a contract and place a trade with your demo balance</span>
+        <span id="resultMain">Pick a contract and trade with your selected simulator balance</span>
         <span id="resultSub" class="result-sub" style="display: none;"></span>
       </div>
     </section>
@@ -1401,7 +1401,7 @@
           <a class="reset-btn" href="cashier.html?action=deposit" style="text-decoration:none">Deposit</a>
           <a class="reset-btn" href="cashier.html?action=withdraw" style="text-decoration:none">Withdraw</a>
         </div>
-        <div id="realTradeNotice" class="virtual-note" style="display:none;margin-top:8px">Real wallet funds are displayed here. Real-money trading is disabled until a live trading execution service is connected.</div>
+        <div id="realTradeNotice" class="virtual-note" style="display:none;margin-top:8px">Real wallet funds are displayed here. Real account uses virtual game credits and the simulator market engine.</div>
       </div>
 
       <!-- Trading panel slot (landscape) -->
@@ -1449,7 +1449,7 @@
 
               <div class="info-list">
                 <div class="info-item"><span>Account ID</span><b id="infoId">-</b></div>
-                <div class="info-item"><span>Account type</span><b>Demo (virtual funds)</b></div>
+                <div class="info-item"><span>Account type</span><b>Demo and Real (virtual funds)</b></div>
                 <div class="info-item"><span>Currency</span><b>USD</b></div>
                 <div class="info-item"><span>Member since</span><b id="infoJoined">-</b></div>
               </div>
@@ -2256,6 +2256,10 @@
       return isNaN(v) ? 0 : v;
     }
 
+    function activeBalance() {
+      return walletMode === 'real' ? Number(window.kholletaProfile?.balance || 0) : balance;
+    }
+
     function saveAccount() {
       try {
         localStorage.setItem("kholleta_demo_account", JSON.stringify({ balance, totalPL, wins, losses }));
@@ -2314,7 +2318,7 @@
       digitPicker.querySelectorAll(".digit-btn").forEach(b => b.classList.toggle("active", parseInt(b.dataset.d, 10) === selectedDigit));
       tradeHint.textContent = tab.hint;
 
-      const stakeOk = stake >= MIN_STAKE && stake <= Math.min(balance, 10000);
+      const stakeOk = stake >= MIN_STAKE && stake <= Math.min(activeBalance(), 10000);
       const durOk = duration >= 1 && duration <= 10;
 
       [["a", buyA, "buyALabel", "buyAPayout"], ["b", buyB, "buyBLabel", "buyBPayout"]].forEach(([k, btn, lblId, payId]) => {
@@ -2426,13 +2430,20 @@
       if (!isValidContract(type, digit)) return "This contract is not available";
       if (stake < MIN_STAKE) return `Minimum stake is ${money(MIN_STAKE)}`;
       if (stake > 10000) return "Maximum single stake is $10,000.00";
-      if (stake > balance) return "Stake is higher than your balance";
+      if (stake > activeBalance()) return "Stake is higher than your balance";
       if (duration < 1 || duration > 10) return "Duration must be between 1 and 10 ticks";
       return "";
     }
 
-    function openContract(type, digit, stake, duration, auto, mkId) {
-      balance = round2(balance - stake);
+    async function openContract(type, digit, stake, duration, auto, mkId) {
+      const payout = calcPayout(type, digit, stake);
+      if (walletMode === 'real') {
+        const { data: positionId, error } = await window.kholletaSupabase.rpc('simulator_open_trade', { p_amount: stake, p_payout: payout });
+        if (error) throw new Error(error.message || 'Could not reserve the simulated stake');
+        await window.refreshKholletaRealBalance?.();
+      } else {
+        balance = round2(balance - stake);
+      }
       const c = {
         id: nextContractId++,
         type,
@@ -2440,11 +2451,13 @@
         stake,
         duration,
         ticksNeeded: isRF(type) ? duration + 1 : duration, // Rise/Fall: entry tick + N ticks
-        payout: calcPayout(type, digit, stake),
+        payout,
         digits: [],
         prices: [],
         entryPrice: null,
         auto: !!auto,
+        walletMode,
+        positionId: walletMode === 'real' ? positionId : null,
         mk: mkId || activeMkId
       };
       openContracts.push(c);
@@ -2458,8 +2471,7 @@
       return c;
     }
 
-    function placeTrade(side) {
-      if (walletMode !== 'demo') { showResult(null, 'Real trading is not connected.', 'Demo contracts cannot debit or credit your real wallet.'); return; }
+    async function placeTrade(side) {
       const tab = TRADE_TABS[activeTab];
       const type = tab[side];
       const digit = tab.needsDigit ? selectedDigit : 0;
@@ -2472,7 +2484,9 @@
         return;
       }
 
-      const c = openContract(type, digit, stake, duration, false, activeMkId);
+      let c;
+      try { c = await openContract(type, digit, stake, duration, false, activeMkId); }
+      catch (e) { showResult('lost', 'Trade could not be opened', e.message); return; }
       const when = isRF(type)
         ? `Entry is the next tick, then it settles ${duration} tick${duration > 1 ? "s" : ""} later.`
         : `Settles after ${duration} tick${duration > 1 ? "s" : ""}.`;
@@ -2481,8 +2495,7 @@
     }
 
     // ---- Auto trade ----
-    function startAuto() {
-      if (walletMode !== 'demo') { showResult(null, 'Auto trading is demo-only.', 'A live execution provider must be connected before real-money trading can be enabled.'); return; }
+    async function startAuto() {
       const tab = TRADE_TABS[activeTab];
       const type = tab[autoSide];
       const digit = tab.needsDigit ? selectedDigit : 0;
@@ -2510,7 +2523,8 @@
       autoPL = 0;
       autoStake = stake;
       autoMessage = "";
-      openContract(type, digit, stake, duration, true, activeMkId);
+      try { await openContract(type, digit, stake, duration, true, activeMkId); }
+      catch (e) { autoRunning = false; autoMessage = e.message; showResult('lost', 'Auto trade could not start', e.message); renderAll(); return; }
       showResult(null, `Auto trade started: ${contractName(type, digit)} on ${activeMk.short}`,
         `${runs} runs · stake ${money(stake)} · ×${mult} after a loss`);
       renderAll();
@@ -2525,7 +2539,7 @@
       renderAll();
     }
 
-    function onAutoSettled(win, profit) {
+    async function onAutoSettled(win, profit) {
       autoPL = round2(autoPL + profit);
       if (!autoRunning || !autoCfg) return;
 
@@ -2535,16 +2549,18 @@
       if (autoCfg.tp > 0 && autoPL >= autoCfg.tp) return stopAuto(`Take profit reached (${signedMoney(autoPL)})`);
       if (autoCfg.sl > 0 && autoPL <= -autoCfg.sl) return stopAuto(`Stop loss reached (${signedMoney(autoPL)})`);
       if (autoRunsDone >= autoCfg.runs) return stopAuto(`Completed ${autoRunsDone} runs (${signedMoney(autoPL)})`);
-      if (autoStake > balance) return stopAuto(`Not enough balance for the next stake of ${money(autoStake)} (${signedMoney(autoPL)})`);
+      if (autoStake > activeBalance()) return stopAuto(`Not enough balance for the next stake of ${money(autoStake)} (${signedMoney(autoPL)})`);
 
-      openContract(autoCfg.type, autoCfg.digit, autoStake, autoCfg.duration, true, autoCfg.mk);
+      try { await openContract(autoCfg.type, autoCfg.digit, autoStake, autoCfg.duration, true, autoCfg.mk); }
+      catch (e) { stopAuto(`Could not open next auto trade: ${e.message}`); }
     }
 
-    function settleContracts(mkId, latestTick, digit) {
+    async function settleContracts(mkId, latestTick, digit) {
       const mine = openContracts.filter(c => c.mk === mkId);
       if (mine.length === 0) return;
 
       mine.forEach(c => {
+        if (c.pendingSettlement) return;
         c.digits.push(digit);
         c.prices.push(latestTick.price);
         if (c.entryPrice === null) c.entryPrice = latestTick.price;
@@ -2554,20 +2570,37 @@
           mk.entryPrice = latestTick.price;
         }
       });
-      const done = mine.filter(c => c.digits.length >= c.ticksNeeded);
+      const done = mine.filter(c => c.pendingSettlement || c.digits.length >= c.ticksNeeded);
       if (done.length === 0) { renderTrade(); return; }
       openContracts = openContracts.filter(c => !done.includes(c));
 
       let net = 0;
       let last = null;
       const autoResults = [];
-      done.forEach(c => {
-        const win = contractWon(c, digit, latestTick.price);
-        const profit = win ? round2(c.payout - c.stake) : -c.stake;
-        if (win) { balance = round2(balance + c.payout); wins++; } else { losses++; }
+      for (const c of done) {
+        const win = c.pendingSettlement ? c.pendingSettlement.win : contractWon(c, digit, latestTick.price);
+        const profit = c.pendingSettlement ? c.pendingSettlement.profit : (win ? round2(c.payout - c.stake) : -c.stake);
+        const exitDigit = c.pendingSettlement ? c.pendingSettlement.exitDigit : digit;
+        const exitPrice = c.pendingSettlement ? c.pendingSettlement.exitPrice : latestTick.price;
+        if (c.walletMode === 'real') {
+          const { error } = await window.kholletaSupabase.rpc('simulator_settle_trade', {
+            p_position_id: c.positionId, p_won: win
+          });
+          if (error) {
+            c.pendingSettlement = { win, profit, exitDigit, exitPrice };
+            showResult('lost', 'Settlement needs attention', error.message || 'Could not settle simulated trade');
+            openContracts.push(c);
+            continue;
+          }
+          await window.refreshKholletaRealBalance?.();
+        } else if (win) {
+          balance = round2(balance + c.payout);
+        }
+        if (win) wins++; else losses++;
         totalPL = round2(totalPL + profit);
         net = round2(net + profit);
-        last = { ...c, win, profit, exitDigit: digit, exitPrice: latestTick.price };
+        last = { ...c, win, profit, exitDigit, exitPrice };
+        delete c.pendingSettlement;
         recordLife(c, win, profit);
         const mk = chartMarkers.find(x => x.id === c.id);
         if (mk) {
@@ -2577,8 +2610,9 @@
         }
         closedTrades.unshift(last);
         if (c.auto) autoResults.push({ win, profit });
-      });
+      }
       if (closedTrades.length > 30) closedTrades.length = 30;
+      if (!last) { renderAll(); return; }
 
       if (done.length === 1) {
         const detail = isRF(last.type)
@@ -2595,7 +2629,7 @@
 
       saveAccount();
       saveProfile();
-      autoResults.forEach(r => onAutoSettled(r.win, r.profit));
+      for (const r of autoResults) await onAutoSettled(r.win, r.profit);
       saveAccount();
       renderAll();
     }
@@ -2788,7 +2822,7 @@
       if (data && data.profile) profile = { ...profile, ...data.profile };
       if (data && data.life && Array.isArray(data.life.equity) && data.life.fam && data.life.src) life = data.life;
       if (!profile.id) profile.id = "KH-DEMO-" + String(100000 + Math.floor(Math.random() * 900000));
-      if (!life) life = makeLife(balance);
+      if (!life) life = makeLife(activeBalance());
       saveProfile();
     }
 
@@ -2802,14 +2836,14 @@
       life.streak = win ? (life.streak > 0 ? life.streak + 1 : 1) : (life.streak < 0 ? life.streak - 1 : -1);
       life.bestWin = Math.max(life.bestWin, life.streak);
       life.bestLoss = Math.max(life.bestLoss, -life.streak);
-      life.peak = Math.max(life.peak, balance);
-      life.low = Math.min(life.low, balance);
+      life.peak = Math.max(life.peak, activeBalance());
+      life.low = Math.min(life.low, activeBalance());
       [life.fam[familyOf(c.type)], life.src[c.auto ? "auto" : "manual"]].forEach(b => {
         b.t++;
         if (win) b.w++;
         b.pl = round2(b.pl + profit);
       });
-      life.equity.push({ t: Date.now(), b: balance });
+      life.equity.push({ t: Date.now(), b: activeBalance() });
       if (life.equity.length > 300) life.equity.shift();
       life.log.unshift({ t: Date.now(), name: contractName(c.type, c.digit), stake: c.stake, profit, win, auto: !!c.auto, mk: c.mk });
       if (life.log.length > 50) life.log.length = 50;
@@ -2897,7 +2931,7 @@
 
       paneDashboard.innerHTML = `
         <div class="dash-kpis">
-          ${kpi("Balance", money(balance))}
+          ${kpi("Balance", money(activeBalance()))}
           ${kpi("Net profit / loss", signedMoney(L.pl), plCls(L.pl), "all time")}
           ${kpi("Win rate", L.trades ? rate.toFixed(1) + "%" : "-", "", `${L.wins} won &middot; ${L.losses} lost`)}
           ${kpi("Total trades", L.trades)}
@@ -2981,7 +3015,7 @@
       if (resetStatsBtn.dataset.confirm === "1") {
         clearTimeout(resetStatsTimer);
         resetStatsBtn.dataset.confirm = "";
-        life = makeLife(balance);
+        life = makeLife(activeBalance());
         saveProfile();
         resetStatsBtn.textContent = "Dashboard stats cleared";
       } else {
@@ -3034,7 +3068,7 @@
     renderAll();
     setInterval(tickAll, 1000);
 
-    // Demo/real wallet switch. The existing simulator engine remains demo-only.
+    // Demo and Real are both simulator wallets. Real uses the Supabase wallet and admin reserve RPCs.
     const demoWalletBtn=document.getElementById('demoWalletBtn');
     const realWalletBtn=document.getElementById('realWalletBtn');
     const walletLabel=document.getElementById('walletLabel');
@@ -3048,17 +3082,17 @@
       walletMode=mode; const real=mode==='real';
       demoWalletBtn.classList.toggle('active',!real); realWalletBtn.classList.toggle('active',real);
       document.getElementById('balanceDisplay').textContent=real?(document.getElementById('realBalanceValue').textContent||'$0.00'):money(balance);
-      walletLabel.textContent=real?'Real account balance':'Demo balance';
-      walletNote.textContent=real?'Live Supabase wallet balance. Deposits and withdrawals are handled in Cashier.':'Virtual funds only. No real money is involved.';
+      walletLabel.textContent=real?'Real simulator balance':'Demo balance';
+      walletNote.textContent=real?'Virtual trading funds. Simulated wins and losses are settled against the admin reserve.':'Virtual demo funds only. No real money is involved.';
       document.getElementById('resetBalanceBtn').style.display=real?'none':'';
-      realWalletActions.style.display=real?'flex':'none'; realTradeNotice.style.display=real?'block':'none';
-      // Prevent the demo simulator from ever changing the real wallet.
-      [buyA,buyB,autoStartBtn].forEach(el=>{if(el)el.disabled=real;});
-      if(tradePanelForWallet) tradePanelForWallet.style.opacity=real?'.45':'1';
-      if(tradePanelForWallet) tradePanelForWallet.style.pointerEvents=real?'none':'';
-      if(autoForWallet) autoForWallet.style.opacity=real?'.45':'1';
-      if(autoForWallet) autoForWallet.style.pointerEvents=real?'none':'';
-      if(historyForWallet) historyForWallet.style.opacity=real?'.45':'1';
+      realWalletActions.style.display=real?'flex':'none'; realTradeNotice.style.display='none';
+      [buyA,buyB,autoStartBtn].forEach(el=>{if(el)el.disabled=false;});
+      if(tradePanelForWallet) tradePanelForWallet.style.opacity='1';
+      if(tradePanelForWallet) tradePanelForWallet.style.pointerEvents='';
+      if(autoForWallet) autoForWallet.style.opacity='1';
+      if(autoForWallet) autoForWallet.style.pointerEvents='';
+      if(historyForWallet) historyForWallet.style.opacity='1';
+      renderAll();
     }
     demoWalletBtn.addEventListener('click',()=>setWalletMode('demo'));
     realWalletBtn.addEventListener('click',async()=>{if(window.refreshKholletaRealBalance)await window.refreshKholletaRealBalance();setWalletMode('real');});

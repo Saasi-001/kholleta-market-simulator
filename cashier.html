@@ -10,21 +10,21 @@
 </style>
 </head>
 <body><main class="wrap">
-<header class="top"><div><h1>Kholleta P2P Cashier</h1><p id="sessionLine">Checking your account…</p></div><div><button class="btn" id="backBtn">Back to Market</button> <button class="btn danger" id="logoutBtn">Sign out</button></div></header>
+<header class="top"><div><h1>Kholleta Simulator Cashier</h1><p id="sessionLine">Checking your account…</p></div><div><button class="btn" id="backBtn">Back to Market</button> <button class="btn danger" id="logoutBtn">Sign out</button></div></header>
 <div class="grid">
-<section class="card"><h2>Real account balance</h2><div class="balance" id="balance">$0.00</div><div class="muted" id="accountName">Loading account…</div><p class="notice">Your Kholleta real-account balance is denominated in USD. Mobile-money settlement is in UGX using the rate shown on each offer.</p></section>
-<section class="card"><h2>How peer-to-peer works</h2><p class="muted">Choose an offer and submit a request. The offer owner accepts it. The UGX payer marks the payment as sent; the USD seller checks their mobile-money account and releases the USD. USD is held securely while the request is active.</p><p class="notice">Never share your mobile-money PIN or one-time password. Do not mark a payment as sent unless you completed it.</p></section>
+<section class="card"><h2>Simulator account balance</h2><div class="balance" id="balance">$0.00</div><div class="muted" id="accountName">Loading account…</div><p class="notice">Your Kholleta balance is virtual game credit denominated in USD. No real money or mobile-money payment is involved.</p></section>
+<section class="card"><h2>How peer-to-peer works</h2><p class="muted">Choose an offer and submit a request. The offer owner accepts it. The payer marks the in-game payment step as complete; the USD seller confirms the game transaction and releases the virtual USD. Virtual USD is held securely while the request is active.</p><p class="notice">SIMULATOR ONLY: do not send UGX, use mobile money, or transfer real funds. All confirmations on this page are in-game actions only.</p></section>
 </div>
 <div id="globalAlert" class="alert"></div>
 <div class="grid">
 <section class="card"><h2>Create a P2P offer</h2><div id="offerAlert" class="alert"></div>
 <form id="offerForm">
-<div class="field"><label for="offerType">Offer type</label><select id="offerType"><option value="buy">BUY USD — pay UGX and receive USD</option><option value="sell">SELL USD — provide USD and receive UGX</option></select></div>
-<div class="row"><div class="field"><label for="network">Mobile-money network</label><select id="network"><option value="MTN">MTN</option><option value="AIRTEL">Airtel</option></select></div><div class="field"><label for="phone">Your mobile-money number</label><input id="phone" type="tel" placeholder="07XXXXXXXX" required pattern="[+]?[0-9 ]{9,16}"></div></div>
-<div class="row"><div class="field"><label for="amount">Offer amount (USD)</label><input id="amount" type="number" min="1" step="0.01" required></div><div class="field"><label for="rate">Rate (UGX per USD)</label><input id="rate" type="number" min="1" step="1" placeholder="e.g. 3700" required></div></div>
+<div class="field"><label for="offerType">Offer type</label><select id="offerType"><option value="buy">BUY USD — exchange game credits for virtual USD</option><option value="sell">SELL USD — exchange virtual USD for game credits</option></select></div>
+<div class="row"><div class="field"><label for="network">In-game channel</label><select id="network"><option value="GAME">Game credits</option></select></div><div class="field"><label for="phone">Your player tag</label><input id="phone" type="text" placeholder="player-tag" required pattern="[A-Za-z0-9_-]{3,32}"></div></div>
+<div class="row"><div class="field"><label for="amount">Offer amount (USD)</label><input id="amount" type="number" min="1" step="0.01" required></div><div class="field"><label for="rate">Game-credit rate (credits per USD)</label><input id="rate" type="number" min="1" step="1" placeholder="e.g. 100" required></div></div>
 <div class="row"><div class="field"><label for="minAmount">Minimum per trade (USD)</label><input id="minAmount" type="number" min="1" step="0.01" value="1" required></div><div class="field"><label for="maxAmount">Maximum per trade (USD)</label><input id="maxAmount" type="number" min="1" step="0.01" placeholder="Same as offer amount"></div></div>
 <button class="btn primary wide" type="submit">Publish offer</button></form>
-<p class="notice">BUY USD: you pay UGX to the offer owner and receive USD when the owner verifies payment and releases it. SELL USD: the offer owner pays UGX to you; after you verify receipt, you release your USD. All balance changes are performed by database functions.</p></section>
+<p class="notice">BUY USD: exchange virtual game credits for USD simulator balance. SELL USD: exchange virtual USD simulator balance for game credits. No outside payment is made; USD balance changes are performed by database functions.</p></section>
 <section class="card"><h2>Available peer-to-peer offers</h2><div class="tabs"><button class="btn active" data-filter="all">All</button><button class="btn" data-filter="deposit">Deposits</button><button class="btn" data-filter="withdraw">Withdrawals</button></div><div id="offers" class="offer-list"><div class="empty">Loading offers…</div></div></section>
 </div>
 <section class="card" style="margin-bottom:16px">
@@ -53,10 +53,10 @@ let user=null,profile=null,offers=[];
 let filter='all';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const usd=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-const ugx=n=>'UGX '+Math.round(Number(n||0)).toLocaleString('en-US');
+const ugx=n=>'GC '+Math.round(Number(n||0)).toLocaleString('en-US');
 function alertAt(el,msg,type='error'){el.textContent=msg;el.className='alert show '+type;}
 function clearAlert(el){el.textContent='';el.className='alert';}
-function phoneOk(v){return /^\+?[0-9 ]{9,16}$/.test(v.trim());}
+function phoneOk(v){return /^[A-Za-z0-9_-]{3,32}$/.test(v.trim());}
 async function init(){
  const {data:{session}}=await supabase.auth.getSession();
  if(!session){location.replace('index.html');return;}
@@ -89,10 +89,10 @@ function renderOffers(){
  $('offers').innerHTML=list.map(o=>{
   const own=o.owner_id===user.id;
   const description=o.offer_type==='buy'
-   ? 'You pay UGX to the offer owner and receive USD after release.'
-   : 'The offer owner pays UGX to you; you release USD after receipt.';
+   ? 'Exchange virtual game credits for USD after release.'
+   : 'Exchange virtual USD for game credits after release.';
   return `<article class="offer"><div class="offer-head"><strong>${o.offer_type==='buy'?'BUY USD':'SELL USD'} · ${esc(o.owner_name||'Trader')}</strong><span class="pill ${o.offer_type==='sell'?'withdraw':''}">${esc(o.network)}</span></div>
-  <div class="details">${usd(o.amount_remaining)} available · ${ugx(o.rate_ugx)} per USD<br>${o.offer_type==='buy'?'Pay to offer owner:':'Receive UGX on your number:'} <b>${esc(o.phone)}</b> · Min ${usd(o.min_usd)} / Max ${usd(Math.min(o.max_usd,o.amount_remaining))}<br>${description}</div>
+  <div class="details">${usd(o.amount_remaining)} available · ${ugx(o.rate_ugx)} per USD<br>${o.offer_type==='buy'?'Game credits to exchange:':'Game credits to receive:'} <b>${esc(o.phone)}</b> · Min ${usd(o.min_usd)} / Max ${usd(Math.min(o.max_usd,o.amount_remaining))}<br>${description}</div>
   ${own?'<span class="muted">Your offer</span>':`<button class="btn primary" data-take="${o.id}">Request this offer</button>`}</article>`;
  }).join('');
 }
@@ -101,20 +101,20 @@ $('offers').addEventListener('click',async e=>{
  const o=offers.find(x=>x.id===b.dataset.take);if(!o)return;
  const amount=Number(prompt(`Enter USD amount (min ${o.min_usd}, max ${Math.min(o.max_usd,o.amount_remaining)}):`));
  if(!Number.isFinite(amount)||amount<=0)return;
- const network=prompt('Your mobile-money network (MTN or Airtel):','MTN');if(!network)return;
- const phone=prompt('Your mobile-money number:');
- if(!phone||!phoneOk(phone)){alertAt($('globalAlert'),'Enter a valid mobile-money phone number.');return;}
+ const network=prompt('In-game channel:','GAME');if(!network)return;
+ const phone=prompt('Your player tag:');
+ if(!phone||!phoneOk(phone)){alertAt($('globalAlert'),'Enter a player tag (3–32 letters, numbers, _ or -).');return;}
  b.disabled=true;
  const {data,error}=await supabase.rpc('p2p_take_offer',{p_offer_id:o.id,p_amount_usd:amount,p_taker_network:network.toUpperCase(),p_taker_phone:phone.trim()});
  if(error){alertAt($('globalAlert'),error.message);b.disabled=false;return;}
- alertAt($('globalAlert'),'Request sent to the offer owner. Wait for acceptance before sending UGX.','success');
+ alertAt($('globalAlert'),'Request sent to the offer owner. Wait for acceptance before confirming the in-game exchange.','success');
  await refresh();
 });
 $('offerForm').addEventListener('submit',async e=>{
  e.preventDefault();clearAlert($('offerAlert'));
  const type=$('offerType').value,network=$('network').value,phone=$('phone').value.trim();
  const amount=Number($('amount').value),rate=Number($('rate').value),min=Number($('minAmount').value),max=Number($('maxAmount').value)||amount;
- if(!phoneOk(phone)){alertAt($('offerAlert'),'Enter a valid Ugandan mobile-money number.');return;}
+ if(!phoneOk(phone)){alertAt($('offerAlert'),'Enter a valid player tag.');return;}
  if(![amount,rate,min,max].every(Number.isFinite)||amount<=0||rate<=0||min<=0||max<min||max>amount){alertAt($('offerAlert'),'Check the amount, rate and min/max limits.');return;}
  const {error}=await supabase.from('p2p_offers').insert({owner_id:user.id,owner_name:profile.full_name||profile.email,offer_type:type,network,phone,amount_total:amount,amount_remaining:amount,rate_ugx:rate,min_usd:min,max_usd:max,status:'open'});
  if(error){alertAt($('offerAlert'),error.message);return;}
@@ -135,20 +135,20 @@ async function loadTrades(){
   const recipientPhone=isBuy?t.maker_phone:t.taker_phone;
   const recipientNetwork=isBuy?t.maker_network:t.taker_network;
   let instruction='';
-  if(t.status==='requested') instruction=maker?'A trader requested your offer. Accept or reject this request.':'Waiting for the offer owner to accept. Do not send UGX yet.';
+  if(t.status==='requested') instruction=maker?'A trader requested your offer. Accept or reject this request.':'Waiting for the offer owner to accept. Do not confirm the game-credit step yet.';
   if(t.status==='accepted') instruction=payerIsMe
-    ? `Send ${ugx(t.amount_ugx)} to ${esc(recipientPhone)} (${esc(recipientNetwork)}). Then click “I have paid”.`
-    : 'The other trader has been asked to send UGX. Wait for their payment notification.';
+    ? `Complete the in-game payment step for ${usd(t.amount_usd)}. No external payment is required. Then click “Confirm game payment”.`
+    : 'The other trader has been asked to complete the virtual game-credit step. Wait for their confirmation.';
   if(t.status==='payment_sent') instruction=sellerIsMe
-    ? 'The payer says UGX was sent. Check your mobile-money balance/statement. Release USD only after the money is actually received.'
-    : 'Payment marked as sent. Wait for the USD seller to verify receipt and release USD.';
-  if(t.status==='completed') instruction='USD released and the transaction is complete.';
+    ? 'The payer has confirmed the in-game step. Review the game transaction and release the virtual USD to complete it.'
+    : 'Game payment confirmed. Wait for the USD seller to release the virtual USD.';
+  if(t.status==='completed') instruction='Virtual USD released and the game transaction is complete.';
   if(t.status==='cancelled') instruction='This request was cancelled.';
   const actions=[];
   if(maker&&t.status==='requested') actions.push(`<button class="btn primary" data-accept="${t.id}">Accept request</button>`,`<button class="btn" data-cancel="${t.id}">Reject</button>`);
   if(!maker&&t.status==='requested') actions.push(`<button class="btn" data-cancel="${t.id}">Withdraw request</button>`);
-  if(payerIsMe&&t.status==='accepted') actions.push(`<button class="btn primary" data-paid="${t.id}">I have paid / sent UGX</button>`);
-  if(sellerIsMe&&t.status==='payment_sent') actions.push(`<button class="btn primary" data-release="${t.id}">Verify receipt & release USD</button>`);
+  if(payerIsMe&&t.status==='accepted') actions.push(`<button class="btn primary" data-paid="${t.id}">Confirm game payment</button>`);
+  if(sellerIsMe&&t.status==='payment_sent') actions.push(`<button class="btn primary" data-release="${t.id}">Confirm & release virtual USD</button>`);
   return `<article class="trade"><div class="trade-head"><b>${isBuy?'BUY USD':'SELL USD'} · ${usd(t.amount_usd)} · ${ugx(t.amount_ugx)}</b><span class="status ${t.status==='completed'?'completed':''}">${esc(t.status.replaceAll('_',' '))}</span></div>
   <div class="details">${maker?'You own the offer':'You requested the offer'} · Counterparty: ${esc(peer)} · ${new Date(t.created_at).toLocaleString()}<br>${instruction}</div>
   <div class="action-row">${actions.join(' ')}</div></article>`;
@@ -159,12 +159,12 @@ $('trades').addEventListener('click',async e=>{
  const action=['accept','paid','release','cancel'].find(a=>b.hasAttribute('data-'+a));
  const id=b.dataset[action];
  const rpc={accept:'p2p_accept_trade',paid:'p2p_mark_paid',release:'p2p_release_usd',cancel:'p2p_cancel_trade'}[action];
- if(action==='paid'&&!confirm('Only continue after you have actually sent the exact UGX amount shown.'))return;
- if(action==='release'&&!confirm('Verify your mobile-money account or statement first. Release USD only if the full UGX payment is received. This cannot be reversed.'))return;
+ if(action==='paid'&&!confirm('This is a simulator only. Confirm the in-game payment step? No real money is sent.'))return;
+ if(action==='release'&&!confirm('Release the virtual USD to complete this in-game transaction? No real money is involved.'))return;
  b.disabled=true;
  const {error}=await supabase.rpc(rpc,{p_trade_id:id});
  if(error){alertAt($('globalAlert'),error.message);b.disabled=false;return;}
- alertAt($('globalAlert'),({accept:'Request accepted. The payer can now send UGX.',paid:'Payment marked as sent. The USD seller has been notified.',release:'USD released and transaction completed.',cancel:'Request cancelled.'})[action],'success');
+ alertAt($('globalAlert'),({accept:'Request accepted. The in-game payment step can now be confirmed.',paid:'Game payment confirmed. The USD seller has been notified.',release:'Virtual USD released and transaction completed.',cancel:'Request cancelled.'})[action],'success');
  await refresh();
 });
 async function loadMyOffers(){
@@ -193,12 +193,5 @@ document.querySelectorAll('[data-filter]').forEach(b=>{
 });
 $('backBtn').addEventListener('click',()=>location.href='kholletta.html');
 $('logoutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();location.href='index.html';});
-init().then(()=>{
-  supabase.channel('kholleta-cashier-live')
-    .on('postgres_changes',{event:'*',schema:'public',table:'p2p_trades'},()=>loadTrades())
-    .on('postgres_changes',{event:'*',schema:'public',table:'p2p_offers'},()=>{loadOffers();loadMyOffers();})
-    .subscribe();
-  // Fallback refresh in case Supabase Realtime is not enabled for these tables.
-  window.setInterval(()=>{if(user)loadTrades();},12000);
-});
+init();
 </script></body></html>
