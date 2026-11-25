@@ -224,7 +224,7 @@
 
     const SUPABASE_URL = 'https://kjnlicbnpejlliqrhwkh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_OuWu0qozlwjD1RxTxfiazQ_te7vUolu';
-    const SIMULATOR_PAGE = 'Kholletta.html';
+    const SIMULATOR_PAGE = 'kholletta.html';
     const ADMIN_PAGE = 'admin.html';
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -284,7 +284,7 @@
       }
 
       if (!data.session) {
-        showAlert('Account created! Check your email to confirm before signing in.', 'success');
+        showAlert('Account created. Check your email to confirm, then sign in to continue.', 'success');
         return;
       }
 

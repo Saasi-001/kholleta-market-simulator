@@ -385,25 +385,19 @@
       <!-- CASHIER PANEL -->
       <div class="card">
         <div class="card-header">
-          <h2>Cashier Operations</h2>
+          <h2>Administrator Wallet Adjustment</h2>
         </div>
 
         <div id="cashierAlert" class="alert-box"></div>
 
         <form id="cashierForm">
-          <div class="form-group">
-            <label for="cashierUserSelect">Select Account</label>
-            <select id="cashierUserSelect" required>
-              <option value="">-- Choose a user --</option>
-            </select>
-          </div>
+          <p class="muted" style="margin-bottom:14px">These direct adjustments apply only to the signed-in administrator's own real wallet. Trader deposits and withdrawals must use the P2P Cashier.</p>
 
           <div class="form-group">
             <label for="cashierAction">Operation Type</label>
             <select id="cashierAction" required>
               <option value="DEPOSIT">Deposit (+ Add Funds)</option>
               <option value="WITHDRAW">Withdraw (- Deduct Funds)</option>
-              <option value="SET_BALANCE">Set Exact Balance (=)</option>
             </select>
           </div>
 
@@ -464,330 +458,23 @@
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-    // Use the exact same Supabase credentials as index.html
-    const SUPABASE_URL = 'https://kjnlicbnpejlliqrhwkh.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_OuWu0qozlwjD1RxTxfiazQ_te7vUolu';
-    const INDEX_PAGE = 'index.html';
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let profilesCache = [];
-
-    const adminApp = document.getElementById('adminApp');
-    const adminSessionInfo = document.getElementById('adminSessionInfo');
-    const usersTableBody = document.getElementById('usersTableBody');
-    const ledgerTableBody = document.getElementById('ledgerTableBody');
-    const cashierUserSelect = document.getElementById('cashierUserSelect');
-    const cashierForm = document.getElementById('cashierForm');
-    const cashierAlert = document.getElementById('cashierAlert');
-    const userSearch = document.getElementById('userSearch');
-
-    function formatMoney(num) {
-      const val = Number(num) || 0;
-      return '$' + val.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-    }
-
-    function escapeHtml(str) {
-      return String(str ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    function showCashierAlert(msg, type = 'error') {
-      cashierAlert.textContent = msg;
-      cashierAlert.className = `alert-box ${type}`;
-    }
-
-    async function verifyAdminAccess() {
-      const { data: { session }, error } = await supabase.auth.getSession();
-
-      if (error || !session || !session.user) {
-        window.location.href = INDEX_PAGE;
-        return false;
-      }
-
-      const { data: myProfile, error: profileErr } = await supabase
-        .from('profiles')
-        .select('role, full_name, email')
-        .eq('id', session.user.id)
-        .single();
-
-      if (profileErr || !myProfile || myProfile.role !== 'admin') {
-        window.location.href = INDEX_PAGE;
-        return false;
-      }
-
-      adminSessionInfo.textContent = `Signed in as Admin: ${myProfile.full_name || myProfile.email}`;
-      adminApp.style.display = 'block';
-      return true;
-    }
-
-    function updateStats(users) {
-      const totalUsers = users.length;
-      const activeUsers = users.filter((u) => u.status === 'active').length;
-      const combinedBalance = users.reduce((sum, u) => sum + (Number(u.balance) || 0), 0);
-
-      document.getElementById('statTotalUsers').textContent = totalUsers;
-      document.getElementById('statActiveUsers').textContent = activeUsers;
-      document.getElementById('statTotalBalances').textContent = formatMoney(combinedBalance);
-    }
-
-    function populateUserSelect(users, selectedId = '') {
-      const currentVal = selectedId || cashierUserSelect.value;
-      cashierUserSelect.innerHTML = '<option value="">-- Choose a user --</option>';
-
-      users.forEach((u) => {
-        const opt = document.createElement('option');
-        opt.value = u.id;
-        opt.textContent = `${u.full_name || 'Trader'} (${u.email}) — ${formatMoney(u.balance)}`;
-        if (u.id === currentVal) opt.selected = true;
-        cashierUserSelect.appendChild(opt);
-      });
-    }
-
-    function renderUsersTable() {
-      const query = userSearch.value.trim().toLowerCase();
-      const filtered = profilesCache.filter((u) => {
-        if (!query) return true;
-        const nameMatch = (u.full_name || '').toLowerCase().includes(query);
-        const emailMatch = (u.email || '').toLowerCase().includes(query);
-        return nameMatch || emailMatch;
-      });
-
-      if (!filtered.length) {
-        usersTableBody.innerHTML = '<tr><td colspan="5" class="muted">No matching accounts found.</td></tr>';
-        return;
-      }
-
-      usersTableBody.innerHTML = filtered.map((u) => {
-        const roleBadge = u.role === 'admin'
-          ? '<span class="badge badge-admin">admin</span>'
-          : '<span class="badge badge-trader">trader</span>';
-
-        const statusBadge = u.status === 'suspended'
-          ? '<span class="badge badge-suspended">suspended</span>'
-          : '<span class="badge badge-active">active</span>';
-
-        const nextStatus = u.status === 'suspended' ? 'active' : 'suspended';
-        const statusBtnLabel = u.status === 'suspended' ? 'Activate' : 'Suspend';
-        const nextRole = u.role === 'admin' ? 'trader' : 'admin';
-
-        return `
-          <tr>
-            <td>
-              <div><strong>${escapeHtml(u.full_name || 'Trader')}</strong></div>
-              <div class="muted">${escapeHtml(u.email)}</div>
-            </td>
-            <td>${roleBadge}</td>
-            <td>${statusBadge}</td>
-            <td><strong>${formatMoney(u.balance)}</strong></td>
-            <td>
-              <div class="action-row">
-                <button type="button" class="btn-sm" onclick="window.selectForCashier('${escapeHtml(u.id)}')">Cashier</button>
-                <button type="button" class="btn-sm" onclick="window.toggleUserStatus('${escapeHtml(u.id)}', '${nextStatus}')">${statusBtnLabel}</button>
-                <button type="button" class="btn-sm" onclick="window.toggleUserRole('${escapeHtml(u.id)}', '${nextRole}')">Make ${nextRole}</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    async function loadProfiles() {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, full_name, email, balance, role, status, created_at')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        usersTableBody.innerHTML = `<tr><td colspan="5" class="muted">Error loading accounts: ${escapeHtml(error.message)}</td></tr>`;
-        return;
-      }
-
-      profilesCache = data || [];
-      updateStats(profilesCache);
-      populateUserSelect(profilesCache);
-      renderUsersTable();
-    }
-
-    async function loadLedger() {
-      const { data, error } = await supabase
-        .from('cashier_transactions')
-        .select('id, user_email, user_name, tx_type, amount, balance_after, note, created_at')
-        .order('created_at', { ascending: false })
-        .limit(30);
-
-      if (error) {
-        ledgerTableBody.innerHTML = `<tr><td colspan="6" class="muted">Ledger not available yet (${escapeHtml(error.message)})</td></tr>`;
-        return;
-      }
-
-      if (!data || !data.length) {
-        ledgerTableBody.innerHTML = '<tr><td colspan="6" class="muted">No cashier transactions recorded yet.</td></tr>';
-        return;
-      }
-
-      ledgerTableBody.innerHTML = data.map((tx) => {
-        const dateStr = tx.created_at ? new Date(tx.created_at).toLocaleString() : '-';
-        return `
-          <tr>
-            <td class="muted">${escapeHtml(dateStr)}</td>
-            <td>
-              <div><strong>${escapeHtml(tx.user_name || '')}</strong></div>
-              <div class="muted">${escapeHtml(tx.user_email || '')}</div>
-            </td>
-            <td><strong>${escapeHtml(tx.tx_type)}</strong></td>
-            <td>${formatMoney(tx.amount)}</td>
-            <td><strong>${formatMoney(tx.balance_after)}</strong></td>
-            <td class="muted">${escapeHtml(tx.note || '-')}</td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    // Quick row actions
-    window.selectForCashier = function (userId) {
-      cashierUserSelect.value = userId;
-      document.getElementById('cashierAmount').focus();
-    };
-
-    window.toggleUserStatus = async function (userId, nextStatus) {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ status: nextStatus })
-        .eq('id', userId);
-
-      if (error) {
-        showCashierAlert('Could not update status: ' + error.message);
-        return;
-      }
-
-      showCashierAlert(`Account status updated to ${nextStatus}.`, 'success');
-      await loadProfiles();
-    };
-
-    window.toggleUserRole = async function (userId, nextRole) {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: nextRole })
-        .eq('id', userId);
-
-      if (error) {
-        showCashierAlert('Could not update role: ' + error.message);
-        return;
-      }
-
-      showCashierAlert(`Account role updated to ${nextRole}.`, 'success');
-      await loadProfiles();
-    };
-
-    // Cashier transaction submission
-    cashierForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      cashierAlert.className = 'alert-box';
-
-      const userId = cashierUserSelect.value;
-      const action = document.getElementById('cashierAction').value;
-      const amount = parseFloat(document.getElementById('cashierAmount').value);
-      const note = document.getElementById('cashierNote').value.trim();
-
-      if (!userId) {
-        showCashierAlert('Please select a user account.');
-        return;
-      }
-
-      if (isNaN(amount) || amount <= 0) {
-        showCashierAlert('Please enter a valid positive amount.');
-        return;
-      }
-
-      const targetUser = profilesCache.find((u) => u.id === userId);
-      if (!targetUser) {
-        showCashierAlert('Selected user could not be found.');
-        return;
-      }
-
-      const currentBalance = Number(targetUser.balance) || 0;
-      let newBalance = currentBalance;
-
-      if (action === 'DEPOSIT') {
-        newBalance = currentBalance + amount;
-      } else if (action === 'WITHDRAW') {
-        if (amount > currentBalance) {
-          showCashierAlert(`Insufficient balance (${formatMoney(currentBalance)}) for withdrawal.`);
-          return;
-        }
-        newBalance = currentBalance - amount;
-      } else if (action === 'SET_BALANCE') {
-        newBalance = amount;
-      }
-
-      const roundedBalance = Math.round(newBalance * 100) / 100;
-
-      const { error: updateErr } = await supabase
-        .from('profiles')
-        .update({ balance: roundedBalance })
-        .eq('id', userId);
-
-      if (updateErr) {
-        showCashierAlert('Failed to update balance: ' + updateErr.message);
-        return;
-      }
-
-      await supabase.from('cashier_transactions').insert({
-        user_id: targetUser.id,
-        user_email: targetUser.email,
-        user_name: targetUser.full_name || targetUser.email,
-        tx_type: action,
-        amount: amount,
-        balance_after: roundedBalance,
-        note: note || null
-      });
-
-      showCashierAlert(
-        `${action} completed for ${targetUser.email}. New balance: ${formatMoney(roundedBalance)}`,
-        'success'
-      );
-
-      document.getElementById('cashierAmount').value = '';
-      document.getElementById('cashierNote').value = '';
-
-      await Promise.all([loadProfiles(), loadLedger()]);
-    });
-
-    userSearch.addEventListener('input', renderUsersTable);
-
-    document.getElementById('refreshBtn').addEventListener('click', async () => {
-      await Promise.all([loadProfiles(), loadLedger()]);
-    });
-
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = INDEX_PAGE;
-    });
-
-    // Init
-    const allowed = await verifyAdminAccess();
-    if (allowed) {
-      await Promise.all([loadProfiles(), loadLedger()]);
-
-      // Live updates when new users register or balances change in Supabase
-      supabase
-        .channel('admin-profiles-live')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-          loadProfiles();
-        })
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'cashier_transactions' }, () => {
-          loadLedger();
-        })
-        .subscribe();
-    }
+    const SUPABASE_URL='https://kjnlicbnpejlliqrhwkh.supabase.co';
+    const SUPABASE_ANON_KEY='sb_publishable_OuWu0qozlwjD1RxTxfiazQ_te7vUolu';
+    const supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+    const $=id=>document.getElementById(id); let me=null,profilesCache=[];
+    const adminApp=$('adminApp'), adminSessionInfo=$('adminSessionInfo'), usersTableBody=$('usersTableBody'), ledgerTableBody=$('ledgerTableBody'), cashierForm=$('cashierForm'), cashierAlert=$('cashierAlert'), userSearch=$('userSearch');
+    const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function alertMsg(msg,type='error'){cashierAlert.textContent=msg;cashierAlert.className='alert-box '+type;}
+    async function verify(){const {data:{session}}=await supabase.auth.getSession();if(!session){location.replace('index.html');return false;}const {data,error}=await supabase.from('profiles').select('id,full_name,email,role,status,balance').eq('id',session.user.id).single();if(error||!data||data.role!=='admin'||data.status==='suspended'){await supabase.auth.signOut();location.replace('index.html');return false;}me=data;adminSessionInfo.textContent=`Signed in as Admin: ${data.full_name||data.email} · Your real wallet: ${money(data.balance)}`;adminApp.style.display='block';return true;}
+    function stats(){ $('statTotalUsers').textContent=profilesCache.length; $('statActiveUsers').textContent=profilesCache.filter(x=>x.status==='active').length; $('statTotalBalances').textContent=money(profilesCache.reduce((a,x)=>a+Number(x.balance||0),0)); }
+    function renderUsers(){const q=userSearch.value.trim().toLowerCase();const rows=profilesCache.filter(u=>!q||(u.full_name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q));if(!rows.length){usersTableBody.innerHTML='<tr><td colspan="5" class="muted">No matching accounts.</td></tr>';return;}usersTableBody.innerHTML=rows.map(u=>`<tr><td><strong>${esc(u.full_name||'Trader')}</strong><div class="muted">${esc(u.email)}</div></td><td><span class="badge ${u.role==='admin'?'badge-admin':'badge-trader'}">${esc(u.role)}</span></td><td><span class="badge ${u.status==='suspended'?'badge-suspended':'badge-active'}">${esc(u.status||'active')}</span></td><td><strong>${money(u.balance)}</strong></td><td><div class="action-row"><button class="btn-sm" data-status="${u.id}" data-next="${u.status==='suspended'?'active':'suspended'}">${u.status==='suspended'?'Activate':'Suspend'}</button><button class="btn-sm" data-role="${u.id}" data-next="${u.role==='admin'?'trader':'admin'}">Make ${u.role==='admin'?'trader':'admin'}</button></div></td></tr>`).join('');}
+    async function loadProfiles(){const {data,error}=await supabase.from('profiles').select('id,full_name,email,balance,role,status,created_at').order('created_at',{ascending:false});if(error){usersTableBody.innerHTML=`<tr><td colspan="5">${esc(error.message)}</td></tr>`;return;}profilesCache=data||[];stats();renderUsers();const own=profilesCache.find(x=>x.id===me.id);if(own){me=own;adminSessionInfo.textContent=`Signed in as Admin: ${own.full_name||own.email} · Your real wallet: ${money(own.balance)}`;}}
+    async function loadLedger(){const {data,error}=await supabase.from('cashier_transactions').select('id,user_email,user_name,tx_type,amount,balance_after,note,created_at').order('created_at',{ascending:false}).limit(100);if(error){ledgerTableBody.innerHTML=`<tr><td colspan="6">${esc(error.message)}</td></tr>`;return;}if(!data?.length){ledgerTableBody.innerHTML='<tr><td colspan="6" class="muted">No transactions recorded yet.</td></tr>';return;}ledgerTableBody.innerHTML=data.map(t=>`<tr><td>${new Date(t.created_at).toLocaleString()}</td><td>${esc(t.user_name||t.user_email)}</td><td>${esc(t.tx_type)}</td><td>${money(t.amount)}</td><td>${money(t.balance_after)}</td><td>${esc(t.note||'-')}</td></tr>`).join('');}
+    usersTableBody.addEventListener('click',async e=>{const b=e.target.closest('[data-status],[data-role]');if(!b)return;const isStatus=b.hasAttribute('data-status');const {error}=await supabase.rpc(isStatus?'admin_set_user_status':'admin_set_user_role',isStatus?{p_user_id:b.dataset.status,p_status:b.dataset.next}:{p_user_id:b.dataset.role,p_role:b.dataset.next});if(error){alertMsg(error.message);return;}alertMsg('Account updated.','success');await loadProfiles();});
+    cashierForm.addEventListener('submit',async e=>{e.preventDefault();const action=$('cashierAction').value,amount=Number($('cashierAmount').value),note=$('cashierNote').value.trim();if(!Number.isFinite(amount)||amount<=0){alertMsg('Enter a valid amount.');return;}const {data,error}=await supabase.rpc('admin_adjust_own_wallet',{p_action:action,p_amount:amount,p_note:note||null});if(error){alertMsg(error.message);return;}alertMsg(`${action} completed on your administrator wallet. New balance: ${money(data)}`,'success');$('cashierAmount').value='';$('cashierNote').value='';await Promise.all([loadProfiles(),loadLedger()]);});
+    userSearch.addEventListener('input',renderUsers);$('refreshBtn').addEventListener('click',()=>Promise.all([loadProfiles(),loadLedger()]));$('logoutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();location.replace('index.html');});
+    if(await verify()){await Promise.all([loadProfiles(),loadLedger()]);supabase.channel('admin-dashboard-live').on('postgres_changes',{event:'*',schema:'public',table:'profiles'},loadProfiles).on('postgres_changes',{event:'INSERT',schema:'public',table:'cashier_transactions'},loadLedger).subscribe();}
   </script>
 </body>
 </html>
