@@ -2437,9 +2437,15 @@
 
     async function openContract(type, digit, stake, duration, auto, mkId) {
       const payout = calcPayout(type, digit, stake);
+      // Keep the server-created position ID in this function's scope so it
+      // can be attached to the contract and used later during settlement.
+      let positionId = null;
       if (walletMode === 'real') {
-        const { data: positionId, error } = await window.kholletaSupabase.rpc('simulator_open_trade', { p_amount: stake, p_payout: payout });
+        if (!window.kholletaSupabase) throw new Error('Simulator database connection is not ready. Please sign in again.');
+        const { data, error } = await window.kholletaSupabase.rpc('simulator_open_trade', { p_amount: stake, p_payout: payout });
         if (error) throw new Error(error.message || 'Could not reserve the simulated stake');
+        positionId = data;
+        if (!positionId) throw new Error('The simulator did not return a trade position ID. Please try again.');
         await window.refreshKholletaRealBalance?.();
       } else {
         balance = round2(balance - stake);
