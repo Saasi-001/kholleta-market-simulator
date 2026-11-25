@@ -227,7 +227,28 @@
     const SIMULATOR_PAGE = 'kholletta.html';
     const ADMIN_PAGE = 'admin.html';
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { detectSessionInUrl: true, flowType: 'pkce' }
+    });
+
+    // Supabase consumes the confirmation code during client initialization.
+    // The configured emailRedirectTo points back to this login page.
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const authError = params.get('error_description') || hash.get('error_description');
+      const isConfirmationReturn = params.has('code') || hash.get('type') === 'signup';
+      if (authError) {
+        showAlert(authError);
+        return;
+      }
+      if (isConfirmationReturn) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) await supabase.auth.signOut();
+        showAlert('Email confirmed successfully. Please sign in.', 'success');
+        history.replaceState({}, document.title, window.location.pathname);
+      }
+    })();
 
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
@@ -270,11 +291,13 @@
       const email = document.getElementById('regEmail').value.trim().toLowerCase();
       const password = document.getElementById('regPassword').value;
 
+      const redirectTo = new URL('index.html', window.location.href).href;
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { full_name: fullName }
+          data: { full_name: fullName },
+          emailRedirectTo: redirectTo
         }
       });
 

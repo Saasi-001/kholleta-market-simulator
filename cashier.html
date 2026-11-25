@@ -13,7 +13,7 @@
 <header class="top"><div><h1>Kholleta P2P Cashier</h1><p id="sessionLine">Checking your account…</p></div><div><button class="btn" id="backBtn">Back to Market</button> <button class="btn danger" id="logoutBtn">Sign out</button></div></header>
 <div class="grid">
 <section class="card"><h2>Real account balance</h2><div class="balance" id="balance">$0.00</div><div class="muted" id="accountName">Loading account…</div><p class="notice">Your Kholleta real-account balance is denominated in USD. Mobile-money settlement is in UGX using the rate shown on each offer.</p></section>
-<section class="card"><h2>How peer-to-peer works</h2><p class="muted">Choose a BUY USD or SELL USD offer using MTN or Airtel. The correct payer sends UGX to the other trader. The mobile-money recipient confirms receipt, then the matching USD amount moves between the two Supabase balances.</p><p class="notice">Never share your mobile-money PIN or one-time password. Do not mark a payment as sent unless you completed it.</p></section>
+<section class="card"><h2>How peer-to-peer works</h2><p class="muted">Choose an offer and submit a request. The offer owner accepts it. The UGX payer marks the payment as sent; the USD seller checks their mobile-money account and releases the USD. USD is held securely while the request is active.</p><p class="notice">Never share your mobile-money PIN or one-time password. Do not mark a payment as sent unless you completed it.</p></section>
 </div>
 <div id="globalAlert" class="alert"></div>
 <div class="grid">
@@ -24,9 +24,22 @@
 <div class="row"><div class="field"><label for="amount">Offer amount (USD)</label><input id="amount" type="number" min="1" step="0.01" required></div><div class="field"><label for="rate">Rate (UGX per USD)</label><input id="rate" type="number" min="1" step="1" placeholder="e.g. 3700" required></div></div>
 <div class="row"><div class="field"><label for="minAmount">Minimum per trade (USD)</label><input id="minAmount" type="number" min="1" step="0.01" value="1" required></div><div class="field"><label for="maxAmount">Maximum per trade (USD)</label><input id="maxAmount" type="number" min="1" step="0.01" placeholder="Same as offer amount"></div></div>
 <button class="btn primary wide" type="submit">Publish offer</button></form>
-<p class="notice">BUY USD: the offer owner sends UGX and receives USD from the accepting trader. SELL USD: the offer owner provides USD and receives UGX from the accepting trader. All registered profiles, including admin profiles, can publish offers. Settlement transfers USD between the two Supabase accounts after mobile-money receipt is confirmed.</p></section>
+<p class="notice">BUY USD: you pay UGX to the offer owner and receive USD when the owner verifies payment and releases it. SELL USD: the offer owner pays UGX to you; after you verify receipt, you release your USD. All balance changes are performed by database functions.</p></section>
 <section class="card"><h2>Available peer-to-peer offers</h2><div class="tabs"><button class="btn active" data-filter="all">All</button><button class="btn" data-filter="deposit">Deposits</button><button class="btn" data-filter="withdraw">Withdrawals</button></div><div id="offers" class="offer-list"><div class="empty">Loading offers…</div></div></section>
 </div>
+<section class="card" style="margin-bottom:16px">
+<h2>Transfer USD to another Kholleta account</h2>
+<div id="transferAlert" class="alert"></div>
+<form id="transferForm">
+<div class="row">
+  <div class="field"><label for="transferEmail">Recipient email</label><input id="transferEmail" type="email" required></div>
+  <div class="field"><label for="transferAmount">Amount (USD)</label><input id="transferAmount" type="number" min="0.01" step="0.01" required></div>
+</div>
+<div class="field"><label for="transferNote">Note (optional)</label><input id="transferNote" type="text" maxlength="160"></div>
+<button class="btn primary" type="submit">Transfer USD</button>
+<p class="notice">Transfers are final once completed. Check the recipient email and amount carefully.</p>
+</form>
+</section>
 <section class="card" style="margin-bottom:16px"><h2>My transaction requests</h2><div id="trades" class="trade-list"><div class="empty">Loading transactions…</div></div></section>
 <section class="card"><h2>My published offers</h2><div class="table-wrap"><table><thead><tr><th>Type</th><th>Network</th><th>Amount left</th><th>Rate</th><th>Status</th><th></th></tr></thead><tbody id="myOffers"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody></table></div></section>
 </main>
@@ -35,7 +48,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const SUPABASE_URL='https://kjnlicbnpejlliqrhwkh.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_OuWu0qozlwjD1RxTxfiazQ_te7vUolu';
 const supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const $=id=>document.getElementById(id); let user=null,profile=null,offers=[]; const requestedAction=new URLSearchParams(location.search).get('action'); let filter=requestedAction==='deposit'?'sell':requestedAction==='withdraw'?'buy':'all';
+const $=id=>document.getElementById(id);
+let user=null,profile=null,offers=[];
+let filter='all';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const usd=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const ugx=n=>'UGX '+Math.round(Number(n||0)).toLocaleString('en-US');
@@ -43,24 +58,147 @@ function alertAt(el,msg,type='error'){el.textContent=msg;el.className='alert sho
 function clearAlert(el){el.textContent='';el.className='alert';}
 function phoneOk(v){return /^\+?[0-9 ]{9,16}$/.test(v.trim());}
 async function init(){
- const {data:{session}}=await supabase.auth.getSession(); if(!session){location.href='index.html';return;} user=session.user;
+ const {data:{session}}=await supabase.auth.getSession();
+ if(!session){location.replace('index.html');return;}
+ user=session.user;
  const {data:p,error}=await supabase.from('profiles').select('id,full_name,email,role,status,balance').eq('id',user.id).single();
- if(error||!p){alertAt($('globalAlert'),'Could not load your profile: '+(error?.message||'Profile missing'));return;} if(p.status==='suspended'){await supabase.auth.signOut();location.href='index.html';return;} profile=p;
- $('sessionLine').textContent=`Signed in as ${p.full_name||p.email} · ${p.role||'trader'}`; $('accountName').textContent=p.email||''; renderBalance(p.balance); if(requestedAction==='deposit') $('offerType').value='buy'; if(requestedAction==='withdraw') $('offerType').value='sell';
+ if(error||!p){alertAt($('globalAlert'),'Could not load your profile: '+(error?.message||'Profile missing'));return;}
+ if(p.status==='suspended'){await supabase.auth.signOut();location.replace('index.html');return;}
+ profile=p;
+ $('sessionLine').textContent=`Signed in as ${p.full_name||p.email} · ${p.role||'trader'}`;
+ $('accountName').textContent=p.email||'';
+ renderBalance(p.balance);
  await refresh();
 }
 function renderBalance(v){$('balance').textContent=usd(v);}
 async function refresh(){await Promise.all([loadBalance(),loadOffers(),loadTrades(),loadMyOffers()]);}
-async function loadBalance(){const {data,error}=await supabase.from('profiles').select('balance').eq('id',user.id).single();if(!error){profile.balance=data.balance;renderBalance(data.balance);}}
-async function loadOffers(){const {data,error}=await supabase.from('p2p_offers').select('id,owner_id,owner_name,offer_type,network,phone,amount_remaining,rate_ugx,min_usd,max_usd,status,created_at').eq('status','open').gt('amount_remaining',0).order('created_at',{ascending:false});if(error){$('offers').innerHTML='<div class="empty">P2P tables are not set up yet. Run kholleta_reset_setup.sql in Supabase SQL Editor. ('+esc(error.message)+')</div>';return;}offers=data||[];renderOffers();}
-function renderOffers(){const list=offers.filter(o=>filter==='all'||o.offer_type===filter);if(!list.length){$('offers').innerHTML='<div class="empty">No open offers right now.</div>';return;}$('offers').innerHTML=list.map(o=>{const own=o.owner_id===user.id;return `<article class="offer"><div class="offer-head"><strong>${o.offer_type==='buy'?'BUY USD offer':'SELL USD offer'} · ${esc(o.owner_name||'Trader')}</strong><span class="pill ${o.offer_type==='sell'?'withdraw':''}">${esc(o.network)}</span></div><div class="details">${usd(o.amount_remaining)} available · ${ugx(o.rate_ugx)} per USD<br>${o.offer_type==='sell'?'Mobile-money recipient:':'Offer owner mobile-money number:'} <b>${esc(o.phone)}</b> · Min ${usd(o.min_usd)} / Max ${usd(Math.min(o.max_usd,o.amount_remaining))}</div>${own?'<span class="muted">Your offer</span>':`<button class="btn primary" data-take="${o.id}">Take offer</button>`}</article>`;}).join('');}
-$('offers').addEventListener('click',async e=>{const b=e.target.closest('[data-take]');if(!b)return;const o=offers.find(x=>x.id===b.dataset.take);if(!o)return;const amount=Number(prompt(`Enter amount in USD (min ${o.min_usd}, max ${Math.min(o.max_usd,o.amount_remaining)}):`));if(!Number.isFinite(amount)||amount<=0)return;const network=prompt('Your sending mobile-money network (MTN or Airtel):','MTN');if(!network)return;const phone=prompt('Your mobile-money phone number:');if(!phone||!phoneOk(phone)){alertAt($('globalAlert'),'Enter a valid mobile-money phone number.');return;}b.disabled=true;const {data,error}=await supabase.rpc('p2p_take_offer',{p_offer_id:o.id,p_amount_usd:amount,p_taker_network:network.toUpperCase(),p_taker_phone:phone.trim()});if(error){alertAt($('globalAlert'),error.message);b.disabled=false;return;}alertAt($('globalAlert'),'Request created. Follow the payment instructions shown in My transaction requests.','success');await refresh();});
-$('offerForm').addEventListener('submit',async e=>{e.preventDefault();clearAlert($('offerAlert'));const type=$('offerType').value,network=$('network').value,phone=$('phone').value.trim(),amount=Number($('amount').value),rate=Number($('rate').value),min=Number($('minAmount').value),max=Number($('maxAmount').value)||amount;if(!phoneOk(phone)){alertAt($('offerAlert'),'Enter a valid Ugandan mobile-money number.');return;}if(![amount,rate,min,max].every(Number.isFinite)||amount<=0||rate<=0||min<=0||max<min||max>amount){alertAt($('offerAlert'),'Check the amount, rate and min/max limits.');return;}const {error}=await supabase.from('p2p_offers').insert({owner_id:user.id,owner_name:profile.full_name||profile.email,offer_type:type,network,phone,amount_total:amount,amount_remaining:amount,rate_ugx:rate,min_usd:min,max_usd:max,status:'open'});if(error){alertAt($('offerAlert'),error.message);return;}e.target.reset();$('minAmount').value='1';alertAt($('offerAlert'),'Your offer is now published.','success');await refresh();});
-async function loadTrades(){const {data,error}=await supabase.from('p2p_trades').select('id,offer_id,maker_id,taker_id,offer_type,amount_usd,amount_ugx,maker_name,taker_name,maker_network,maker_phone,taker_network,taker_phone,status,created_at').or(`maker_id.eq.${user.id},taker_id.eq.${user.id}`).order('created_at',{ascending:false}).limit(50);if(error){$('trades').innerHTML='<div class="empty">Could not load requests: '+esc(error.message)+'</div>';return;}if(!data?.length){$('trades').innerHTML='<div class="empty">No P2P transactions yet.</div>';return;}$('trades').innerHTML=data.map(t=>{const maker=t.maker_id===user.id,peer=maker?t.taker_name:t.maker_name,phone=maker?t.taker_phone:t.maker_phone,network=maker?t.taker_network:t.maker_network;const isBuy=t.offer_type==='buy';const recipient=isBuy?t.taker_phone:t.maker_phone;const recipientName=isBuy?t.taker_name:t.maker_name;const recipientNetwork=isBuy?t.taker_network:t.maker_network;const instruction=t.status==='payment_pending'?(isBuy?(maker?`Send ${ugx(t.amount_ugx)} to ${esc(t.taker_name)} at ${esc(t.taker_phone)} (${esc(t.taker_network)}). The seller confirms receipt.`:`Wait for ${esc(t.maker_name)} to send ${ugx(t.amount_ugx)} to your number ${esc(t.taker_phone)}. Confirm only after receipt.`):(maker?`Wait for ${esc(t.taker_name)} to send ${ugx(t.amount_ugx)} to ${esc(t.maker_name)} at ${esc(t.maker_phone)}. Verify receipt before confirming.`:`Send ${ugx(t.amount_ugx)} to ${esc(t.maker_name)} at ${esc(t.maker_phone)} (${esc(t.maker_network)}). The seller confirms after checking receipt.`)):'';const canConfirm=t.status==='payment_pending'&&(isBuy?!maker:maker);return `<article class="trade"><div class="trade-head"><b>${isBuy?'BUY USD':'SELL USD'} · ${usd(t.amount_usd)} · ${ugx(t.amount_ugx)}</b><span class="status ${t.status==='completed'?'completed':''}">${esc(t.status.replaceAll('_',' '))}</span></div><div class="details">${maker?'You published the offer':'You accepted an offer'} · Counterparty: ${esc(peer)} · ${new Date(t.created_at).toLocaleString()}<br>${instruction}</div>${canConfirm?`<button class="btn primary" data-confirm="${t.id}">Confirm UGX received</button>`:''}${t.status==='payment_pending'&&maker?` <button class="btn" data-cancel="${t.id}">Reject request</button>`:''}</article>`;}).join('');}
-$('trades').addEventListener('click',async e=>{const c=e.target.closest('[data-confirm]'),x=e.target.closest('[data-cancel]');if(!c&&!x)return;const id=(c||x).dataset[c?'confirm':'cancel'];const rpc=c?'p2p_confirm_trade':'p2p_cancel_trade';if(c&&!confirm('Confirm that the mobile-money payment is visible in your account? Only confirm after checking your MTN/Airtel balance or statement.'))return;const {error}=await supabase.rpc(rpc,{p_trade_id:id});if(error){alertAt($('globalAlert'),error.message);return;}alertAt($('globalAlert'),c?'Payment confirmed and Kholleta balance updated.':'Request cancelled.','success');await refresh();});
-async function loadMyOffers(){const {data,error}=await supabase.from('p2p_offers').select('id,offer_type,network,amount_remaining,rate_ugx,status').eq('owner_id',user.id).order('created_at',{ascending:false});if(error){$('myOffers').innerHTML='<tr><td colspan="6">'+esc(error.message)+'</td></tr>';return;}if(!data?.length){$('myOffers').innerHTML='<tr><td colspan="6" class="muted">No offers published.</td></tr>';return;}$('myOffers').innerHTML=data.map(o=>`<tr><td>${o.offer_type}</td><td>${o.network}</td><td>${usd(o.amount_remaining)}</td><td>${ugx(o.rate_ugx)}</td><td>${o.status}</td><td>${o.status==='open'?`<button class="btn" data-close="${o.id}">Close</button>`:''}</td></tr>`).join('');}
-$('myOffers').addEventListener('click',async e=>{const b=e.target.closest('[data-close]');if(!b)return;const {error}=await supabase.from('p2p_offers').update({status:'closed'}).eq('id',b.dataset.close).eq('owner_id',user.id);if(error){alertAt($('globalAlert'),error.message);return;}await refresh();});
-document.querySelectorAll('[data-filter]').forEach(b=>{b.classList.toggle('active',b.dataset.filter===filter);b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderOffers();});});
-$('backBtn').addEventListener('click',()=>location.href='kholletta.html');$('logoutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();location.href='index.html';});
-init();
+async function loadBalance(){
+ const {data,error}=await supabase.from('profiles').select('balance').eq('id',user.id).single();
+ if(!error){profile.balance=data.balance;renderBalance(data.balance);}
+}
+async function loadOffers(){
+ const {data,error}=await supabase.from('p2p_offers')
+  .select('id,owner_id,owner_name,offer_type,network,phone,amount_remaining,rate_ugx,min_usd,max_usd,status,created_at')
+  .eq('status','open').gt('amount_remaining',0).order('created_at',{ascending:false});
+ if(error){$('offers').innerHTML='<div class="empty">Could not load offers: '+esc(error.message)+'</div>';return;}
+ offers=data||[];renderOffers();
+}
+function renderOffers(){
+ const list=offers.filter(o=>filter==='all'||o.offer_type===filter);
+ if(!list.length){$('offers').innerHTML='<div class="empty">No open offers right now.</div>';return;}
+ $('offers').innerHTML=list.map(o=>{
+  const own=o.owner_id===user.id;
+  const description=o.offer_type==='buy'
+   ? 'You pay UGX to the offer owner and receive USD after release.'
+   : 'The offer owner pays UGX to you; you release USD after receipt.';
+  return `<article class="offer"><div class="offer-head"><strong>${o.offer_type==='buy'?'BUY USD':'SELL USD'} · ${esc(o.owner_name||'Trader')}</strong><span class="pill ${o.offer_type==='sell'?'withdraw':''}">${esc(o.network)}</span></div>
+  <div class="details">${usd(o.amount_remaining)} available · ${ugx(o.rate_ugx)} per USD<br>${o.offer_type==='buy'?'Pay to offer owner:':'Receive UGX on your number:'} <b>${esc(o.phone)}</b> · Min ${usd(o.min_usd)} / Max ${usd(Math.min(o.max_usd,o.amount_remaining))}<br>${description}</div>
+  ${own?'<span class="muted">Your offer</span>':`<button class="btn primary" data-take="${o.id}">Request this offer</button>`}</article>`;
+ }).join('');
+}
+$('offers').addEventListener('click',async e=>{
+ const b=e.target.closest('[data-take]');if(!b)return;
+ const o=offers.find(x=>x.id===b.dataset.take);if(!o)return;
+ const amount=Number(prompt(`Enter USD amount (min ${o.min_usd}, max ${Math.min(o.max_usd,o.amount_remaining)}):`));
+ if(!Number.isFinite(amount)||amount<=0)return;
+ const network=prompt('Your mobile-money network (MTN or Airtel):','MTN');if(!network)return;
+ const phone=prompt('Your mobile-money number:');
+ if(!phone||!phoneOk(phone)){alertAt($('globalAlert'),'Enter a valid mobile-money phone number.');return;}
+ b.disabled=true;
+ const {data,error}=await supabase.rpc('p2p_take_offer',{p_offer_id:o.id,p_amount_usd:amount,p_taker_network:network.toUpperCase(),p_taker_phone:phone.trim()});
+ if(error){alertAt($('globalAlert'),error.message);b.disabled=false;return;}
+ alertAt($('globalAlert'),'Request sent to the offer owner. Wait for acceptance before sending UGX.','success');
+ await refresh();
+});
+$('offerForm').addEventListener('submit',async e=>{
+ e.preventDefault();clearAlert($('offerAlert'));
+ const type=$('offerType').value,network=$('network').value,phone=$('phone').value.trim();
+ const amount=Number($('amount').value),rate=Number($('rate').value),min=Number($('minAmount').value),max=Number($('maxAmount').value)||amount;
+ if(!phoneOk(phone)){alertAt($('offerAlert'),'Enter a valid Ugandan mobile-money number.');return;}
+ if(![amount,rate,min,max].every(Number.isFinite)||amount<=0||rate<=0||min<=0||max<min||max>amount){alertAt($('offerAlert'),'Check the amount, rate and min/max limits.');return;}
+ const {error}=await supabase.from('p2p_offers').insert({owner_id:user.id,owner_name:profile.full_name||profile.email,offer_type:type,network,phone,amount_total:amount,amount_remaining:amount,rate_ugx:rate,min_usd:min,max_usd:max,status:'open'});
+ if(error){alertAt($('offerAlert'),error.message);return;}
+ e.target.reset();$('minAmount').value='1';alertAt($('offerAlert'),'Your offer is now published.','success');await refresh();
+});
+async function loadTrades(){
+ const {data,error}=await supabase.from('p2p_trades')
+  .select('id,offer_id,maker_id,taker_id,offer_type,amount_usd,amount_ugx,maker_name,taker_name,maker_network,maker_phone,taker_network,taker_phone,status,created_at')
+  .or(`maker_id.eq.${user.id},taker_id.eq.${user.id}`).order('created_at',{ascending:false}).limit(60);
+ if(error){$('trades').innerHTML='<div class="empty">Could not load requests: '+esc(error.message)+'</div>';return;}
+ if(!data?.length){$('trades').innerHTML='<div class="empty">No P2P transactions yet.</div>';return;}
+ $('trades').innerHTML=data.map(t=>{
+  const maker=t.maker_id===user.id, isBuy=t.offer_type==='buy';
+  const peer=maker?t.taker_name:t.maker_name;
+  const payerId=isBuy?t.taker_id:t.maker_id;
+  const usdSellerId=isBuy?t.maker_id:t.taker_id;
+  const payerIsMe=payerId===user.id, sellerIsMe=usdSellerId===user.id;
+  const recipientPhone=isBuy?t.maker_phone:t.taker_phone;
+  const recipientNetwork=isBuy?t.maker_network:t.taker_network;
+  let instruction='';
+  if(t.status==='requested') instruction=maker?'A trader requested your offer. Accept or reject this request.':'Waiting for the offer owner to accept. Do not send UGX yet.';
+  if(t.status==='accepted') instruction=payerIsMe
+    ? `Send ${ugx(t.amount_ugx)} to ${esc(recipientPhone)} (${esc(recipientNetwork)}). Then click “I have paid”.`
+    : 'The other trader has been asked to send UGX. Wait for their payment notification.';
+  if(t.status==='payment_sent') instruction=sellerIsMe
+    ? 'The payer says UGX was sent. Check your mobile-money balance/statement. Release USD only after the money is actually received.'
+    : 'Payment marked as sent. Wait for the USD seller to verify receipt and release USD.';
+  if(t.status==='completed') instruction='USD released and the transaction is complete.';
+  if(t.status==='cancelled') instruction='This request was cancelled.';
+  const actions=[];
+  if(maker&&t.status==='requested') actions.push(`<button class="btn primary" data-accept="${t.id}">Accept request</button>`,`<button class="btn" data-cancel="${t.id}">Reject</button>`);
+  if(!maker&&t.status==='requested') actions.push(`<button class="btn" data-cancel="${t.id}">Withdraw request</button>`);
+  if(payerIsMe&&t.status==='accepted') actions.push(`<button class="btn primary" data-paid="${t.id}">I have paid / sent UGX</button>`);
+  if(sellerIsMe&&t.status==='payment_sent') actions.push(`<button class="btn primary" data-release="${t.id}">Verify receipt & release USD</button>`);
+  return `<article class="trade"><div class="trade-head"><b>${isBuy?'BUY USD':'SELL USD'} · ${usd(t.amount_usd)} · ${ugx(t.amount_ugx)}</b><span class="status ${t.status==='completed'?'completed':''}">${esc(t.status.replaceAll('_',' '))}</span></div>
+  <div class="details">${maker?'You own the offer':'You requested the offer'} · Counterparty: ${esc(peer)} · ${new Date(t.created_at).toLocaleString()}<br>${instruction}</div>
+  <div class="action-row">${actions.join(' ')}</div></article>`;
+ }).join('');
+}
+$('trades').addEventListener('click',async e=>{
+ const b=e.target.closest('[data-accept],[data-paid],[data-release],[data-cancel]');if(!b)return;
+ const action=['accept','paid','release','cancel'].find(a=>b.hasAttribute('data-'+a));
+ const id=b.dataset[action];
+ const rpc={accept:'p2p_accept_trade',paid:'p2p_mark_paid',release:'p2p_release_usd',cancel:'p2p_cancel_trade'}[action];
+ if(action==='paid'&&!confirm('Only continue after you have actually sent the exact UGX amount shown.'))return;
+ if(action==='release'&&!confirm('Verify your mobile-money account or statement first. Release USD only if the full UGX payment is received. This cannot be reversed.'))return;
+ b.disabled=true;
+ const {error}=await supabase.rpc(rpc,{p_trade_id:id});
+ if(error){alertAt($('globalAlert'),error.message);b.disabled=false;return;}
+ alertAt($('globalAlert'),({accept:'Request accepted. The payer can now send UGX.',paid:'Payment marked as sent. The USD seller has been notified.',release:'USD released and transaction completed.',cancel:'Request cancelled.'})[action],'success');
+ await refresh();
+});
+async function loadMyOffers(){
+ const {data,error}=await supabase.from('p2p_offers').select('id,offer_type,network,amount_remaining,rate_ugx,status').eq('owner_id',user.id).order('created_at',{ascending:false});
+ if(error){$('myOffers').innerHTML='<tr><td colspan="6">'+esc(error.message)+'</td></tr>';return;}
+ if(!data?.length){$('myOffers').innerHTML='<tr><td colspan="6" class="muted">No offers published.</td></tr>';return;}
+ $('myOffers').innerHTML=data.map(o=>`<tr><td>${o.offer_type}</td><td>${o.network}</td><td>${usd(o.amount_remaining)}</td><td>${ugx(o.rate_ugx)}</td><td>${o.status}</td><td>${o.status==='open'?`<button class="btn" data-close="${o.id}">Close</button>`:''}</td></tr>`).join('');
+}
+$('myOffers').addEventListener('click',async e=>{
+ const b=e.target.closest('[data-close]');if(!b)return;
+ const {error}=await supabase.from('p2p_offers').update({status:'closed'}).eq('id',b.dataset.close).eq('owner_id',user.id);
+ if(error){alertAt($('globalAlert'),error.message);return;}await refresh();
+});
+$('transferForm').addEventListener('submit',async e=>{
+ e.preventDefault();clearAlert($('transferAlert'));
+ const email=$('transferEmail').value.trim().toLowerCase(),amount=Number($('transferAmount').value),note=$('transferNote').value.trim();
+ if(!email||!Number.isFinite(amount)||amount<=0){alertAt($('transferAlert'),'Enter a recipient email and a valid amount.');return;}
+ if(!confirm(`Transfer ${usd(amount)} to ${email}? This cannot be reversed.`))return;
+ const {data,error}=await supabase.rpc('transfer_wallet_by_email',{p_to_email:email,p_amount:amount,p_note:note||null});
+ if(error){alertAt($('transferAlert'),error.message);return;}
+ alertAt($('transferAlert'),'Transfer completed successfully.','success');e.target.reset();await refresh();
+});
+document.querySelectorAll('[data-filter]').forEach(b=>{
+ b.classList.toggle('active',b.dataset.filter===filter);
+ b.addEventListener('click',()=>{filter=b.dataset.filter==='deposit'?'sell':b.dataset.filter==='withdraw'?'buy':'all';document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderOffers();});
+});
+$('backBtn').addEventListener('click',()=>location.href='kholletta.html');
+$('logoutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();location.href='index.html';});
+init().then(()=>{
+  supabase.channel('kholleta-cashier-live')
+    .on('postgres_changes',{event:'*',schema:'public',table:'p2p_trades'},()=>loadTrades())
+    .on('postgres_changes',{event:'*',schema:'public',table:'p2p_offers'},()=>{loadOffers();loadMyOffers();})
+    .subscribe();
+  // Fallback refresh in case Supabase Realtime is not enabled for these tables.
+  window.setInterval(()=>{if(user)loadTrades();},12000);
+});
 </script></body></html>
