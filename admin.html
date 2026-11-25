@@ -320,6 +320,22 @@
     .muted {
       color: var(--text-muted);
     }
+
+    .btn-link { display:inline-flex; align-items:center; text-decoration:none; background:var(--accent-green); color:#05110b; border:0; }
+    .section-card { margin-bottom:22px; }
+    .section-note { color:var(--text-muted); font-size:12px; margin-top:5px; }
+    .chart-wrap { position:relative; width:100%; min-height:280px; }
+    #reservePnlChart { width:100%; height:280px; display:block; }
+    .pnl-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:16px; }
+    .pnl-metric { background:var(--bg-card-alt); border:1px solid var(--border-color); border-radius:10px; padding:14px; }
+    .pnl-metric .stat-label { margin-bottom:6px; }
+    .pnl-metric strong { font-size:20px; display:block; }
+    .table-filter { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .table-filter select { min-width:150px; }
+    .positive { color:var(--accent-green); }
+    .negative { color:#fca5a5; }
+    .table-empty { color:var(--text-muted); text-align:center; padding:18px; }
+
   </style>
 </head>
 <body>
@@ -330,6 +346,7 @@
         <p id="adminSessionInfo">Verifying admin session...</p>
       </div>
       <div class="topbar-actions">
+        <a class="btn btn-link" href="cashier.html">Open Cashier</a>
         <button type="button" class="btn btn-ghost" id="refreshBtn">Refresh Data</button>
         <button type="button" class="btn btn-danger" id="logoutBtn">Sign Out</button>
       </div>
@@ -348,6 +365,26 @@
         <div class="stat-label">Combined Trader Balances</div>
         <div class="stat-value gold" id="statTotalBalances">$0.00</div>
       </div>
+    </div>
+
+
+    <!-- ADMIN RESERVE PERFORMANCE -->
+    <div class="card section-card">
+      <div class="card-header">
+        <div>
+          <h2>Real Account — Admin Reserve P&amp;L</h2>
+          <p class="section-note">Virtual simulator settlement totals. Trader losses increase the reserve; trader winning profit payouts reduce it.</p>
+        </div>
+        <button type="button" class="btn btn-ghost" id="refreshPnlBtn">Refresh P&amp;L</button>
+      </div>
+      <div class="pnl-grid">
+        <div class="pnl-metric"><div class="stat-label">Current Admin Reserve</div><strong id="pnlReserveBalance">$0.00</strong></div>
+        <div class="pnl-metric"><div class="stat-label">Trader Losses Received</div><strong class="positive" id="pnlLosses">$0.00</strong></div>
+        <div class="pnl-metric"><div class="stat-label">Trader Winning Profits Paid</div><strong class="negative" id="pnlWins">$0.00</strong></div>
+        <div class="pnl-metric"><div class="stat-label">Net Trading P&amp;L</div><strong id="pnlNet">$0.00</strong></div>
+      </div>
+      <div class="chart-wrap"><canvas id="reservePnlChart" aria-label="Admin reserve daily trading profit and loss graph"></canvas></div>
+      <p class="section-note" id="pnlPeriodNote">The graph uses recorded reserve-side settlements from the date the P&amp;L migration is installed.</p>
     </div>
 
     <div class="main-grid">
@@ -439,10 +476,52 @@
       </div>
     </div>
 
+
+    <!-- FULL CASHIER / P2P ACTIVITY -->
+    <div class="card section-card">
+      <div class="card-header">
+        <div>
+          <h2>Cashier — All P2P Offers</h2>
+          <p class="section-note">Admin-wide view of offers created by every trader.</p>
+        </div>
+        <div class="table-filter">
+          <select id="offerStatusFilter"><option value="all">All offer statuses</option><option value="open">Open</option><option value="closed">Closed</option><option value="cancelled">Cancelled</option></select>
+          <button type="button" class="btn btn-ghost" id="refreshCashierBtn">Refresh Cashier</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Created</th><th>Owner</th><th>Type</th><th>Available USD</th><th>Total USD</th><th>Rate (UGX/USD)</th><th>Status</th></tr></thead>
+        <tbody id="adminOffersBody"><tr><td colspan="7" class="muted">Loading offers...</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div class="card section-card">
+      <div class="card-header">
+        <div>
+          <h2>Cashier — All P2P Requests / Trades</h2>
+          <p class="section-note">Every request and its current workflow status, including completed and cancelled trades.</p>
+        </div>
+        <div class="table-filter">
+          <select id="tradeStatusFilter"><option value="all">All trade statuses</option><option value="requested">Requested</option><option value="accepted">Accepted</option><option value="payment_sent">Payment sent</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Created</th><th>Offer</th><th>Maker</th><th>Taker</th><th>USD</th><th>UGX</th><th>Status</th><th>Updated</th></tr></thead>
+        <tbody id="adminTradesBody"><tr><td colspan="8" class="muted">Loading P2P trades...</td></tr></tbody>
+      </table></div>
+    </div>
+
     <!-- CASHIER TRANSACTION LEDGER -->
     <div class="card">
       <div class="card-header">
-        <h2>Recent Cashier Ledger</h2>
+        <div>
+          <h2>Complete Cashier Transaction Ledger</h2>
+          <p class="section-note">Wallet adjustments, transfers, P2P escrow/release, and simulator settlements.</p>
+        </div>
+        <div class="table-filter">
+          <select id="ledgerTypeFilter"><option value="all">All transaction types</option></select>
+          <button type="button" class="btn btn-ghost" id="downloadLedgerBtn">Export CSV</button>
+        </div>
       </div>
       <div class="table-wrap">
         <table>
@@ -471,32 +550,182 @@
     const SUPABASE_URL='https://kjnlicbnpejlliqrhwkh.supabase.co';
     const SUPABASE_ANON_KEY='sb_publishable_OuWu0qozlwjD1RxTxfiazQ_te7vUolu';
     const supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-    const $=id=>document.getElementById(id); let me=null,profilesCache=[];
+    const $=id=>document.getElementById(id);
+    let me=null,profilesCache=[],ledgerCache=[],offersCache=[],tradesCache=[],pnlEventsCache=[];
     const adminApp=$('adminApp'), adminSessionInfo=$('adminSessionInfo'), usersTableBody=$('usersTableBody'), ledgerTableBody=$('ledgerTableBody'), cashierForm=$('cashierForm'), cashierAlert=$('cashierAlert'), userSearch=$('userSearch');
     const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
     const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const dateText=v=>v?new Date(v).toLocaleString():'-';
     function alertMsg(msg,type='error'){cashierAlert.textContent=msg;cashierAlert.className='alert-box '+type;}
-    async function verify(){const {data:{session}}=await supabase.auth.getSession();if(!session){location.replace('index.html');return false;}const {data,error}=await supabase.from('profiles').select('id,full_name,email,role,status,balance').eq('id',session.user.id).single();if(error||!data||data.role!=='admin'||data.status==='suspended'){await supabase.auth.signOut();location.replace('index.html');return false;}me=data;adminSessionInfo.textContent=`Signed in as Admin: ${data.full_name||data.email} · Your real wallet: ${money(data.balance)}`;adminApp.style.display='block';return true;}
-    function stats(){ $('statTotalUsers').textContent=profilesCache.length; $('statActiveUsers').textContent=profilesCache.filter(x=>x.status==='active').length; $('statTotalBalances').textContent=money(profilesCache.reduce((a,x)=>a+Number(x.balance||0),0)); }
-    function renderUsers(){const q=userSearch.value.trim().toLowerCase();const rows=profilesCache.filter(u=>!q||(u.full_name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q));if(!rows.length){usersTableBody.innerHTML='<tr><td colspan="5" class="muted">No matching accounts.</td></tr>';return;}usersTableBody.innerHTML=rows.map(u=>`<tr><td><strong>${esc(u.full_name||'Trader')}</strong><div class="muted">${esc(u.email)}</div></td><td><span class="badge ${u.role==='admin'?'badge-admin':'badge-trader'}">${esc(u.role)}</span></td><td><span class="badge ${u.status==='suspended'?'badge-suspended':'badge-active'}">${esc(u.status||'active')}</span></td><td><strong>${money(u.balance)}</strong></td><td><div class="action-row"><button class="btn-sm" data-status="${u.id}" data-next="${u.status==='suspended'?'active':'suspended'}">${u.status==='suspended'?'Activate':'Suspend'}</button><button class="btn-sm" data-role="${u.id}" data-next="${u.role==='admin'?'trader':'admin'}">Make ${u.role==='admin'?'trader':'admin'}</button></div></td></tr>`).join('');}
-    async function loadProfiles(){const {data,error}=await supabase.from('profiles').select('id,full_name,email,balance,role,status,created_at').order('created_at',{ascending:false});if(error){usersTableBody.innerHTML=`<tr><td colspan="5">${esc(error.message)}</td></tr>`;return;}profilesCache=data||[];stats();renderUsers();const own=profilesCache.find(x=>x.id===me.id);if(own){me=own;adminSessionInfo.textContent=`Signed in as Admin: ${own.full_name||own.email} · Your real wallet: ${money(own.balance)}`;}}
-    async function loadLedger(){const {data,error}=await supabase.from('cashier_transactions').select('id,user_email,user_name,tx_type,amount,balance_after,note,created_at').order('created_at',{ascending:false}).limit(100);if(error){ledgerTableBody.innerHTML=`<tr><td colspan="6">${esc(error.message)}</td></tr>`;return;}if(!data?.length){ledgerTableBody.innerHTML='<tr><td colspan="6" class="muted">No transactions recorded yet.</td></tr>';return;}ledgerTableBody.innerHTML=data.map(t=>`<tr><td>${new Date(t.created_at).toLocaleString()}</td><td>${esc(t.user_name||t.user_email)}</td><td>${esc(t.tx_type)}</td><td>${money(t.amount)}</td><td>${money(t.balance_after)}</td><td>${esc(t.note||'-')}</td></tr>`).join('');}
-    usersTableBody.addEventListener('click',async e=>{const b=e.target.closest('[data-status],[data-role]');if(!b)return;const isStatus=b.hasAttribute('data-status');const {error}=await supabase.rpc(isStatus?'admin_set_user_status':'admin_set_user_role',isStatus?{p_user_id:b.dataset.status,p_status:b.dataset.next}:{p_user_id:b.dataset.role,p_role:b.dataset.next});if(error){alertMsg(error.message);return;}alertMsg('Account updated.','success');await loadProfiles();});
+    function setBox(id,msg,type='error'){const el=$(id);el.textContent=msg;el.className='alert-box '+type;}
+    async function verify(){
+      const {data:{session}}=await supabase.auth.getSession();
+      if(!session){location.replace('index.html');return false;}
+      const {data,error}=await supabase.from('profiles').select('id,full_name,email,role,status,balance').eq('id',session.user.id).single();
+      if(error||!data||data.role!=='admin'||data.status==='suspended'){await supabase.auth.signOut();location.replace('index.html');return false;}
+      me=data;
+      adminSessionInfo.textContent=`Signed in as Admin: ${data.full_name||data.email} · Admin reserve: ${money(data.balance)}`;
+      adminApp.style.display='block';
+      return true;
+    }
+    function stats(){
+      $('statTotalUsers').textContent=profilesCache.length;
+      $('statActiveUsers').textContent=profilesCache.filter(x=>x.status==='active').length;
+      $('statTotalBalances').textContent=money(profilesCache.filter(x=>x.role!=='admin').reduce((a,x)=>a+Number(x.balance||0),0));
+    }
+    function renderUsers(){
+      const q=userSearch.value.trim().toLowerCase();
+      const rows=profilesCache.filter(u=>!q||(u.full_name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q));
+      if(!rows.length){usersTableBody.innerHTML='<tr><td colspan="5" class="muted">No matching accounts.</td></tr>';return;}
+      usersTableBody.innerHTML=rows.map(u=>`<tr><td><strong>${esc(u.full_name||'Trader')}</strong><div class="muted">${esc(u.email)}</div></td><td><span class="badge ${u.role==='admin'?'badge-admin':'badge-trader'}">${esc(u.role)}</span></td><td><span class="badge ${u.status==='suspended'?'badge-suspended':'badge-active'}">${esc(u.status||'active')}</span></td><td><strong>${money(u.balance)}</strong></td><td><div class="action-row"><button class="btn-sm" data-status="${u.id}" data-next="${u.status==='suspended'?'active':'suspended'}">${u.status==='suspended'?'Activate':'Suspend'}</button><button class="btn-sm" data-role="${u.id}" data-next="${u.role==='admin'?'trader':'admin'}">Make ${u.role==='admin'?'trader':'admin'}</button></div></td></tr>`).join('');
+    }
+    async function loadProfiles(){
+      const {data,error}=await supabase.from('profiles').select('id,full_name,email,balance,role,status,created_at').order('created_at',{ascending:false});
+      if(error){usersTableBody.innerHTML=`<tr><td colspan="5">${esc(error.message)}</td></tr>`;return;}
+      profilesCache=data||[];stats();renderUsers();
+      const own=profilesCache.find(x=>x.id===me.id);
+      if(own){me=own;adminSessionInfo.textContent=`Signed in as Admin: ${own.full_name||own.email} · Admin reserve: ${money(own.balance)}`;}
+    }
+    async function loadLedger(){
+      const {data,error}=await supabase.from('cashier_transactions').select('id,user_id,user_email,user_name,tx_type,amount,balance_after,note,created_by,created_at').order('created_at',{ascending:false}).limit(1000);
+      if(error){ledgerTableBody.innerHTML=`<tr><td colspan="6">${esc(error.message)}</td></tr>`;return;}
+      ledgerCache=data||[];
+      if(!ledgerCache.length){ledgerTableBody.innerHTML='<tr><td colspan="6" class="muted">No transactions recorded yet.</td></tr>';return;}
+      const types=[...new Set(ledgerCache.map(t=>t.tx_type))].sort();
+      const filter=$('ledgerTypeFilter'), selected=filter.value;
+      filter.innerHTML='<option value="all">All transaction types</option>'+types.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+      filter.value=types.includes(selected)?selected:'all';
+      renderLedger();
+    }
+    function renderLedger(){
+      const type=$('ledgerTypeFilter').value;
+      const rows=ledgerCache.filter(t=>type==='all'||t.tx_type===type);
+      if(!rows.length){ledgerTableBody.innerHTML='<tr><td colspan="6" class="muted">No transactions match this filter.</td></tr>';return;}
+      ledgerTableBody.innerHTML=rows.map(t=>`<tr><td>${dateText(t.created_at)}</td><td>${esc(t.user_name||t.user_email)}</td><td>${esc(t.tx_type)}</td><td>${money(t.amount)}</td><td>${money(t.balance_after)}</td><td>${esc(t.note||'-')}</td></tr>`).join('');
+    }
+    async function loadOffers(){
+      const {data,error}=await supabase.from('p2p_offers').select('id,owner_id,owner_name,offer_type,network,phone,amount_total,amount_remaining,rate_ugx,min_usd,max_usd,status,created_at').order('created_at',{ascending:false}).limit(1000);
+      if(error){$('adminOffersBody').innerHTML=`<tr><td colspan="7">${esc(error.message)}<div class="section-note">If this says permission denied, run the included admin cashier access SQL migration.</div></td></tr>`;return;}
+      offersCache=data||[];renderOffers();
+    }
+    function renderOffers(){
+      const f=$('offerStatusFilter').value,rows=offersCache.filter(o=>f==='all'||o.status===f);
+      if(!rows.length){$('adminOffersBody').innerHTML='<tr><td colspan="7" class="muted">No offers found.</td></tr>';return;}
+      $('adminOffersBody').innerHTML=rows.map(o=>`<tr><td>${dateText(o.created_at)}</td><td>${esc(o.owner_name)}</td><td>${esc(o.offer_type)}</td><td>${money(o.amount_remaining)}</td><td>${money(o.amount_total)}</td><td>${Number(o.rate_ugx||0).toLocaleString()}</td><td>${esc(o.status)}</td></tr>`).join('');
+    }
+    async function loadTrades(){
+      const {data,error}=await supabase.from('p2p_trades').select('id,offer_id,maker_id,taker_id,offer_type,maker_name,taker_name,amount_usd,amount_ugx,status,created_at,accepted_at,paid_at,completed_at').order('created_at',{ascending:false}).limit(1000);
+      if(error){$('adminTradesBody').innerHTML=`<tr><td colspan="8">${esc(error.message)}<div class="section-note">If this says permission denied, run the included admin cashier access SQL migration.</div></td></tr>`;return;}
+      tradesCache=data||[];renderTrades();
+    }
+    function renderTrades(){
+      const f=$('tradeStatusFilter').value,rows=tradesCache.filter(t=>f==='all'||t.status===f);
+      if(!rows.length){$('adminTradesBody').innerHTML='<tr><td colspan="8" class="muted">No P2P requests found.</td></tr>';return;}
+      $('adminTradesBody').innerHTML=rows.map(t=>`<tr><td>${dateText(t.created_at)}</td><td>${esc(t.offer_type)}</td><td>${esc(t.maker_name)}</td><td>${esc(t.taker_name)}</td><td>${money(t.amount_usd)}</td><td>${Number(t.amount_ugx||0).toLocaleString('en-US')}</td><td>${esc(t.status)}</td><td>${dateText(t.completed_at||t.paid_at||t.accepted_at)}</td></tr>`).join('');
+    }
+    async function loadPnl(){
+      const admin=profilesCache.find(p=>p.id===me.id)||me;
+      $('pnlReserveBalance').textContent=money(admin.balance);
+      const {data,error}=await supabase.from('cashier_transactions')
+        .select('id,tx_type,amount,balance_after,created_at')
+        .eq('user_id',me.id)
+        .in('tx_type',['RESERVE_TRADE_LOSS','RESERVE_TRADE_PAYOUT'])
+        .order('created_at',{ascending:true}).limit(5000);
+      if(error){$('pnlPeriodNote').textContent='Could not load reserve P&L: '+error.message;return;}
+      pnlEventsCache=data||[];
+      const losses=pnlEventsCache.filter(x=>x.tx_type==='RESERVE_TRADE_LOSS').reduce((s,x)=>s+Number(x.amount||0),0);
+      const wins=pnlEventsCache.filter(x=>x.tx_type==='RESERVE_TRADE_PAYOUT').reduce((s,x)=>s+Number(x.amount||0),0);
+      const net=losses-wins;
+      $('pnlLosses').textContent=money(losses);$('pnlWins').textContent=money(wins);
+      $('pnlNet').textContent=(net>=0?'+':'-')+money(Math.abs(net));
+      $('pnlNet').className=net>=0?'positive':'negative';
+      $('pnlPeriodNote').textContent=pnlEventsCache.length
+        ? `Based on ${pnlEventsCache.length} reserve-side settlement entries recorded since the P&L migration was installed.`
+        : 'No reserve-side trade settlements recorded yet. New settlements will appear here after the P&L migration is installed.';
+      drawPnlChart();
+    }
+    function drawPnlChart(){
+      const canvas=$('reservePnlChart'),ctx=canvas.getContext('2d');
+      const rect=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+      canvas.width=Math.max(320,Math.floor(rect.width*dpr));canvas.height=Math.max(220,Math.floor(280*dpr));
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      const w=canvas.width/dpr,h=canvas.height/dpr,pad={l:62,r:18,t:18,b:38};
+      ctx.clearRect(0,0,w,h);
+      const byDay={};
+      for(const ev of pnlEventsCache){
+        const day=new Date(ev.created_at).toLocaleDateString();
+        if(!byDay[day])byDay[day]={loss:0,win:0};
+        if(ev.tx_type==='RESERVE_TRADE_LOSS')byDay[day].loss+=Number(ev.amount||0);
+        else byDay[day].win+=Number(ev.amount||0);
+      }
+      const days=Object.keys(byDay).slice(-14);
+      if(!days.length){ctx.fillStyle='#94a3b8';ctx.font='13px sans-serif';ctx.fillText('No reserve trading P&L data to graph yet',18,40);return;}
+      const max=Math.max(1,...days.map(d=>Math.max(byDay[d].loss,byDay[d].win)));
+      const plotH=h-pad.t-pad.b,plotW=w-pad.l-pad.r,groupW=plotW/days.length,barW=Math.max(4,Math.min(18,groupW*.28));
+      ctx.strokeStyle='#263042';ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';ctx.textAlign='right';
+      for(let i=0;i<=4;i++){const y=pad.t+plotH*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillText(money(max*(1-i/4)),pad.l-7,y+3);}
+      days.forEach((d,i)=>{
+        const x=pad.l+groupW*i+groupW/2,lossH=byDay[d].loss/max*plotH,winH=byDay[d].win/max*plotH;
+        ctx.fillStyle='#00d084';ctx.fillRect(x-barW-2,pad.t+plotH-lossH,barW,lossH);
+        ctx.fillStyle='#f5b041';ctx.fillRect(x+2,pad.t+plotH-winH,barW,winH);
+        ctx.fillStyle='#94a3b8';ctx.textAlign='center';ctx.fillText(d.slice(0,5),x,h-14);
+      });
+      ctx.textAlign='left';ctx.fillStyle='#00d084';ctx.fillRect(pad.l, h-9, 8, 8);ctx.fillStyle='#94a3b8';ctx.fillText('Trader losses received',pad.l+12,h-2);
+      ctx.fillStyle='#f5b041';ctx.fillRect(pad.l+145,h-9,8,8);ctx.fillStyle='#94a3b8';ctx.fillText('Trader win payouts',pad.l+157,h-2);
+    }
+    function downloadLedger(){
+      const rows=[['Created','Account','Email','Type','Amount','Balance After','Note'],...ledgerCache.map(t=>[t.created_at,t.user_name,t.user_email,t.tx_type,t.amount,t.balance_after,t.note])];
+      const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+      const a=document.createElement('a'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+      a.href=url;a.download='kholleta-cashier-ledger.csv';a.click();URL.revokeObjectURL(url);
+    }
+    usersTableBody.addEventListener('click',async e=>{
+      const b=e.target.closest('[data-status],[data-role]');if(!b)return;
+      const isStatus=b.hasAttribute('data-status');
+      const {error}=await supabase.rpc(isStatus?'admin_set_user_status':'admin_set_user_role',isStatus?{p_user_id:b.dataset.status,p_status:b.dataset.next}:{p_user_id:b.dataset.role,p_role:b.dataset.next});
+      if(error){alertMsg(error.message);return;}
+      alertMsg('Account updated.','success');await loadProfiles();
+    });
     $('adminTransferForm').addEventListener('submit',async e=>{
       e.preventDefault();
       const email=$('transferUserEmail').value.trim().toLowerCase(),amount=Number($('transferUserAmount').value),note=$('transferUserNote').value.trim();
-      const box=$('transferAlert');
-      box.textContent='';box.className='alert-box';
-      if(!email||!Number.isFinite(amount)||amount<=0){box.textContent='Enter a valid recipient and amount.';box.className='alert-box error';return;}
+      const box=$('transferAlert');box.textContent='';box.className='alert-box';
+      if(!email||!Number.isFinite(amount)||amount<=0){setBox('transferAlert','Enter a valid recipient and amount.');return;}
       if(!confirm(`Transfer ${money(amount)} from the admin reserve to ${email}?`))return;
       const {error}=await supabase.rpc('admin_transfer_wallet_by_email',{p_to_email:email,p_amount:amount,p_note:note||null});
-      if(error){box.textContent=error.message;box.className='alert-box error';return;}
-      box.textContent='Reserve transfer completed.';box.className='alert-box success';
-      e.target.reset();await Promise.all([loadProfiles(),loadLedger()]);
+      if(error){setBox('transferAlert',error.message);return;}
+      setBox('transferAlert','Reserve transfer completed.','success');e.target.reset();
+      await Promise.all([loadProfiles(),loadLedger(),loadPnl()]);
     });
-    cashierForm.addEventListener('submit',async e=>{e.preventDefault();const action=$('cashierAction').value,amount=Number($('cashierAmount').value),note=$('cashierNote').value.trim();if(!Number.isFinite(amount)||amount<=0){alertMsg('Enter a valid amount.');return;}const {data,error}=await supabase.rpc('admin_adjust_own_wallet',{p_action:action,p_amount:amount,p_note:note||null});if(error){alertMsg(error.message);return;}alertMsg(`${action} completed on your administrator wallet. New balance: ${money(data)}`,'success');$('cashierAmount').value='';$('cashierNote').value='';await Promise.all([loadProfiles(),loadLedger()]);});
-    userSearch.addEventListener('input',renderUsers);$('refreshBtn').addEventListener('click',()=>Promise.all([loadProfiles(),loadLedger()]));$('logoutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();location.replace('index.html');});
-    if(await verify()){await Promise.all([loadProfiles(),loadLedger()]);supabase.channel('admin-dashboard-live').on('postgres_changes',{event:'*',schema:'public',table:'profiles'},loadProfiles).on('postgres_changes',{event:'INSERT',schema:'public',table:'cashier_transactions'},loadLedger).subscribe();}
+    cashierForm.addEventListener('submit',async e=>{
+      e.preventDefault();const action=$('cashierAction').value,amount=Number($('cashierAmount').value),note=$('cashierNote').value.trim();
+      if(!Number.isFinite(amount)||amount<=0){alertMsg('Enter a valid amount.');return;}
+      const {data,error}=await supabase.rpc('admin_adjust_own_wallet',{p_action:action,p_amount:amount,p_note:note||null});
+      if(error){alertMsg(error.message);return;}
+      alertMsg(`${action} completed on administrator reserve. New balance: ${money(data)}`,'success');
+      $('cashierAmount').value='';$('cashierNote').value='';
+      await Promise.all([loadProfiles(),loadLedger(),loadPnl()]);
+    });
+    userSearch.addEventListener('input',renderUsers);
+    $('ledgerTypeFilter').addEventListener('change',renderLedger);
+    $('offerStatusFilter').addEventListener('change',renderOffers);
+    $('tradeStatusFilter').addEventListener('change',renderTrades);
+    $('downloadLedgerBtn').addEventListener('click',downloadLedger);
+    $('refreshPnlBtn').addEventListener('click',loadPnl);
+    $('refreshCashierBtn').addEventListener('click',()=>Promise.all([loadOffers(),loadTrades(),loadLedger()]));
+    $('refreshBtn').addEventListener('click',()=>Promise.all([loadProfiles(),loadLedger(),loadOffers(),loadTrades(),loadPnl()]));
+    $('logoutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();location.replace('index.html');});
+    if(await verify()){
+      await Promise.all([loadProfiles(),loadLedger(),loadOffers(),loadTrades()]);
+      await loadPnl();
+      supabase.channel('admin-dashboard-live')
+        .on('postgres_changes',{event:'*',schema:'public',table:'profiles'},()=>{loadProfiles().then(loadPnl);})
+        .on('postgres_changes',{event:'*',schema:'public',table:'cashier_transactions'},()=>{loadLedger();loadPnl();})
+        .on('postgres_changes',{event:'*',schema:'public',table:'p2p_offers'},loadOffers)
+        .on('postgres_changes',{event:'*',schema:'public',table:'p2p_trades'},loadTrades)
+        .subscribe();
+      window.addEventListener('resize',drawPnlChart);
+    }
   </script>
 </body>
 </html>
